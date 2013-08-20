@@ -85,22 +85,6 @@ static void copy_spd(struct pei_data *peid)
 	if (!spd_file)
 		die("SPD data not found.");
 
-	switch (google_chromeec_get_board_version()) {
-	case WOLF_BOARD_VERSION_PROTO:
-		/* Index 0 is 2GB config with CH0 only. */
-		if (spd_index == 0)
-			peid->dimm_channel1_disabled = 3;
-		break;
-
-	case WOLF_BOARD_VERSION_EVT:
-	default:
-		/* Index 0-2 are 4GB config with both CH0 and CH1.
-		 * Index 4-6 are 2GB config with CH0 only. */
-		if (spd_index > 3)
-			peid->dimm_channel1_disabled = 3;
-		break;
-	}
-
 	if (ntohl(spd_file->len) <
 	    ((spd_index + 1) * sizeof(peid->spd_data[0]))) {
 		printk(BIOS_ERR, "SPD index override to 0 - old hardware?\n");
