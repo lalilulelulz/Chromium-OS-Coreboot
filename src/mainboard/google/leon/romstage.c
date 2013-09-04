@@ -171,9 +171,9 @@ void mainboard_romstage_entry(unsigned long bist)
 			  USB_PORT_MINI_PCIE },
 			{ 0x0040, 1, 2,               /* P4: Port B, CN6  */
 			  USB_PORT_BACK_PANEL },
-			{ 0x0000, 0, USB_OC_PIN_SKIP, /* P5: EMPTY */
-			  USB_PORT_SKIP },
-			{ 0x0150, 1, USB_OC_PIN_SKIP, /* P6: SD Card */
+			{ 0x0040, 1, USB_OC_PIN_SKIP, /* P5: SD Card */
+			  USB_PORT_INTERNAL },
+			{ 0x0150, 1, USB_OC_PIN_SKIP, /* P6: SIM CARD */
 			  USB_PORT_FLEX },
 			{ 0x0000, 0, USB_OC_PIN_SKIP, /* P7: EMPTY */
 			  USB_PORT_SKIP },
