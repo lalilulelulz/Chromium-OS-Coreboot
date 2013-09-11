@@ -41,11 +41,11 @@ static const u32 mainboard_cim_verb_data[] = {
 
 	/* Pin Widget Verb Table */
 
-	/* Pin Complex (NID 0x12) DMIC - Disabled */
-	0x01271cf0, //
-	0x01271d11, //
-	0x01271e11, //
-	0x01271f41, //
+	/* Pin Complex (NID 0x12) DMIC - Internal Mic */
+	0x01271c10,
+	0x01271d10,
+	0x01271ea6,
+	0x01271fb7,
 
 	/* Pin Complex (NID 0x14) SPKR-OUT - Internal Speakers */
 	0x01471c10, // group 1, cap 0
@@ -71,11 +71,11 @@ static const u32 mainboard_cim_verb_data[] = {
 	0x01971ea1, // Mic in, 3.5mm Jack
 	0x01971f03, // connector, External left panel
 
-	/* Pin Complex (NID 0x1A)  LINE1 - Internal Mic */
-	0x01a71c11, // group 1, cap 1
-	0x01a71d01, // no connector, no jack detect
-	0x01a71ea7, // mic in, analog connection
-	0x01a71f90, // Fixed function, internal, Location N/A
+	/* Pin Complex (NID 0x1A)  LINE1 - Disabled */
+	0x01a71cf0,
+	0x01a71d11,
+	0x01a71e11,
+	0x01a71f41,
 
 	/* Pin Complex (NID 0x1B)  LINE2 - Disabled */
 	0x01b71cf0, //
