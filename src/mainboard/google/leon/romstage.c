@@ -85,6 +85,12 @@ static void copy_spd(struct pei_data *peid)
 	if (!spd_file)
 		die("SPD data not found.");
 
+	/* Limiting to a single dimm for 2GB configuration
+	 * Identified by bit 3
+	 */
+	if (spd_index & 0x4)
+		peid->dimm_channel1_disabled = 3;
+
 	if (ntohl(spd_file->len) <
 	    ((spd_index + 1) * sizeof(peid->spd_data[0]))) {
 		printk(BIOS_ERR, "SPD index override to 0 - old hardware?\n");
