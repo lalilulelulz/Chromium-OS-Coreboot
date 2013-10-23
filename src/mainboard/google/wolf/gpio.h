@@ -74,7 +74,7 @@ const struct pch_lp_gpio_map mainboard_gpio_map[] = {
 	LP_GPIO_UNUSED,        /* 48: UNUSED */
 	LP_GPIO_UNUSED,        /* 49: UNUSED */
 	LP_GPIO_UNUSED,        /* 50: UNUSED */
-	LP_GPIO_INPUT,         /* 51: ALS_INT_L */
+	LP_GPIO_UNUSED,        /* 51: UNUSED */
 	LP_GPIO_INPUT,         /* 52: SIM_DET */
 	LP_GPIO_PIRQ,          /* 53: TRACKPAD_INT_DX */
 	LP_GPIO_PIRQ,          /* 54: TOUCH_INT_L_DX */
