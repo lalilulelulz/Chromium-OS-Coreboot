@@ -66,8 +66,8 @@ const struct pch_lp_gpio_map mainboard_gpio_map[] = {
 	LP_GPIO_NATIVE,        /* 40: NATIVE: USB_OC0# */
 	LP_GPIO_NATIVE,        /* 41: NATIVE: USB_OC1# */
 	LP_GPIO_NATIVE,        /* 42: NATIVE: USB_OC2# */
-	LP_GPIO_NATIVE,        /* 43: NATIVE: USB_OC3# */
-	LP_GPIO_UNUSED,        /* 44: UNUSED */
+	LP_GPIO_UNUSED,        /* 43: NATIVE: USB_OC3# */
+	LP_GPIO_OUT_HIGH,      /* 44: PP3300_SSD_EN */
 	LP_GPIO_OUT_HIGH,      /* 45: PP5000_CODEC_EN */
 	LP_GPIO_OUT_HIGH,      /* 46: BT_DISABLE_L */
 	LP_GPIO_OUT_HIGH,      /* 47: USB1_PWR_EN */
@@ -77,10 +77,10 @@ const struct pch_lp_gpio_map mainboard_gpio_map[] = {
 	LP_GPIO_UNUSED,        /* 51: UNUSED */
 	LP_GPIO_UNUSED,        /* 52: UNUSED */
 	LP_GPIO_UNUSED,        /* 53: UNUSED */
-	LP_GPIO_UNUSED,        /* 54: UNUSED */
+	LP_GPIO_UNUSED,        /* 54: POWER_CTL INT (from HDMI) */
 	LP_GPIO_UNUSED,        /* 55: UNUSED */
 	LP_GPIO_OUT_HIGH,      /* 56: USB2_PWR_EN */
-	LP_GPIO_OUT_HIGH,      /* 57: USB3_PWR_EN */
+	LP_GPIO_OUT_HIGH,      /* 57: SSD_EN */
 	LP_GPIO_INPUT,         /* 58: PCH_SPI_WP_D */
 	LP_GPIO_OUT_HIGH,      /* 59: PP3300_LAN_EN */
 	LP_GPIO_NATIVE,        /* 60: NATIVE: SMB0ALERT# */

@@ -90,14 +90,14 @@ void mainboard_romstage_entry(unsigned long bist)
 		temp_mmio_base: 0xfed08000,
 		system_type: 5, /* ULT */
 		tseg_size: CONFIG_SMM_TSEG_SIZE,
-		spd_addresses: { 0xa0, 0x00, 0xa4, 0x00 },
+		spd_addresses: { 0xa0, 0x00, 0x00, 0x00 },
 		ec_present: 0,
 		// 0 = leave channel enabled
 		// 1 = disable dimm 0 on channel
 		// 2 = disable dimm 1 on channel
 		// 3 = disable dimm 0+1 on channel
 		dimm_channel0_disabled: 2,
-		dimm_channel1_disabled: 2,
+		dimm_channel1_disabled: 3,
 		// Enable 2x refresh mode
 		ddr_refresh_2x: 1,
 		dq_pins_interleaved: 1,
@@ -105,29 +105,29 @@ void mainboard_romstage_entry(unsigned long bist)
 		usb_xhci_on_resume: 1,
 		usb2_ports: {
 			/* Length, Enable, OCn#, Location */
-			{ 0x0064, 1, 0,               /* P0: VP8 */
+			{ 0x0040, 1, USB_OC_PIN_SKIP, /* P0: NGFF */
 			  USB_PORT_MINI_PCIE },
-			{ 0x0040, 1, 0,               /* P1: Port A, CN22 */
-			  USB_PORT_INTERNAL },
-			{ 0x0040, 1, 1,		      /* P2: Port B, CN23 */
-			  USB_PORT_INTERNAL },
+			{ 0x0040, 1, 0,               /* P1: Port A, CN10 */
+			  USB_PORT_BACK_PANEL },
+			{ 0x0040, 1, 1,		      /* P2: Port B, CN12 */
+			  USB_PORT_BACK_PANEL },
 			{ 0x0040, 1, USB_OC_PIN_SKIP, /* P3: WLAN */
 			  USB_PORT_INTERNAL },
-			{ 0x0040, 1, 2,		      /* P4: Port C, CN25 */
-			  USB_PORT_INTERNAL },
-			{ 0x0040, 1, 2,		      /* P5: Port D, CN25 */
-			  USB_PORT_INTERNAL },
-			{ 0x0040, 1, USB_OC_PIN_SKIP, /* P6: Card Reader */
+			{ 0x0040, 1, 2,		      /* P4: Port C, CN13 */
+			  USB_PORT_BACK_PANEL },
+			{ 0x0040, 1, 2,		      /* P5: Port D, CN2 */
+			  USB_PORT_BACK_PANEL },
+			{ 0x0040, 1, USB_OC_PIN_SKIP, /* P6: CCD */
 			  USB_PORT_INTERNAL },
 			{ 0x0000, 0, 0,               /* P7: N/C */
 			  USB_PORT_SKIP },
 		},
 		usb3_ports: {
 			/* Enable, OCn# */
-			{ 1, 0 }, /* P1; CN22 */
-			{ 1, 1 }, /* P2; CN23  */
-			{ 1, 2 }, /* P3; CN25 */
-			{ 1, 2 }, /* P4; CN25 */
+			{ 1, 2 }, /* P1; CN2 */
+			{ 0, USB_OC_PIN_SKIP }, /* P2; N/C */
+			{ 0, USB_OC_PIN_SKIP }, /* P3; N/C */
+			{ 0, USB_OC_PIN_SKIP }, /* P4; N/C */
 		},
 	};
 

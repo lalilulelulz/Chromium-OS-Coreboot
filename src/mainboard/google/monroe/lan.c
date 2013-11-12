@@ -111,9 +111,9 @@ static int get_mac_address(u32 *high_dword, u32 *low_dword,
 static void program_mac_address(u16 io_base, u32 search_address,
 				u32 search_length)
 {
-	/* Default MAC Address of A0:00:BA:D0:0B:AD */
+	/* Default MAC Address of A0:00:BA:D0:0B:AE */
 	u32 high_dword = 0xD0BA00A0;	/* high dword of mac address */
-	u32 low_dword = 0x0000AD0B;	/* low word of mac address as a dword */
+	u32 low_dword = 0x0000AE0B;	/* low word of mac address as a dword */
 
 	if (search_length != -1)
 		get_mac_address(&high_dword, &low_dword, search_address,
