@@ -31,17 +31,17 @@ static const u32 mainboard_cim_verb_data[] = {
 
 	/* Pin Widget Verb Table */
 
-	/* Pin Complex (NID 0x12) DMIC - interior mobile lid */
-	0x01271c10,
-	0x01271d10,
-	0x01271ea6,
-	0x01271fb7,
+	/* Pin Complex (NID 0x12) DMIC - internal mic */
+	0x01271c10, // group 1, cap 0
+	0x01271d01, // no connector, no jack detect
+	0x01271ea6, // mic in, digital
+	0x01271fb7, // fixed-function
 
-	/* Pin Complex (NID 0x14) SPKR-OUT PORTD */
-	0x01471c10, // group 1, front left/right
-	0x01471d01, // no connector, no jack detect
-	0x01471e17, // speaker out, analog
-	0x01471f90, // fixed function, internal
+	/* Pin Complex (NID 0x14) */
+	0x01471cf0,
+	0x01471d11,
+	0x01471e11,
+	0x01471f41,
 
 	/* Pin Complex (NID 0x17)  */
 	0x01771cf0,
@@ -50,16 +50,16 @@ static const u32 mainboard_cim_verb_data[] = {
 	0x01771f41,
 
 	/* Pin Complex (NID 0x18)  MIC1 PORTB */
-	0x01971c11, // group 1, cap 1
-	0x01971d10, // black, jack detect
-	0x01971ea7, // mic in, analog
-	0x01971f03, // connector, left panel
-
-	/* Pin Complex (NID 0x19)  MIC2 PORTF */
 	0x01871cf0,
 	0x01871d11,
 	0x01871e11,
 	0x01871f41,
+
+	/* Pin Complex (NID 0x19)  MIC2 PORTF - 3.5mm Jack */
+	0x01971c20, // group 2, cap 0
+	0x01971d10, // black, jack detect
+	0x01971ea1, // mic in, analog
+	0x01971f03, // connector, left panel
 
 	/* Pin Complex (NID 0x1A)  LINE1 PORTC */
 	0x01a71cf0,
@@ -86,10 +86,10 @@ static const u32 mainboard_cim_verb_data[] = {
 	0x01e71f41,
 
 	/* Pin Complex (NID 0x21) HPOUT PORT-I */
-	0x02171c1f, // group1,
-	0x02171d10, // black, jack detect
-	0x02171e21, // HPOut, 1/8 stereo
-	0x02171f03, // connector, left panel
+	0x02171cf0,
+	0x02171d11,
+	0x02171e11,
+	0x02171f41,
 
 	/* Undocumented settings from Realtek (needed for beep_gen) */
 	/* Widget node 0x20 */
