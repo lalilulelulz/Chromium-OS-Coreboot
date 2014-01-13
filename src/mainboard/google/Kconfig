@@ -54,6 +54,8 @@ config BOARD_GOOGLE_SLIPPY
 	bool "Slippy"
 config BOARD_GOOGLE_SNOW
 	bool "Snow"
+config BOARD_GOOGLE_SQUAWKS
+	bool "Squawks"
 config BOARD_GOOGLE_STOUT
 	bool "Stout"
 
@@ -73,6 +75,7 @@ source "src/mainboard/google/rambi/Kconfig"
 source "src/mainboard/google/samus/Kconfig"
 source "src/mainboard/google/slippy/Kconfig"
 source "src/mainboard/google/snow/Kconfig"
+source "src/mainboard/google/squawks/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
 
 config MAINBOARD_VENDOR
