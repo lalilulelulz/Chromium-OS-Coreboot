@@ -32,6 +32,8 @@ config BOARD_GOOGLE_BOLT
 	bool "Bolt"
 config BOARD_GOOGLE_BUTTERFLY
 	bool "Butterfly"
+config BOARD_GOOGLE_CLAPPER
+	bool "Clapper"
 config BOARD_GOOGLE_FALCO
 	bool "Falco"
 config BOARD_GOOGLE_LINK
@@ -62,6 +64,7 @@ endchoice
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
+source "src/mainboard/google/clapper/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/link/Kconfig"
 source "src/mainboard/google/nyan/Kconfig"
