@@ -97,6 +97,15 @@ static const u32 mainboard_cim_verb_data[] = {
 	0x02040c20,
 	0x0205001b,
 	0x0204081b,
+	/* Undocumented settings for SENSE_B pin jack detection */
+	0x02050006,
+	0x02042100,
+	0x0205001b,
+	0x0204001b,
+	0x02050045,
+	0x0204b029,
+	0x02050046,
+	0x02040004,
 };
 
 static const u32 mainboard_pc_beep_verbs[] = {
