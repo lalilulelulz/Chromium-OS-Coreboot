@@ -1111,7 +1111,9 @@ unsigned int pci_scan_bus(struct bus *bus, unsigned min_devfn,
 		dev = pci_scan_get_dev(&old_devices, devfn);
 
 		/* See if a device is present and setup the device structure. */
+		post_log_path(dev);
 		dev = pci_probe_dev(dev, bus, devfn);
+		post_log_clear();
 
 		/*
 		 * If this is not a multi function device, or the device is
