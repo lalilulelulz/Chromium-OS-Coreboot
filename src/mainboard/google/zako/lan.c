@@ -173,6 +173,9 @@ void lan_init(void)
 		outb(0xc0, io_base + 0x50);	/* Disable protection */
 		outb((ZAKO_NIC_LED_MODE << 6) | 0x0f, io_base + 0x52);
 		outb(0x00, io_base + 0x50);	/* Enable register protection */
+
+		/* Enable LED0 to be active on a 10/100/1000M link */
+		outw(0x0807, io_base + 0x18);
 	}
 }
 
