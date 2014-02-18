@@ -27,28 +27,33 @@
 
 /*
  * RAM_ID[2:0] are on GPIO_SSUS[39:37]
- * 0b000 - 4GiB total - 2 x 2GiB Micron  MT41K256M16HA-125:E 1600MHz
- * 0b001 - 4GiB total - 2 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
- * 0b010 - 2GiB total - 2 x 1GiB Micron  MT41K128M16JT-125:K 1600MHz
- * 0b011 - 2GiB total - 2 x 1GiB Hynix   H5TC2G63FFR-PBA 1600MHz
- * 0b100 - NONE
- * 0b101 - 2GiB total - 1 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
- * 0b110 - 4GiB total - 2 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
- * 0b111 - 4GiB total - 2 x 2GiB Elpida  EDJ4216EFBG-GNL-F 1600MHz
+ * 0b0000 - 4GiB total - 2 x 2GiB Micron  MT41K256M16HA-125:E 1600MHz
+ * 0b0001 - 4GiB total - 2 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
+ * 0b0010 - 2GiB total - 2 x 1GiB Micron  MT41K128M16JT-125:K 1600MHz
+ * 0b0011 - 2GiB total - 2 x 1GiB Hynix   H5TC2G63FFR-PBA 1600MHz
+ * 0b0100 - 2GiB total - 2 x 2GiB Samsung K4B2G1646Q-BYK0 1600MHz
+ * 0b0101 - 2GiB total - 1 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
+ * 0b0110 - 4GiB total - 2 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
+ * 0b0111 - 4GiB total - 2 x 2GiB Elpida  EDJ4216EFBG-GNL-F 1600MHz
+ * 0b1000 - 2GiB total - 1 x 2GiB Micron  MT41K256M16HA-125:E 1600MHz
+ * 0b1001 - 2GiB total - 1 x 2GiB Elpida  EDJ4216EFBG-GNL-F 1600MHz
+ * 0b1010 - 2GiB total - 1 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
  */
 static const uint32_t dual_channel_config =
 	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) |
-			      (1 << 6) | (1 << 7);
+	(1 << 4) |	      (1 << 6) | (1 << 7);
 
 #define SPD_SIZE 256
 #define GPIO_SSUS_37_PAD 57
 #define GPIO_SSUS_38_PAD 50
 #define GPIO_SSUS_39_PAD 58
+#define GPIO_SSUS_40_PAD 52
 
-static inline void disable_internal_pull(int pad)
+static inline void set_internal_pull(int pad, int mask)
 {
 	const int pull_mask = ~(0xf << 7);
-	write32(ssus_pconf0(pad), read32(ssus_pconf0(pad)) & pull_mask);
+	write32(ssus_pconf0(pad),
+		(read32(ssus_pconf0(pad)) & pull_mask) | mask);
 }
 
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
@@ -58,9 +63,12 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	/* The ram_id[2:0] pullups on glimmer are too large for the default 20K
 	 * pulldown on the pad. Therefore, disable the internal pull resistor to
 	 * read high values correctly. */
-	disable_internal_pull(GPIO_SSUS_37_PAD);
-	disable_internal_pull(GPIO_SSUS_38_PAD);
-	disable_internal_pull(GPIO_SSUS_39_PAD);
+	set_internal_pull(GPIO_SSUS_37_PAD, PAD_PULL_DISABLE);
+	set_internal_pull(GPIO_SSUS_38_PAD, PAD_PULL_DISABLE);
+	set_internal_pull(GPIO_SSUS_39_PAD, PAD_PULL_DISABLE);
+	/* TODO(shawnn): Disable the PD once our old boards are no longer in
+	 * use. */
+	set_internal_pull(GPIO_SSUS_40_PAD, PAD_PULL_DOWN | PAD_PU_40K);
 
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_37_PAD) << 0);
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_38_PAD) << 1);

@@ -203,7 +203,9 @@ static const struct soc_gpio_map gpssus_gpio_map[] = {
 	GPIO_INPUT,	/* S537 - RAM_ID0 */
 	GPIO_INPUT,	/* S538 - RAM_ID1 */
 	GPIO_INPUT,	/* S539 - RAM_ID2 */
-	GPIO_NC,	/* S540 - NC */
+	/* TODO(shawnn): Change to normal input once our old boards
+	 * are no longer in use. */
+	GPIO_FUNC(0, PULL_DOWN, 40K),	/* S540 - RAM_ID3 */
 	GPIO_NC,	/* S541 - NC */
 	GPIO_NC,	/* S542 - NC */
 	GPIO_NC,	/* S543 - NC */
