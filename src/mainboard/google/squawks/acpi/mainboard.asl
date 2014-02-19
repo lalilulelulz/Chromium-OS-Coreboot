@@ -63,32 +63,6 @@ Scope (\_SB)
 
 		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
 	}
-
-	Device (TSCR)
-	{
-		Name (_HID, EisaId ("PNP0C0E"))
-		Name (_UID, 2)
-
-		Name (_CRS, ResourceTemplate()
-		{
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_STA)
-		{
-			/* Disable if I2C6 is in ACPI mode */
-			If (LEqual (\S6EN, 1)) {
-				Return (0x0)
-			} Else {
-				Return (0xF)
-			}
-		}
-
-		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
-	}
 }
 
 Scope (\_SB.I2C1)
@@ -282,82 +256,6 @@ Scope (\_SB.I2C5)
 				Return (0x0)
 			}
 		}
-	}
-}
-
-Scope (\_SB.I2C6)
-{
-	Device (ATSB)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
-		Name (_UID, 4)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Name (_CRS, ResourceTemplate()
-		{
-			I2cSerialBus (
-				0x26,                     // SlaveAddress
-				ControllerInitiated,      // SlaveMode
-				400000,                   // ConnectionSpeed
-				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C6",              // ResourceSource
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_STA)
-		{
-			If (LEqual (\S6EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_CID, EisaId ("PNP0C0E"))
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Name (_CRS, ResourceTemplate()
-		{
-			I2cSerialBus (
-				0x4a,                     // SlaveAddress
-				ControllerInitiated,      // SlaveMode
-				400000,                   // ConnectionSpeed
-				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C6",              // ResourceSource
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_STA)
-		{
-			If (LEqual (\S6EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-
-		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
 	}
 }
 
