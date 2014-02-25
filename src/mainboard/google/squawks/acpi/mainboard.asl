@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,8 @@ Scope (\_SB)
 {
 	Device (LID0)
 	{
-		Name(_HID, EisaId("PNP0C0D"))
-		Method(_LID, 0)
+		Name (_HID, EisaId ("PNP0C0D"))
+		Method (_LID, 0)
 		{
 			Store (\_SB.PCI0.LPCB.EC0.LIDS, \LIDS)
 			Return (\LIDS)
@@ -35,15 +35,18 @@ Scope (\_SB)
 
 	Device (PWRB)
 	{
-		Name(_HID, EisaId("PNP0C0C"))
+		Name (_HID, EisaId ("PNP0C0C"))
+		Name (_UID, 1)
 	}
 
+	/* Wake device for touchpad */
 	Device (TPAD)
 	{
 		Name (_HID, EisaId ("PNP0C0E"))
 		Name (_UID, 1)
+		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
 
-		Name (_CRS, ResourceTemplate()
+		Name (RBUF, ResourceTemplate()
 		{
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -51,17 +54,13 @@ Scope (\_SB)
 			}
 		})
 
-		Method (_STA)
+		Method (_CRS)
 		{
-			/* Disable if I2C1 is in ACPI mode */
-			If (LEqual (\S1EN, 1)) {
-				Return (0x0)
-			} Else {
-				Return (0xF)
+			/* Only return interrupt if I2C1 is PCI mode */
+			If (LEqual (\S1EN, 0)) {
+				Return (^RBUF)
 			}
 		}
-
-		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
 	}
 }
 
@@ -81,7 +80,7 @@ Scope (\_SB.I2C1)
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C1",              // ResourceSource
+				"\\_SB.I2C1",             // ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -105,7 +104,6 @@ Scope (\_SB.I2C1)
 	Device (ATPA)
 	{
 		Name (_HID, "ATML0000")
-		Name (_CID, EisaId ("PNP0C0E"))
 		Name (_DDN, "Atmel Touchpad")
 		Name (_UID, 2)
 		Name (ISTP, 1) /* Touchpad */
@@ -117,7 +115,7 @@ Scope (\_SB.I2C1)
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C1",              // ResourceSource
+				"\\_SB.I2C1",             // ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -136,14 +134,11 @@ Scope (\_SB.I2C1)
 
 		/* Allow device to power off in S0 */
 		Name (_S0W, 4)
-
-		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
 	}
 
 	Device (ETPA)
 	{
 		Name (_HID, "ELAN0000")
-		Name (_CID, EisaId ("PNP0C0E"))
 		Name (_DDN, "Elan Touchpad")
 		Name (_UID, 3)
 		Name (ISTP, 1) /* Touchpad */
@@ -155,7 +150,7 @@ Scope (\_SB.I2C1)
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C1",              // ResourceSource
+				"\\_SB.I2C1",             // ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -174,8 +169,6 @@ Scope (\_SB.I2C1)
 
 		/* Allow device to power off in S0 */
 		Name (_S0W, 4)
-
-		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
 	}
 }
 
@@ -200,7 +193,7 @@ Scope (\_SB.I2C2)
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C2",              // ResourceSource
+				"\\_SB.I2C2",             // ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -240,7 +233,7 @@ Scope (\_SB.I2C5)
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
-				"\_SB.I2C5",              // ResourceSource
+				"\\_SB.I2C5",             // ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
