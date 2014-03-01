@@ -68,11 +68,12 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	set_internal_pull(GPIO_SSUS_39_PAD, PAD_PULL_DISABLE);
 	/* TODO(shawnn): Disable the PD once our old boards are no longer in
 	 * use. */
-	set_internal_pull(GPIO_SSUS_40_PAD, PAD_PULL_DOWN | PAD_PU_40K);
+	set_internal_pull(GPIO_SSUS_40_PAD, PAD_PULL_DOWN | PAD_PU_20K);
 
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_37_PAD) << 0);
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_38_PAD) << 1);
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_39_PAD) << 2);
+	ram_id |= (ssus_get_gpio(GPIO_SSUS_40_PAD) << 3);
 
 	printk(BIOS_DEBUG, "ram_id=%d, total_spds: %d\n", ram_id, total_spds);
 
