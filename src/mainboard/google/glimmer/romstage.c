@@ -31,7 +31,7 @@
  * 0b0001 - 4GiB total - 2 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
  * 0b0010 - 2GiB total - 2 x 1GiB Micron  MT41K128M16JT-125:K 1600MHz
  * 0b0011 - 2GiB total - 2 x 1GiB Hynix   H5TC2G63FFR-PBA 1600MHz
- * 0b0100 - 2GiB total - 2 x 2GiB Samsung K4B2G1646Q-BYK0 1600MHz
+ * 0b0100 - 2GiB total - 2 x 1GiB Samsung K4B2G1646Q-BYK0 1600MHz
  * 0b0101 - 2GiB total - 1 x 2GiB Hynix   H5TC4G63AFR-PBA 1600MHz
  * 0b0110 - 4GiB total - 2 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
  * 0b0111 - 4GiB total - 2 x 2GiB Elpida  EDJ4216EFBG-GNL-F 1600MHz
