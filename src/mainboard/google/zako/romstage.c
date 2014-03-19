@@ -145,6 +145,10 @@ void mainboard_romstage_entry(unsigned long bist)
 	it8772f_enable_serial(PNP_DEV(IT8772F_BASE, IT8772F_SP1),
 			      CONFIG_TTYS0_BASE);
 
+	/* The iobase must be equal to EC base address in devicetree.cb. */
+	it8772f_enable_voltage_input(PNP_DEV(IT8772F_BASE, IT8772F_EC), 0x700,
+				     0);
+
 	/* Call into the real romstage main with this board's attributes. */
 	romstage_common(&romstage_params);
 }

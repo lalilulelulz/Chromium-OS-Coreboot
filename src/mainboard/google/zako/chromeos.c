@@ -24,6 +24,8 @@
 #include <device/pci.h>
 #include <southbridge/intel/lynxpoint/pch.h>
 
+#include "superio/ite/it8772f/it8772f.h"
+
 #define GPIO_SPI_WP	58
 #define GPIO_REC_MODE	12
 
@@ -34,7 +36,7 @@
 #ifndef __PRE_RAM__
 #include <boot/coreboot_tables.h>
 
-#define GPIO_COUNT	6
+#define GPIO_COUNT	7
 #define ACTIVE_LOW	0
 #define ACTIVE_HIGH	1
 
@@ -49,6 +51,12 @@ static void fill_lb_gpio(struct lb_gpio *gpio, int num,
 	else if (num >= 0)
 		gpio->value = get_gpio(num);
 	strncpy((char *)gpio->name, name, GPIO_MAX_NAME_LENGTH);
+}
+
+static int get_adapter_type(void)
+{
+	device_t dev = dev_find_pnp(IT8772F_BASE, IT8772F_EC);
+	return it8772f_read_voltage_input(dev, 0);
 }
 
 void fill_lb_gpios(struct lb_gpios *gpios)
@@ -67,6 +75,8 @@ void fill_lb_gpios(struct lb_gpios *gpios)
 	fill_lb_gpio(gpio++, -1, ACTIVE_HIGH, "lid", 1);
 	fill_lb_gpio(gpio++, -1, ACTIVE_HIGH, "power", 0);
 	fill_lb_gpio(gpio++, -1, ACTIVE_HIGH, "oprom", oprom_is_loaded);
+	fill_lb_gpio(gpio++, -1, ACTIVE_HIGH, "adapter type",
+		     get_adapter_type());
 }
 #endif
 
