@@ -106,6 +106,7 @@
 #define GPIO_REG_OUTPUT(x)   (0xc8 + (x))
 
 u8 it8772f_sio_read(u8 index);
+u8 it8772f_read_voltage_input(device_t dev, u8 index);
 void it8772f_sio_write(u8 index, u8 value);
 void it8772f_enable_serial(device_t dev, u16 iobase);
 void it8772f_kill_watchdog(void);

@@ -129,3 +129,43 @@ void it8772f_gpio_setup(int set, u8 select, u8 polarity, u8 pullup,
 	it8772f_sio_write(GPIO_REG_PULLUP(set), pullup);
 	it8772f_exit_conf();
 }
+
+static u8 it8772f_ec_read(u16 base, u8 index)
+{
+	outb(index, base + 5);
+	return inb(base + 6);
+}
+
+static void it8772f_ec_write(u16 base, u8 index, u8 value)
+{
+	outb(index, base + 5);
+	outb(value, base + 6);
+}
+
+/* Allow reading voltage input (VIN) pins. */
+static int it8772f_enable_voltage_input(device_t dev, u16 iobase, int index)
+{
+	u8 r00, r50;
+
+	it8772f_enter_conf();
+
+	/* Initialize EC. */
+	it8772f_sio_write(IT8772F_CONFIG_REG_LDN, IT8772F_EC);
+	it8772f_sio_write(PNP_IDX_IO0, (iobase >> 8) & 0xff);
+	it8772f_sio_write(PNP_IDX_IO0+1, iobase & 0xff);
+	it8772f_sio_write(PNP_IDX_EN, 1);
+
+	/* Set ADC Voltage Channel Enable Register */
+	r50 = it8772f_ec_read(iobase, 0x50);
+	it8772f_ec_write(iobase, 0x50, r50 | (1 << index));
+
+	/*
+	 * Start monitoring: ConfigurationRegister.0 = "start".
+	 * Note the values will be updated after 1s.
+	 */
+	r00 = it8772f_ec_read(iobase, 0x00);
+	it8772f_ec_write(iobase, 0x00, r00 | 1);
+
+	it8772f_exit_conf();
+	return 0;
+}

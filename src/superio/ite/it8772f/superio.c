@@ -23,7 +23,9 @@
 #include <uart8250.h>
 #include <pc80/keyboard.h>
 #include <arch/io.h>
+#include <delay.h>
 #include <stdlib.h>
+#include <timer.h>
 #include "chip.h"
 #include "it8772f.h"
 
@@ -130,6 +132,28 @@ static void it8772f_enable_fan(struct resource *res, int fan)
 		it8772f_envc_write(res, IT8772F_FAN_CTL3_PWM_START, 0x80);
 		break;
 	}
+}
+
+/*
+ * Read voltage input value.
+ */
+u8 it8772f_read_voltage_input(device_t dev, u8 index)
+{
+	struct resource *res;
+	u8 ret;
+
+	if (dev->path.pnp.device != IT8772F_EC)
+		return 0;
+
+	pnp_enter_ext_func_mode(dev);
+	res = find_resource(dev, PNP_IDX_IO0);
+
+	/* Read the Voltage Reading Register.
+	 * Note there is no "ready" signal, and VIN* refresh time is 1s. */
+	ret = it8772f_envc_read(res, 0x20 + index);
+
+	pnp_exit_ext_func_mode(dev);
+	return ret;
 }
 
 static void it8772f_init(device_t dev)
