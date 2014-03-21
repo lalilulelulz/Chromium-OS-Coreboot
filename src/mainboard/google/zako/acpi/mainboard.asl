@@ -19,6 +19,8 @@
  * MA 02110-1301 USA
  */
 
+#include <mainboard/google/zako/onboard.h>
+
 Scope (\_SB)
 {
 	Device (PWRB)
@@ -26,4 +28,48 @@ Scope (\_SB)
 		Name(_HID, EisaId("PNP0C0C"))
 	}
 
+}
+
+/*
+ * LAN connected to Root Port 3, becomes Root Port 1 after coalesce
+ */
+Scope (\_SB.PCI0.RP01)
+{
+	Device (ETH0)
+	{
+		Name (_ADR, 0x00000000)
+		Name (_PRW, Package() { ZAKO_NIC_WAKE_GPIO, 3 })
+
+		Method (_DSW, 3, NotSerialized)
+		{
+			Store (ZAKO_NIC_WAKE_GPIO, Local0)
+
+			If (LEqual (Arg0, 1)) {
+				// Enable GPIO as wake source
+				\_SB.PCI0.LPCB.GWAK (Local0)
+			}
+		}
+	}
+}
+
+/*
+ * WLAN connected to Root Port 4, becomes Root Port 2 after coalesce
+ */
+Scope (\_SB.PCI0.RP02)
+{
+	Device (WLAN)
+	{
+		Name (_ADR, 0x00000000)
+		Name (_PRW, Package() { ZAKO_WLAN_WAKE_GPIO, 3 })
+
+		Method (_DSW, 3, NotSerialized)
+		{
+			Store (ZAKO_WLAN_WAKE_GPIO, Local0)
+
+			If (LEqual (Arg0, 1)) {
+				// Enable GPIO as wake source
+				\_SB.PCI0.LPCB.GWAK (Local0)
+			}
+		}
+	}
 }
