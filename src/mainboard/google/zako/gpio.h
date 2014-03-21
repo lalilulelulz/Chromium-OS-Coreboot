@@ -71,7 +71,7 @@ const struct pch_lp_gpio_map mainboard_gpio_map[] = {
 	LP_GPIO_OUT_HIGH,      /* 45: PP5000_CODEC_EN */
 	LP_GPIO_OUT_HIGH,      /* 46: BT_DISABLE_L */
 	LP_GPIO_OUT_HIGH,      /* 47: USB1_PWR_EN */
-	LP_GPIO_UNUSED,        /* 48: UNUSED */
+	LP_GPIO_INPUT,         /* 48: ADP_ID */
 	LP_GPIO_UNUSED,        /* 49: UNUSED */
 	LP_GPIO_OUT_HIGH,      /* 50: VP8_DISABLE_L */
 	LP_GPIO_UNUSED,        /* 51: UNUSED */
