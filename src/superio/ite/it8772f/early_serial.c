@@ -143,7 +143,7 @@ static void it8772f_ec_write(u16 base, u8 index, u8 value)
 }
 
 /* Allow reading voltage input (VIN) pins. */
-static int it8772f_enable_voltage_input(device_t dev, u16 iobase, int index)
+int it8772f_enable_voltage_input(device_t dev, u16 iobase, int index)
 {
 	u8 r00, r50;
 
