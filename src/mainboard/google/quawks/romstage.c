@@ -50,9 +50,9 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	/* The ram_id[2:0] pullups on squawks are too large for the default 20K
 	 * pulldown on the pad. Therefore, disable the internal pull resistor to
 	 * read high values correctly. */
-	sus_disable_internal_pull(GPIO_SSUS_37_PAD);
-	sus_disable_internal_pull(GPIO_SSUS_38_PAD);
-	sus_disable_internal_pull(GPIO_SSUS_39_PAD);
+	ssus_disable_internal_pull(GPIO_SSUS_37_PAD);
+	ssus_disable_internal_pull(GPIO_SSUS_38_PAD);
+	ssus_disable_internal_pull(GPIO_SSUS_39_PAD);
 
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_37_PAD) << 0);
 	ram_id |= (ssus_get_gpio(GPIO_SSUS_38_PAD) << 1);
