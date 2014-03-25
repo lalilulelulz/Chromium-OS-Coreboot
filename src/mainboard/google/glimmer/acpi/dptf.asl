@@ -25,7 +25,7 @@ Name (CHPS, Package () {
 	Package () { 0, 0, 0, 0, 24, 0x600, "mA", 0 },  /* 1.5A */
 	Package () { 0, 0, 0, 0, 16, 0x400, "mA", 0 },  /* 1.0A */
 	Package () { 0, 0, 0, 0, 8, 0x200, "mA", 0 },   /* 0.5A */
-	Package () { 0, 0, 0, 0, 0, 0x000, "mA", 0 },   /* 0.0A */
+	Package () { 0, 0, 0, 0, 0, 0x080, "mA", 0 },   /* 0.128A */
 })
 
 /* Mainboard specific _PDL is 1GHz */
