@@ -38,6 +38,8 @@ config BOARD_GOOGLE_FALCO
 	bool "Falco"
 config BOARD_GOOGLE_GLIMMER
 	bool "Glimmer"
+config BOARD_GOOGLE_KIP
+	bool "Kip"
 config BOARD_GOOGLE_LINK
 	bool "Link"
 config BOARD_GOOGLE_NYAN
@@ -73,6 +75,7 @@ source "src/mainboard/google/butterfly/Kconfig"
 source "src/mainboard/google/clapper/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/glimmer/Kconfig"
+source "src/mainboard/google/kip/Kconfig"
 source "src/mainboard/google/link/Kconfig"
 source "src/mainboard/google/nyan/Kconfig"
 source "src/mainboard/google/panther/Kconfig"
