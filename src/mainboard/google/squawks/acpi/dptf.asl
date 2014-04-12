@@ -51,7 +51,7 @@ Name (MPPC, Package ()
 	0x2,		// Revision
 	Package () {	// Power Limit 1
 		0,	// PowerLimitIndex, 0 for Power Limit 1
-		2100,	// PowerLimitMinimum
+		1600,	// PowerLimitMinimum
 		6300,	// PowerLimitMaximum
 		1000,	// TimeWindowMinimum
 		1000,	// TimeWindowMaximum
