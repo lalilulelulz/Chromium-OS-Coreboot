@@ -27,7 +27,6 @@
 #include <device/pci_def.h>
 #include "southbridge/amd/sb700/sb700.h"
 #include "southbridge/amd/sb700/smbus.h"
-#include "chip.h"
 
 uint64_t uma_memory_base, uma_memory_size;
 

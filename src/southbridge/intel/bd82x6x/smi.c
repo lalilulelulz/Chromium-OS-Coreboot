@@ -269,6 +269,11 @@ static void smm_relocate(void)
 	gpe0_en &= ~PME_B0_EN;
 	outl(gpe0_en, pmbase + GPE0_EN);
 
+	pm1_en = 0;
+	pm1_en |= PWRBTN_EN;
+	pm1_en |= GBL_EN;
+	outw(pm1_en, pmbase + PM1_EN);
+
 	/* Enable SMI generation:
 	 *  - on TCO events
 	 *  - on APMC writes (io 0xb2)
@@ -300,11 +305,6 @@ static void smm_relocate(void)
 	smi_en |= EOS | GBL_SMI_EN;
 
 	outl(smi_en, pmbase + SMI_EN);
-
-	pm1_en = 0;
-	pm1_en |= PWRBTN_EN;
-	pm1_en |= GBL_EN;
-	outw(pm1_en, pmbase + PM1_EN);
 
 	/**
 	 * There are several methods of raising a controlled SMI# via
@@ -370,6 +370,11 @@ static void smm_install(void)
 
 void smm_init(void)
 {
+#if CONFIG_ELOG
+	/* Log events from chipset before clearing */
+	pch_log_state();
+#endif
+
 	/* Put SMM code to 0xa0000 */
 	smm_install();
 
@@ -393,11 +398,19 @@ void smm_lock(void)
 
 void smm_setup_structures(void *gnvs, void *tcg, void *smi1)
 {
-	/* The GDT or coreboot table is going to live here. But a long time
-	 * after we relocated the GNVS, so this is not troublesome.
+	/*
+	 * Issue SMI to set the gnvs pointer in SMM.
+	 * tcg and smi1 are unused.
+	 *
+	 * EAX = APM_CNT_GNVS_UPDATE
+	 * EBX = gnvs pointer
+	 * EDX = APM_CNT
 	 */
-	*(u32 *)0x500 = (u32)gnvs;
-	*(u32 *)0x504 = (u32)tcg;
-	*(u32 *)0x508 = (u32)smi1;
-	outb(0xea, 0xb2);
+	asm volatile (
+		"outb %%al, %%dx\n\t"
+		: /* ignore result */
+		: "a" (APM_CNT_GNVS_UPDATE),
+		  "b" ((u32)gnvs),
+		  "d" (APM_CNT)
+	);
 }

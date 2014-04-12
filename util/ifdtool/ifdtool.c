@@ -49,10 +49,6 @@ static fdbar_t *find_fd(char *image, int size)
 	return (fdbar_t *) (image + i);
 }
 
-typedef struct {
-	int base, limit, size;
-} region_t;
-
 static region_t get_region(frba_t *frba, int region_type)
 {
 	region_t region;
@@ -125,14 +121,27 @@ static const char *region_filename(int region_type)
 	return region_filenames[region_type];
 }
 
+static void dump_region(int num, frba_t *frba)
+{
+	region_t region = get_region(frba, num);
+	printf("  Flash Region %d (%s): %08x - %08x %s\n",
+		       num, region_name(num), region.base, region.limit,
+		       region.size < 1 ? "(unused)" : "");
+}
+
 static void dump_frba(frba_t * frba)
 {
-	printf("\nFound Region Section\n");
+	printf("Found Region Section\n");
 	printf("FLREG0:    0x%08x\n", frba->flreg0);
+	dump_region(0, frba);
 	printf("FLREG1:    0x%08x\n", frba->flreg1);
+	dump_region(1, frba);
 	printf("FLREG2:    0x%08x\n", frba->flreg2);
+	dump_region(2, frba);
 	printf("FLREG3:    0x%08x\n", frba->flreg3);
+	dump_region(3, frba);
 	printf("FLREG4:    0x%08x\n", frba->flreg4);
+	dump_region(4, frba);
 }
 
 static void decode_spi_frequency(unsigned int freq)
@@ -152,24 +161,70 @@ static void decode_spi_frequency(unsigned int freq)
 	}
 }
 
+static void decode_component_density(unsigned int density)
+{
+	switch (density) {
+	case COMPONENT_DENSITY_512KB:
+		printf("512KB");
+		break;
+	case COMPONENT_DENSITY_1MB:
+		printf("1MB");
+		break;
+	case COMPONENT_DENSITY_2MB:
+		printf("2MB");
+		break;
+	case COMPONENT_DENSITY_4MB:
+		printf("4MB");
+		break;
+	case COMPONENT_DENSITY_8MB:
+		printf("8MB");
+		break;
+	case COMPONENT_DENSITY_16MB:
+		printf("16MB");
+		break;
+	default:
+		printf("unknown<%x>MB", density);
+	}
+}
+
 static void dump_fcba(fcba_t * fcba)
 {
 	printf("\nFound Component Section\n");
 	printf("FLCOMP     0x%08x\n", fcba->flcomp);
+	printf("  Dual Output Fast Read Support:       %ssupported\n",
+		(fcba->flcomp & (1 << 30))?"":"not ");
 	printf("  Read ID/Read Status Clock Frequency: ");
 	decode_spi_frequency((fcba->flcomp >> 27) & 7);
 	printf("\n  Write/Erase Clock Frequency:         ");
 	decode_spi_frequency((fcba->flcomp >> 24) & 7);
 	printf("\n  Fast Read Clock Frequency:           ");
 	decode_spi_frequency((fcba->flcomp >> 21) & 7);
+	printf("\n  Fast Read Support:                   %ssupported",
+		(fcba->flcomp & (1 << 20))?"":"not ");
+	printf("\n  Read Clock Frequency:                ");
+	decode_spi_frequency((fcba->flcomp >> 17) & 7);
+	printf("\n  Component 2 Density:                 ");
+	decode_component_density((fcba->flcomp >> 3) & 7);
+	printf("\n  Component 1 Density:                 ");
+	decode_component_density(fcba->flcomp & 7);
 	printf("\n");
 	printf("FLILL      0x%08x\n", fcba->flill);
+	printf("  Invalid Instruction 3: 0x%02x\n",
+		(fcba->flill >> 24) & 0xff);
+	printf("  Invalid Instruction 2: 0x%02x\n",
+		(fcba->flill >> 16) & 0xff);
+	printf("  Invalid Instruction 1: 0x%02x\n",
+		(fcba->flill >> 8) & 0xff);
+	printf("  Invalid Instruction 0: 0x%02x\n",
+		fcba->flill & 0xff);
 	printf("FLPB       0x%08x\n", fcba->flpb);
+	printf("  Flash Partition Boundary Address: 0x%06x\n\n",
+		(fcba->flpb & 0xfff) << 12);
 }
 
 static void dump_fpsba(fpsba_t * fpsba)
 {
-	printf("\nFound PCH Strap Section\n");
+	printf("Found PCH Strap Section\n");
 	printf("PCHSTRP0:  0x%08x\n", fpsba->pchstrp0);
 	printf("PCHSTRP1:  0x%08x\n", fpsba->pchstrp1);
 	printf("PCHSTRP2:  0x%08x\n", fpsba->pchstrp2);
@@ -186,23 +241,145 @@ static void dump_fpsba(fpsba_t * fpsba)
 	printf("PCHSTRP13: 0x%08x\n", fpsba->pchstrp13);
 	printf("PCHSTRP14: 0x%08x\n", fpsba->pchstrp14);
 	printf("PCHSTRP15: 0x%08x\n", fpsba->pchstrp15);
+	printf("PCHSTRP16: 0x%08x\n", fpsba->pchstrp16);
+	printf("PCHSTRP17: 0x%08x\n\n", fpsba->pchstrp17);
+}
+
+static void decode_flmstr(uint32_t flmstr)
+{
+	printf("  Platform Data Region Write Access: %s\n",
+		(flmstr & (1 << 28)) ? "enabled" : "disabled");
+	printf("  GbE Region Write Access:           %s\n",
+		(flmstr & (1 << 27)) ? "enabled" : "disabled");
+	printf("  Intel ME Region Write Access:      %s\n",
+		(flmstr & (1 << 26)) ? "enabled" : "disabled");
+	printf("  Host CPU/BIOS Region Write Access: %s\n",
+		(flmstr & (1 << 25)) ? "enabled" : "disabled");
+	printf("  Flash Descriptor Write Access:     %s\n",
+		(flmstr & (1 << 24)) ? "enabled" : "disabled");
+
+	printf("  Platform Data Region Read Access:  %s\n",
+		(flmstr & (1 << 20)) ? "enabled" : "disabled");
+	printf("  GbE Region Read Access:            %s\n",
+		(flmstr & (1 << 19)) ? "enabled" : "disabled");
+	printf("  Intel ME Region Read Access:       %s\n",
+		(flmstr & (1 << 18)) ? "enabled" : "disabled");
+	printf("  Host CPU/BIOS Region Read Access:  %s\n",
+		(flmstr & (1 << 17)) ? "enabled" : "disabled");
+	printf("  Flash Descriptor Read Access:      %s\n",
+		(flmstr & (1 << 16)) ? "enabled" : "disabled");
+
+	printf("  Requester ID:                      0x%04x\n\n",
+		flmstr & 0xffff);
 }
 
 static void dump_fmba(fmba_t * fmba)
 {
-	printf("\nFound Master Section\n");
-	printf("FLMSTR1:   0x%08x\n", fmba->flmstr1);
-	printf("FLMSTR2:   0x%08x\n", fmba->flmstr2);
-	printf("FLMSTR3:   0x%08x\n", fmba->flmstr3);
+	printf("Found Master Section\n");
+	printf("FLMSTR1:   0x%08x (Host CPU/BIOS)\n", fmba->flmstr1);
+	decode_flmstr(fmba->flmstr1);
+	printf("FLMSTR2:   0x%08x (Intel ME)\n", fmba->flmstr2);
+	decode_flmstr(fmba->flmstr2);
+	printf("FLMSTR3:   0x%08x (GbE)\n", fmba->flmstr3);
+	decode_flmstr(fmba->flmstr3);
 }
 
 static void dump_fmsba(fmsba_t * fmsba)
 {
-	printf("\nFound Processor Strap Section\n");
+	printf("Found Processor Strap Section\n");
 	printf("????:      0x%08x\n", fmsba->data[0]);
 	printf("????:      0x%08x\n", fmsba->data[1]);
 	printf("????:      0x%08x\n", fmsba->data[2]);
 	printf("????:      0x%08x\n", fmsba->data[3]);
+}
+
+static void dump_jid(uint32_t jid)
+{
+	printf("    SPI Componend Device ID 1:          0x%02x\n",
+		(jid >> 16) & 0xff);
+	printf("    SPI Componend Device ID 0:          0x%02x\n",
+		(jid >> 8) & 0xff);
+	printf("    SPI Componend Vendor ID:            0x%02x\n",
+		jid & 0xff);
+}
+
+static void dump_vscc(uint32_t vscc)
+{
+	printf("    Lower Erase Opcode:                 0x%02x\n",
+		vscc >> 24);
+	printf("    Lower Write Enable on Write Status: 0x%02x\n",
+		vscc & (1 << 20) ? 0x06 : 0x50);
+	printf("    Lower Write Status Required:        %s\n",
+		vscc & (1 << 19) ? "Yes" : "No");
+	printf("    Lower Write Granularity:            %d bytes\n",
+		vscc & (1 << 18) ? 64 : 1);
+	printf("    Lower Block / Sector Erase Size:    ");
+	switch ((vscc >> 16) & 0x3) {
+	case 0:
+		printf("256 Byte\n");
+		break;
+	case 1:
+		printf("4KB\n");
+		break;
+	case 2:
+		printf("8KB\n");
+		break;
+	case 3:
+		printf("64KB\n");
+		break;
+	}
+
+	printf("    Upper Erase Opcode:                 0x%02x\n",
+		(vscc >> 8) & 0xff);
+	printf("    Upper Write Enable on Write Status: 0x%02x\n",
+		vscc & (1 << 4) ? 0x06 : 0x50);
+	printf("    Upper Write Status Required:        %s\n",
+		vscc & (1 << 3) ? "Yes" : "No");
+	printf("    Upper Write Granularity:            %d bytes\n",
+		vscc & (1 << 2) ? 64 : 1);
+	printf("    Upper Block / Sector Erase Size:    ");
+	switch (vscc & 0x3) {
+	case 0:
+		printf("256 Byte\n");
+		break;
+	case 1:
+		printf("4KB\n");
+		break;
+	case 2:
+		printf("8KB\n");
+		break;
+	case 3:
+		printf("64KB\n");
+		break;
+	}
+}
+
+static void dump_vtba(vtba_t *vtba, int vtl)
+{
+	int i;
+	int num = (vtl >> 1) < 8 ? (vtl >> 1) : 8;
+
+	printf("ME VSCC table:\n");
+	for (i = 0; i < num; i++) {
+		printf("  JID%d:  0x%08x\n", i, vtba->entry[i].jid);
+		dump_jid(vtba->entry[i].jid);
+		printf("  VSCC%d: 0x%08x\n", i, vtba->entry[i].vscc);
+		dump_vscc(vtba->entry[i].vscc);
+	}
+	printf("\n");
+}
+
+static void dump_oem(uint8_t *oem)
+{
+	int i, j;
+	printf("OEM Section:\n");
+	for (i = 0; i < 4; i++) {
+		printf("%02x:", i << 4);
+		for (j = 0; j < 16; j++)
+			printf(" %02x", oem[(i<<4)+j]);
+		printf ("\n");
+	}
+	printf ("\n");
 }
 
 static void dump_fd(char *image, int size)
@@ -228,7 +405,14 @@ static void dump_fd(char *image, int size)
 	printf("  FMSBA:   0x%x\n", ((fdb->flmap2) & 0xff) << 4);
 
 	printf("FLUMAP1:   0x%08x\n", fdb->flumap1);
-
+	printf("  Intel ME VSCC Table Length (VTL):        %d\n",
+		(fdb->flumap1 >> 8) & 0xff);
+	printf("  Intel ME VSCC Table Base Address (VTBA): 0x%06x\n\n",
+		(fdb->flumap1 & 0xff) << 4);
+	dump_vtba((vtba_t *)
+			(image + ((fdb->flumap1 & 0xff) << 4)),
+			(fdb->flumap1 >> 8) & 0xff);
+	dump_oem((uint8_t *)image + 0xf00);
 	dump_frba((frba_t *)
 			(image + (((fdb->flmap0 >> 16) & 0xff) << 4)));
 	dump_fcba((fcba_t *) (image + (((fdb->flmap0) & 0xff) << 4)));
@@ -251,16 +435,14 @@ static void write_regions(char *image, int size)
 
 	for (i = 0; i<5; i++) {
 		region_t region = get_region(frba, i);
-		printf("Flash Region %d (%s): %08x - %08x %s\n",
-		       i, region_name(i), region.base, region.limit,
-		       region.size < 1 ? "(unused)" : "");
+		dump_region(i, frba);
 		if (region.size > 0) {
 			int region_fd;
 			region_fd = open(region_filename(i),
 					 O_WRONLY | O_CREAT | O_TRUNC,
 					 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 			if (write(region_fd, image + region.base, region.size) != region.size)
-				printf("Error while writing.");
+				perror("Error while writing");
 			close(region_fd);
 		}
 	}
@@ -281,7 +463,7 @@ static void write_image(char *filename, char *image, int size)
 			 O_WRONLY | O_CREAT | O_TRUNC,
 			 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (write(new_fd, image, size) != size)
-		printf("Error while writing.");
+		perror("Error while writing");
 	close(new_fd);
 }
 
@@ -299,6 +481,40 @@ static void set_spi_frequency(char *filename, char *image, int size,
 	fcba->flcomp |= freq << 24;
 	/* Fast Read Clock Frequency */
 	fcba->flcomp |= freq << 21;
+
+	write_image(filename, image, size);
+}
+
+static void set_em100_mode(char *filename, char *image, int size)
+{
+	fdbar_t *fdb = find_fd(image, size);
+	fcba_t *fcba = (fcba_t *) (image + (((fdb->flmap0) & 0xff) << 4));
+
+	fcba->flcomp &= ~(1 << 30);
+	set_spi_frequency(filename, image, size, SPI_FREQUENCY_20MHZ);
+}
+
+static void lock_descriptor(char *filename, char *image, int size)
+{
+	fdbar_t *fdb = find_fd(image, size);
+	fmba_t *fmba = (fmba_t *) (image + (((fdb->flmap1) & 0xff) << 4));
+	/* TODO: Dynamically take Platform Data Region and GbE Region
+	 * into regard.
+	 */
+	fmba->flmstr1 = 0x0a0b0000;
+	fmba->flmstr2 = 0x0c0d0000;
+	fmba->flmstr3 = 0x08080118;
+
+	write_image(filename, image, size);
+}
+
+static void unlock_descriptor(char *filename, char *image, int size)
+{
+	fdbar_t *fdb = find_fd(image, size);
+	fmba_t *fmba = (fmba_t *) (image + (((fdb->flmap1) & 0xff) << 4));
+	fmba->flmstr1 = 0xffff0000;
+	fmba->flmstr2 = 0xffff0000;
+	fmba->flmstr3 = 0x08080118;
 
 	write_image(filename, image, size);
 }
@@ -352,6 +568,12 @@ void inject_region(char *filename, char *image, int size, int region_type,
 		memset(image + region.base, 0xff, offset);
 	}
 
+	if (size < region.base + offset + region_size) {
+		fprintf(stderr, "Output file is too small. (%d < %d)\n",
+			size, region.base + offset + region_size);
+		exit(EXIT_FAILURE);
+	}
+
 	if (read(region_fd, image + region.base + offset, region_size)
 							!= region_size) {
 		perror("Could not read file");
@@ -389,6 +611,10 @@ static void print_usage(const char *name)
 	       "   -x | --extract:                   extract intel fd modules\n"
 	       "   -i | --inject <region>:<module>   inject file <module> into region <region>\n"
 	       "   -s | --spifreq <20|33|50>         set the SPI frequency\n"
+	       "   -e | --em100                      set SPI frequency to 20MHz and disable\n"
+	       "                                     Dual Output Fast Read Support\n"
+	       "   -l | --lock                       Lock firmware descriptor and ME region\n"
+	       "   -u | --unlock                     Unlock firmware descriptor and ME region\n"
 	       "   -v | --version:                   print the version\n"
 	       "   -h | --help:                      print this help\n\n"
 	       "<region> is one of Descriptor, BIOS, ME, GbE, Platform\n"
@@ -399,6 +625,7 @@ int main(int argc, char *argv[])
 {
 	int opt, option_index = 0;
 	int mode_dump = 0, mode_extract = 0, mode_inject = 0, mode_spifreq = 0;
+	int mode_em100 = 0, mode_locked = 0, mode_unlocked = 0;
 	char *region_type_string = NULL, *region_fname = NULL;
 	int region_type = -1, inputfreq = 0;
 	enum spi_frequency spifreq = SPI_FREQUENCY_20MHZ;
@@ -408,12 +635,15 @@ int main(int argc, char *argv[])
 		{"extract", 0, NULL, 'x'},
 		{"inject", 1, NULL, 'i'},
 		{"spifreq", 1, NULL, 's'},
+		{"em100", 0, NULL, 'e'},
+		{"lock", 0, NULL, 'l'},
+		{"unlock", 0, NULL, 'u'},
 		{"version", 0, NULL, 'v'},
 		{"help", 0, NULL, 'h'},
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "dxi:s:vh?",
+	while ((opt = getopt_long(argc, argv, "dxi:s:eluvh?",
 				  long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'd':
@@ -473,6 +703,23 @@ int main(int argc, char *argv[])
 			}
 			mode_spifreq = 1;
 			break;
+		case 'e':
+			mode_em100 = 1;
+			break;
+		case 'l':
+			mode_locked = 1;
+			if (mode_unlocked == 1) {
+				fprintf(stderr, "Locking/Unlocking FD and ME are mutually exclusive\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 'u':
+			mode_unlocked = 1;
+			if (mode_locked == 1) {
+				fprintf(stderr, "Locking/Unlocking FD and ME are mutually exclusive\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
 		case 'v':
 			print_version();
 			exit(EXIT_SUCCESS);
@@ -486,13 +733,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((mode_dump + mode_extract + mode_inject + mode_spifreq) > 1) {
-		fprintf(stderr, "Only one mode allowed.\n\n");
+	if ((mode_dump + mode_extract + mode_inject +
+		(mode_spifreq | mode_em100 | mode_unlocked |
+		 mode_locked)) > 1) {
+		fprintf(stderr, "You may not specify more than one mode.\n\n");
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
-	if ((mode_dump + mode_extract + mode_inject + mode_spifreq) == 0) {
+	if ((mode_dump + mode_extract + mode_inject + mode_spifreq +
+	     mode_em100 + mode_locked + mode_unlocked) == 0) {
 		fprintf(stderr, "You need to specify a mode.\n\n");
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
@@ -544,6 +794,15 @@ int main(int argc, char *argv[])
 
 	if (mode_spifreq)
 		set_spi_frequency(filename, image, size, spifreq);
+
+	if (mode_em100)
+		set_em100_mode(filename, image, size);
+
+	if(mode_locked)
+		lock_descriptor(filename, image, size);
+
+	if (mode_unlocked)
+		unlock_descriptor(filename, image, size);
 
 	free(image);
 

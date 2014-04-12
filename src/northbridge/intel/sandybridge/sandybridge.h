@@ -53,7 +53,7 @@
 #define DEFAULT_EPBAR		0xfed19000	/* 4 KB */
 #define DEFAULT_RCBABASE	0xfed1c000
 
-#include "../../../southbridge/intel/bd82x6x/pch.h"
+#include <southbridge/intel/bd82x6x/pch.h>
 
 /* Everything below this line is ignored in the DSDT */
 #ifndef __ACPI__
@@ -107,7 +107,8 @@
 /* Device 0:2.0 PCI configuration space (Graphics Device) */
 
 #define MSAC		0x62	/* Multi Size Aperture Control */
-
+#define SWSCI		0xe8	/* SWSCI  enable */
+#define ASLS		0xfc	/* OpRegion Base */
 
 /*
  * MCHBAR
@@ -199,12 +200,8 @@ struct ied_header {
 	u8 reserved[34];
 } __attribute__ ((packed));
 
-#if CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE
-#define PCI_DEVICE_ID_NB 0x0104
-#endif
-#if CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE
-#define PCI_DEVICE_ID_NB 0x0154
-#endif
+#define PCI_DEVICE_ID_SB 0x0104
+#define PCI_DEVICE_ID_IB 0x0154
 
 #ifdef __SMM__
 void intel_sandybridge_finalize_smm(void);
@@ -234,13 +231,12 @@ struct mrc_data_container {
 	u8	mrc_data[0];	// Variable size, platform/run time dependent.
 } __attribute__ ((packed));
 
-struct mrc_data_container *next_mrc_block(struct mrc_data_container *mrc_cache);
-int is_mrc_cache(struct mrc_data_container *mrc_cache);
-u32 get_mrc_cache_region(struct mrc_data_container **mrc_region_ptr);
-struct mrc_data_container *find_next_mrc_cache(void);
 struct mrc_data_container *find_current_mrc_cache(void);
 #if !defined(__PRE_RAM__)
 void update_mrc_cache(void);
+
+#include "gma.h"
+int init_igd_opregion(igd_opregion_t *igd_opregion);
 #endif
 
 #endif

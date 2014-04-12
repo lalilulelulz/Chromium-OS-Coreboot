@@ -34,7 +34,6 @@ util/crossgcc/w32api-*/
 *.out
 *.\#
 *.swp
-*.bin
 util/ectool/ectool
 util/inteltool/.dependencies
 util/inteltool/inteltool

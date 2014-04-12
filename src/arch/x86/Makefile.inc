@@ -34,6 +34,12 @@ cmos_layout.bin-type = 0x01aa
 OPTION_TABLE_H:=$(obj)/option_table.h
 endif
 
+ifeq ($(CONFIG_MICROCODE_IN_CBFS),y)
+cbfs-files-y += microcode_blob.bin
+microcode_blob.bin-file = $(obj)/microcode_blob.bin
+microcode_blob.bin-type = 0x53
+endif
+
 #######################################################################
 # Build the final rom image
 COREBOOT_ROM_DEPENDENCIES:=
@@ -61,7 +67,7 @@ prebuild-files = \
 prebuilt-files = $(foreach file,$(cbfs-files), $(call extract_nth,1,$(file)))
 
 $(obj)/coreboot.pre1: $(objcbfs)/bootblock.bin $$(prebuilt-files) $(CBFSTOOL)
-	$(CBFSTOOL) $@.tmp create $(CONFIG_COREBOOT_ROMSIZE_KB)K $(objcbfs)/bootblock.bin
+	$(CBFSTOOL) $@.tmp create $(CONFIG_COREBOOT_ROMSIZE_KB)K $(objcbfs)/bootblock.bin 64 $$(( $(CONFIG_ROM_SIZE) - $(CONFIG_CBFS_SIZE) ))
 	$(prebuild-files) true
 	mv $@.tmp $@
 else
@@ -70,7 +76,7 @@ $(obj)/coreboot.pre1: $(CBFSTOOL)
 	mv $(obj)/coreboot.rom $@
 endif
 
-$(obj)/coreboot.rom: $(obj)/coreboot.pre $(objcbfs)/coreboot_ram.elf $(CBFSTOOL) $(call strip_quotes,$(COREBOOT_ROM_DEPENDENCIES))
+$(obj)/coreboot.rom: $(obj)/coreboot.pre $(objcbfs)/coreboot_ram.elf $(CBFSTOOL) $(call strip_quotes,$(COREBOOT_ROM_DEPENDENCIES)) $$(INTERMEDIATE)
 	@printf "    CBFS       $(subst $(obj)/,,$(@))\n"
 	cp $(obj)/coreboot.pre $@.tmp
 	if [ -f $(objcbfs)/coreboot_ap.elf ]; \
@@ -319,6 +325,10 @@ $(objcbfs)/bootblock.debug: $(objgenerated)/bootblock.o $(objgenerated)/bootbloc
 $(objcbfs)/romstage_null.debug: $$(romstage-objs) $(objgenerated)/romstage_null.ld
 	@printf "    LINK       $(subst $(obj)/,,$(@))\n"
 	$(CC) -nostdlib -nostartfiles -static -o $@ -L$(obj) -T $(objgenerated)/romstage_null.ld $(romstage-objs)
+	$(NM) $@ | grep -q " [DdBb] "; if [ $$? -eq 0 ]; then \
+		echo "Forbidden global variables in romstage:"; \
+		$(NM) $@ | grep " [DdBb] "; test "$(CONFIG_CPU_AMD_AGESA)" == y; \
+		else true; fi
 
 $(objcbfs)/romstage_xip.debug: $$(romstage-objs) $(objgenerated)/romstage_xip.ld
 	@printf "    LINK       $(subst $(obj)/,,$(@))\n"

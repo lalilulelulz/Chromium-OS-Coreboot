@@ -59,12 +59,18 @@ void intel_pch_finalize_smm(void);
 
 #if !defined(__ASSEMBLER__) && !defined(__ROMCC__)
 #if !defined(__PRE_RAM__) && !defined(__SMM__)
+#include <device/device.h>
+#include <arch/acpi.h>
 #include "chip.h"
 int pch_silicon_revision(void);
 int pch_silicon_type(void);
 int pch_silicon_supported(int type, int rev);
 void pch_enable(device_t dev);
 void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
+#if CONFIG_ELOG
+void pch_log_state(void);
+#endif
+void acpi_create_intel_hpet(acpi_hpet_t * hpet);
 #else
 void enable_smbus(void);
 void enable_usb_bar(void);
@@ -193,7 +199,13 @@ int smbus_read_byte(unsigned device, unsigned address);
 #define   PCB1			(1 <<  1)
 #define   PCB0			(1 <<  0)
 
+#define SATA_SIRI		0xa0 /* SATA Indexed Register Index */
+#define SATA_SIRD		0xa4 /* SATA Indexed Register Data */
 #define SATA_SP			0xd0 /* Scratchpad */
+
+/* SATA IOBP Registers */
+#define SATA_IOBP_SP0G3IR	0xea000151
+#define SATA_IOBP_SP1G3IR	0xea000051
 
 /* PCI Configuration Space (D31:F3): SMBus */
 #define PCH_SMBUS_DEV		PCI_DEV(0, 0x1f, 3)
@@ -365,6 +377,8 @@ int smbus_read_byte(unsigned device, unsigned address);
 #define D25IR		0x3150	/* 16bit */
 #define D22IR		0x315c	/* 16bit */
 #define OIC		0x31fe	/* 16bit */
+#define SOFT_RESET_CTRL 0x38f4
+#define SOFT_RESET_DATA 0x38f8
 
 #define DIR_ROUTE(x,a,b,c,d) \
   RCBA32(x) = (((d) << DIR_IDR) | ((c) << DIR_ICR) | \
@@ -462,6 +476,7 @@ int smbus_read_byte(unsigned device, unsigned address);
 #define GPE0_EN		0x28
 #define   PME_B0_EN	(1 << 13)
 #define   PME_EN	(1 << 11)
+#define   TCOSCI_EN	(1 << 6)
 #define SMI_EN		0x30
 #define   INTEL_USB2_EN	 (1 << 18) // Intel-Specific USB2 SMI logic
 #define   LEGACY_USB2_EN (1 << 17) // Legacy USB2 SMI logic
@@ -483,6 +498,9 @@ int smbus_read_byte(unsigned device, unsigned address);
 #define DEVACT_STS	0x44
 #define SS_CNT		0x50
 #define C3_RES		0x54
+#define TCO1_STS	0x64
+#define   DMISCI_STS	(1 << 9)
+#define TCO2_STS	0x66
 
 /*
  * SPI Opcode Menu setup for SPIBAR lockdown
@@ -510,8 +528,8 @@ int smbus_read_byte(unsigned device, unsigned address);
 #define SPI_OPMENU_6 0xd8 /* BED8: Block Erase 0xd8 */
 #define SPI_OPTYPE_6 0x03 /* Write, address required */
 
-#define SPI_OPMENU_7 0x52 /* BE52: Block Erase 0x52 */
-#define SPI_OPTYPE_7 0x03 /* Write, address required */
+#define SPI_OPMENU_7 0x0b /* FAST: Fast Read */
+#define SPI_OPTYPE_7 0x02 /* Read, address required */
 
 #define SPI_OPMENU_UPPER ((SPI_OPMENU_7 << 24) | (SPI_OPMENU_6 << 16) | \
 			  (SPI_OPMENU_5 << 8) | SPI_OPMENU_4)

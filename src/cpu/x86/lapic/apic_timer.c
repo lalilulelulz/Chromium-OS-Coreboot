@@ -50,6 +50,7 @@ static int set_timer_fsb(void)
 		timer_fsb = core2_fsb[rdmsr(0xcd).lo & 7];
 		break;
 	case 0x2a: /* SandyBridge BCLK fixed at 100MHz*/
+	case 0x3a: /* IvyBridge BCLK fixed at 100MHz*/
 		timer_fsb = 100;
 		break;
 	default:
@@ -79,7 +80,9 @@ void udelay(u32 usecs)
 {
 	u32 start, value, ticks;
 
-	if (!timer_fsb)
+	if (!timer_fsb || (lapic_read(LAPIC_LVTT) &
+		(LAPIC_LVT_TIMER_PERIODIC | LAPIC_LVT_MASKED)) !=
+		(LAPIC_LVT_TIMER_PERIODIC | LAPIC_LVT_MASKED))
 		init_timer();
 
 	/* Calculate the number of ticks to run, our FSB runs at timer_fsb Mhz */

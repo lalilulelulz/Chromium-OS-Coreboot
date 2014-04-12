@@ -19,7 +19,7 @@
 
 #######################################################################
 # misleadingly named, this is the coreboot version
-export KERNELVERSION := $(shell if [ -d "$(top)/.git" -a -f "`which git`" ]; then git describe --dirty; else echo unknown; fi)
+export KERNELVERSION := $(shell if [ -d "$(top)/.git" -a -f "`which git`" ]; then git describe --dirty; else echo 4.0$(KERNELREVISION); fi)
 
 #######################################################################
 # Basic component discovery
@@ -30,7 +30,7 @@ export MAINBOARDDIR
 ## Final build results, which CBFSTOOL uses to create the final
 ## rom image file, are placed under $(objcbfs).
 ## These typically have suffixes .debug .elf .bin and .map
-export objcbfs := $(obj)/cbfs/$(CONFIG_CBFS_PREFIX)
+export objcbfs := $(obj)/cbfs/$(call strip_quotes,$(CONFIG_CBFS_PREFIX))
 
 ## Based on the active configuration, Makefile conditionally collects
 ## the required assembly includes and saves them in a file.
@@ -67,11 +67,15 @@ ifeq ($(CONFIG_TRACE),y)
 ramstage-c-ccopts:= -finstrument-functions
 endif
 
+ifneq ($(CONFIG_CHROMEOS),y)
+# In the ChromeOS build system we keep the 3rdparty binaries in the same
+# repository.
 ifeq ($(CONFIG_USE_BLOBS),y)
 forgetthis:=$(shell git submodule update --init --checkout 3rdparty)
 else
 ifeq ($(CONFIG_REQUIRES_BLOB),y)
 $(error Your current configuration requires binary-only components, but you did not choose to use them)
+endif
 endif
 endif
 
@@ -165,7 +169,7 @@ CFLAGS += -Werror
 endif
 CFLAGS += -fno-common -ffreestanding -fno-builtin -fomit-frame-pointer
 
-additional-dirs := $(objutil)/cbfstool $(objutil)/romcc $(objutil)/options
+additional-dirs := $(objutil)/cbfstool $(objutil)/romcc $(objutil)/ifdtool $(objutil)/options
 
 #######################################################################
 # generate build support files
@@ -178,6 +182,10 @@ $(obj)/build.h: .xcompile
 	printf "#define COREBOOT_VERSION \"$(KERNELVERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_EXTRA_VERSION \"$(COREBOOT_EXTRA_VERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_BUILD \"`LANG= date`\"\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_YEAR `LANG= date +"%-y"`\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_MONTH `LANG= date +"%-m"` \n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_DAY `LANG= date +"%-d"`\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_WEEKDAY `LANG= date +"%-u"`\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_DMI_DATE \"`LANG= date +"%m/%d/%Y"`\"\n" >> $(obj)/build.ht
 	printf "\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_COMPILER \"$(shell LANG= $(CC) --version | head -n1)\"\n" >> $(obj)/build.ht
@@ -219,6 +227,11 @@ $(ROMCC): $(top)/util/romcc/romcc.c
 	@# http://www.coreboot.org/pipermail/coreboot/2010-February/055825.html
 	$(HOSTCC) -g $(STACK) -Wall -o $@ $<
 
+IFDTOOL:=$(objutil)/ifdtool/ifdtool
+$(IFDTOOL): $(top)/util/ifdtool/ifdtool.c
+	@printf "    HOSTCC     $(subst $(obj)/,,$(@))\n"
+	$(HOSTCC) $(HOSTCFLAGS) -o $@ $<
+
 #######################################################################
 # needed objects that every mainboard uses
 # Creation of these is architecture and mainboard independent
@@ -228,6 +241,7 @@ $(obj)/mainboard/$(MAINBOARDDIR)/static.c: $(src)/mainboard/$(MAINBOARDDIR)/devi
 	$(objutil)/sconfig/sconfig $(MAINBOARDDIR) $(obj)/mainboard/$(MAINBOARDDIR)
 
 ramstage-y+=$(obj)/mainboard/$(MAINBOARDDIR)/static.c
+romstage-y+=$(obj)/mainboard/$(MAINBOARDDIR)/static.c
 
 $(objutil)/%.o: $(objutil)/%.c
 	@printf "    HOSTCC     $(subst $(objutil)/,,$(@))\n"
@@ -236,6 +250,10 @@ $(objutil)/%.o: $(objutil)/%.c
 $(obj)/%.ramstage.o $(abspath $(obj))/%.ramstage.o: $(obj)/%.c $(obj)/config.h $(OPTION_TABLE_H)
 	@printf "    CC         $(subst $(obj)/,,$(@))\n"
 	$(CC) -MMD $(CFLAGS) -c -o $@ $<
+
+$(obj)/%.romstage.o $(abspath $(obj))/%.romstage.o: $(obj)/%.c $(obj)/config.h $(OPTION_TABLE_H)
+	@printf "    CC         $(subst $(obj)/,,$(@))\n"
+	$(CC) -MMD -D__PRE_RAM__ $(CFLAGS) -c -o $@ $<
 
 #######################################################################
 # Clean up rules

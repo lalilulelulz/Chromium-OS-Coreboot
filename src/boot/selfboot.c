@@ -494,7 +494,7 @@ static int load_self_segments(
 	return 1;
 }
 
-static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload)
+int selfboot(struct lb_memory *mem, struct cbfs_payload *payload)
 {
 	u32 entry=0;
 	struct segment head;
@@ -519,6 +519,11 @@ static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload)
 	timestamp_add_now(TS_SELFBOOT_JUMP);
 #endif
 
+	/* Before we go off to run the payload, see if
+	 * we stayed within our bounds.
+	 */
+	checkstack(_estack, 0);
+
 	/* Jump to kernel */
 	jmp_to_elf_entry((void*)entry, bounce_buffer, bounce_size);
 	return 1;
@@ -532,13 +537,7 @@ void *cbfs_load_payload(struct lb_memory *lb_mem, const char *name)
 	struct cbfs_payload *payload;
 
 	payload = (struct cbfs_payload *)cbfs_find_file(name, CBFS_TYPE_PAYLOAD);
-	if (payload == NULL)
-		return (void *) -1;
-	printk(BIOS_DEBUG, "Got a payload\n");
 
-	selfboot(lb_mem, payload);
-	printk(BIOS_EMERG, "SELFBOOT RETURNED!\n");
-
-	return (void *) -1;
+	return payload;
 }
 

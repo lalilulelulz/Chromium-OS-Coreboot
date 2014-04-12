@@ -62,7 +62,7 @@ static void acpi_create_intel_hpet(acpi_hpet_t * hpet)
 	/* fill out header fields */
 	memcpy(header->signature, "HPET", 4);
 	memcpy(header->oem_id, OEM_ID, 6);
-	memcpy(header->oem_table_id, "IC      ", 8);
+	memcpy(header->oem_table_id, ACPI_TABLE_CREATOR, 8);
 	memcpy(header->asl_compiler_id, ASLC, 4);
 
 	header->length = sizeof(acpi_hpet_t);

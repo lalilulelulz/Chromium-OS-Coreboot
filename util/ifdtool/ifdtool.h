@@ -18,12 +18,21 @@
  */
 
 #include <stdint.h>
-#define IFDTOOL_VERSION "1.0"
+#define IFDTOOL_VERSION "1.1"
 
 enum spi_frequency {
 	SPI_FREQUENCY_20MHZ = 0,
 	SPI_FREQUENCY_33MHZ = 1,
 	SPI_FREQUENCY_50MHZ = 4,
+};
+
+enum component_density {
+	COMPONENT_DENSITY_512KB = 0,
+	COMPONENT_DENSITY_1MB   = 1,
+	COMPONENT_DENSITY_2MB   = 2,
+	COMPONENT_DENSITY_4MB   = 3,
+	COMPONENT_DENSITY_8MB   = 4,
+	COMPONENT_DENSITY_16MB  = 5,
 };
 
 // flash descriptor
@@ -70,6 +79,8 @@ typedef struct {
 	uint32_t pchstrp13;
 	uint32_t pchstrp14;
 	uint32_t pchstrp15;
+	uint32_t pchstrp16;
+	uint32_t pchstrp17;
 } __attribute__((packed)) fpsba_t;
 
 // master
@@ -84,4 +95,17 @@ typedef struct {
 	uint32_t data[8];
 } __attribute__((packed)) fmsba_t;
 
+// ME VSCC
+typedef struct {
+	uint32_t jid;
+	uint32_t vscc;
+} vscc_t;
 
+typedef struct {
+	// Actual number of entries specified in vtl
+	vscc_t entry[8];
+} vtba_t;
+
+typedef struct {
+	int base, limit, size;
+} region_t;

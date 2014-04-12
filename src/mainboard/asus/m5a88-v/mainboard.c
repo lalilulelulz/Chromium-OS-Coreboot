@@ -26,7 +26,6 @@
 #include <cpu/amd/mtrr.h>
 #include <device/pci_def.h>
 #include "SBPLATFORM.h"
-#include "chip.h"
 
 uint64_t uma_memory_base, uma_memory_size;
 

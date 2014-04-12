@@ -34,7 +34,6 @@ config SOUTH_BRIDGE_OPTIONS # dummy
 	select PCIEXP_ASPM
 	select PCIEXP_COMMON_CLOCK
 	select SPI_FLASH
-	select SPI_FLASH_NO_FAST_READ
 
 config EHCI_BAR
 	hex
@@ -55,16 +54,4 @@ config SERIRQ_CONTINUOUS_MODE
 	  If you set this option to y, the serial IRQ machine will be
 	  operated in continuous mode.
 
-endif
-
-if SOUTHBRIDGE_INTEL_BD82X6X
-config PCH_CHIP_NAME
-	string
-	default "Cougar Point"
-endif
-
-if SOUTHBRIDGE_INTEL_C216
-config PCH_CHIP_NAME
-	string
-	default "Panther Point"
 endif

@@ -21,9 +21,12 @@
 #include <string.h>
 #include <cbfs.h>
 #include <console/console.h>
+#include <elog.h>
+
+#include "chromeos.h"
 #include "gnvs.h"
 
-chromeos_acpi_t *vboot_data;
+chromeos_acpi_t *vboot_data = NULL;
 static u32 me_hash_saved[8];
 
 void chromeos_init_vboot(chromeos_acpi_t *chromeos)
@@ -32,47 +35,16 @@ void chromeos_init_vboot(chromeos_acpi_t *chromeos)
 
 	/* Copy saved ME hash into NVS */
 	memcpy(vboot_data->mehh, me_hash_saved, sizeof(vboot_data->mehh));
-}
 
-void chromeos_set_vboot_data_ptr(void *blob)
-{
-	/* This code has to be rewritten to pass the vboot table
-	 * pointer through the coreboot table instead of the 
-	 * FDT, since FDT support was rejected upstream. For now
-	 * just make the code available for reference.
-	 */
-#if 0 // CONFIG_ADD_FDT
-	int node_offset, addr_cell_len;
-	const u32 *cell;
-	uintptr_t table_addr = (uintptr_t)vboot_data;
-	u32 table_addr32;
-	u64 table_addr64;
-	void *table_ptr;
-
-	cell = fdt_getprop(blob, 0, "#address-cells", NULL);
-	if (cell && *cell == 2) {
-		addr_cell_len = 8;
-		table_addr64 = cpu_to_fdt64(table_addr);
-		table_ptr = &table_addr64;
-	} else {
-		addr_cell_len = 4;
-		table_addr32 = cpu_to_fdt32(table_addr);
-		table_ptr = &table_addr32;
+#if CONFIG_ELOG
+	if (developer_mode_enabled() ||
+	    (vboot_wants_oprom() && !recovery_mode_enabled()))
+		elog_add_event(ELOG_TYPE_CROS_DEVELOPER_MODE);
+	if (recovery_mode_enabled()) {
+		int reason = get_recovery_mode_from_vbnv();
+		elog_add_event_byte(ELOG_TYPE_CROS_RECOVERY_MODE,
+			    reason ? reason : ELOG_CROS_RECOVERY_MODE_BUTTON);
 	}
-
-	node_offset = fdt_path_offset(blob, "/chromeos-config");
-	if (node_offset < 0) {
-		printk(BIOS_ERR,
-			"Couldn't find /chromeos-config in the fdt.\n");
-		return;
-	}
-
-	if (fdt_setprop(blob, node_offset, "gnvs-vboot-table",
-			table_ptr, addr_cell_len) < 0) {
-		printk(BIOS_ERR, "Couldn't set gnvs-vboot-table.\n");
-	}
-#else
-	printk(BIOS_ERR, "Can't set gnvs-vboot-table.\n");
 #endif
 }
 
@@ -83,7 +55,14 @@ void chromeos_set_me_hash(u32 *hash, int len)
 
 	/* Copy to NVS or save until it is ready */
 	if (vboot_data)
+		/* This does never happen! */
 		memcpy(vboot_data->mehh, hash, len*sizeof(u32));
 	else
 		memcpy(me_hash_saved, hash, len*sizeof(u32));
+}
+
+void acpi_get_vdat_info(void **vdat_addr, uint32_t *vdat_size)
+{
+	*vdat_addr = vboot_data;
+	*vdat_size = sizeof(*vboot_data);
 }

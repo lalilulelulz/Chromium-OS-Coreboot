@@ -2,6 +2,7 @@
  * This file is part of the coreboot project.
  *
  * Copyright (C) 2007-2009 coresystems GmbH
+ * Copyright (C) 2012 The Chromium OS Authors
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,6 +72,7 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	F4OF,	 8,	// 0x22 - FAN 4 OFF Threshold
 	F4ON,	 8,	// 0x23 - FAN 4 ON Threshold
 	F4PW,	 8,	// 0x24 - FAN 4 PWM value
+	TMPS,    8,	// 0x25 - Temperature Sensor ID
 	/* Processor Identification */
 	Offset (0x28),
 	APIC,	 8,	// 0x28 - APIC Enabled by coreboot
@@ -82,8 +84,8 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	/* Super I/O & CMOS config */
 	Offset (0x32),
 	NATP,	 8,	// 0x32 -
-	S5U0,	 8,	// 0x32 - Enable USB0 in S5
-	S5U1,	 8,	// 0x33 - Enable USB1 in S5
+	S5U0,	 8,	// 0x33 - Enable USB0 in S5
+	S5U1,	 8,	// 0x34 - Enable USB1 in S5
 	S3U0,	 8,	// 0x35 - Enable USB0 in S3
 	S3U1,	 8,	// 0x36 - Enable USB1 in S3
 	S33G,	 8,	// 0x37 - Enable 3G in S3
@@ -149,7 +151,7 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	I509,	 8,	// 0xc1 - IGD 0509 modified settings
 	I609,	 8,	// 0xc2 - IGD 0609 modified settings
 	I709,	 8,	// 0xc3 - IGD 0709 modified settings
-	IDMM,	 8,	// 0xc4 - IGD DVMT Mode
+	IDMM,	 8,	// 0xc4 - IGD Power conservation feature
 	IDMS,	 8,	// 0xc5 - IGD DVMT memory size
 	IF1E,	 8,	// 0xc6 - IGD function 1 enable
 	HVCO,	 8,	// 0xc7 - IGD HPLL VCO
@@ -162,10 +164,23 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	NXD7,	32,	// 0xe0 - IGD _DGS next DID7
 	NXD8,	32,	// 0xe4 - IGD _DGS next DID8
 
+	ISCI,	 8,	// 0xe8 - IGD SMI/SCI mode (0: SCI)
+	PAVP,	 8,	// 0xe9 - IGD PAVP data
+	Offset (0xeb),
+	OSCC,	 8,	// 0xeb - PCIe OSC control
+	NPCE,	 8,	// 0xec - native pcie support
+	PLFL,	 8,	// 0xed - platform flavor
+	BREV,	 8,	// 0xee - board revision
+	DPBM,	 8,	// 0xef - digital port b mode
+	DPCM,	 8,	// 0xf0 - digital port c mode
+	DPDM,	 8,	// 0xf1 - digital port d mode
+	ALFP,	 8,	// 0xf2 - active lfp
+	IMON,	 8,	// 0xf3 - current graphics turbo imon value
+	MMIO,	 8,	// 0xf4 - 64bit mmio support
+
 	/* ChromeOS specific */
-	Offset (0xf0),
+	Offset (0x100),
 	#include <vendorcode/google/chromeos/acpi/gnvs.asl>
-	// 0xe8a - end
 }
 
 /* Set flag to enable USB charging in S3 */
@@ -208,11 +223,28 @@ Method (S3GD)
 	Store (Zero, \S33G)
 }
 
+External (\_TZ.THRM)
+External (\_TZ.SKIN)
+
+Method (TZUP)
+{
+	/* Update Primary Thermal Zone */
+	If (CondRefOf (\_TZ.THRM, Local0)) {
+		Notify (\_TZ.THRM, 0x81)
+	}
+
+	/* Update Secondary Thermal Zone */
+	If (CondRefOf (\_TZ.SKIN, Local0)) {
+		Notify (\_TZ.SKIN, 0x81)
+	}
+}
+
 /* Update Fan 0 thresholds */
 Method (F0UT, 2)
 {
 	Store (Arg0, \F0OF)
 	Store (Arg1, \F0ON)
+	TZUP ()
 }
 
 /* Update Fan 1 thresholds */
@@ -220,6 +252,7 @@ Method (F1UT, 2)
 {
 	Store (Arg0, \F1OF)
 	Store (Arg1, \F1ON)
+	TZUP ()
 }
 
 /* Update Fan 2 thresholds */
@@ -227,6 +260,7 @@ Method (F2UT, 2)
 {
 	Store (Arg0, \F2OF)
 	Store (Arg1, \F2ON)
+	TZUP ()
 }
 
 /* Update Fan 3 thresholds */
@@ -234,6 +268,7 @@ Method (F3UT, 2)
 {
 	Store (Arg0, \F3OF)
 	Store (Arg1, \F3ON)
+	TZUP ()
 }
 
 /* Update Fan 4 thresholds */
@@ -241,4 +276,12 @@ Method (F4UT, 2)
 {
 	Store (Arg0, \F4OF)
 	Store (Arg1, \F4ON)
+	TZUP ()
+}
+
+/* Update Temperature Sensor ID */
+Method (TMPU, 1)
+{
+	Store (Arg0, \TMPS)
+	TZUP ()
 }

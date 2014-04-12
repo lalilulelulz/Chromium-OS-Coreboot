@@ -491,6 +491,8 @@ void acpi_write_hest(acpi_hest_t *hest);
 unsigned long acpi_create_hest_error_source(acpi_hest_t *hest, acpi_hest_esd_t *esd, u16 type, void *data, u16 len);
 unsigned long acpi_fill_hest(acpi_hest_t *hest);
 
+extern const unsigned char AmlCode[];
+
 #if CONFIG_HAVE_ACPI_RESUME
 /* 0 = S0, 1 = S1 ...*/
 extern u8 acpi_slp_type;
@@ -500,6 +502,7 @@ void __attribute__((weak)) mainboard_suspend_resume(void);
 void *acpi_find_wakeup_vector(void);
 void *acpi_get_wakeup_rsdp(void);
 void acpi_jump_to_wakeup(void *wakeup_addr);
+void acpi_save_gnvs(u32 gnvs_address);
 
 int acpi_get_sleep_type(void);
 #else	/* CONFIG_HAVE_ACPI_RESUME */
@@ -518,9 +521,5 @@ void generate_cpu_entries(void);
 #define acpi_slp_type 0
 
 #endif	/* CONFIG_GENERATE_ACPI_TABLES */
-
-#if CONFIG_CHROMEOS
-void acpi_get_vdat_info(void **vdat_addr, uint32_t *vdat_size);
-#endif /* CONFIG_CHROMEOS */
 
 #endif  /* __ASM_ACPI_H */

@@ -37,6 +37,7 @@
 #include <pc80/mc146818rtc.h>
 #include <usbdebug.h>
 #include "model_206ax.h"
+#include "chip.h"
 
 /*
  * List of suported C-states in this processor
@@ -115,45 +116,6 @@ static acpi_cstate_t cstate_map[] = {
 	{ 0 }
 };
 
-static const uint32_t microcode_updates[] = {
-	#include "x06_microcode.h"
-};
-
-static void enable_vmx(void)
-{
-	struct cpuid_result regs;
-	msr_t msr;
-	int enable = CONFIG_ENABLE_VMX;
-
-	msr = rdmsr(IA32_FEATURE_CONTROL);
-
-	if (msr.lo & (1 << 0)) {
-		printk(BIOS_ERR, "VMX is locked, so enable_vmx will do nothing\n");
-		/* VMX locked. If we set it again we get an illegal
-		 * instruction
-		 */
-		return;
-	}
-
-	regs = cpuid(1);
-	printk(BIOS_DEBUG, "%s VMX\n", enable ? "Enabling" : "Disabling");
-	if (regs.ecx & CPUID_VMX) {
-		if (enable)
-			msr.lo |= (1 << 2);
-		else
-			msr.lo &= ~(1 << 2);
-
-		if (regs.ecx & CPUID_SMX) {
-			if (enable)
-				msr.lo |= (1 << 1);
-			else
-				msr.lo &= ~(1 << 1);
-		}
-	}
-
-	wrmsr(IA32_FEATURE_CONTROL, msr);
-}
-
 /* Convert time in seconds to POWER_LIMIT_1_TIME MSR value */
 static const u8 power_limit_time_sec_to_msr[] = {
 	[0]   = 0x00,
@@ -212,6 +174,19 @@ static const u8 power_limit_time_msr_to_sec[] = {
 	[0x11] = 128,
 };
 
+int cpu_config_tdp_levels(void)
+{
+	msr_t platform_info;
+
+	/* Minimum CPU revision */
+	if (cpuid_eax(1) < IVB_CONFIG_TDP_MIN_CPUID)
+		return 0;
+
+	/* Bits 34:33 indicate how many levels supported */
+	platform_info = rdmsr(MSR_PLATFORM_INFO);
+	return (platform_info.hi >> 1) & 3;
+}
+
 /*
  * Configure processor power limits if possible
  * This must be done AFTER set of BIOS_RESET_CPL
@@ -268,6 +243,14 @@ void set_power_limits(u8 power_limit_1_time)
 	/* Power limit 2 time is only programmable on SNB EP/EX */
 
 	wrmsr(MSR_PKG_POWER_LIMIT, limit);
+
+	/* Use nominal TDP values for CPUs with configurable TDP */
+	if (cpu_config_tdp_levels()) {
+		msr = rdmsr(MSR_CONFIG_TDP_NOMINAL);
+		limit.hi = 0;
+		limit.lo = msr.lo & 0xff;
+		wrmsr(MSR_TURBO_ACTIVATION_RATIO, limit);
+	}
 }
 
 static void configure_c_states(void)
@@ -323,8 +306,33 @@ static void configure_c_states(void)
 	/* Secondary Plane Current Limit */
 	msr = rdmsr(MSR_PP1_CURRENT_CONFIG);
 	msr.lo &= ~0x1fff;
-	msr.lo |= PP1_CURRENT_LIMIT;
+	if (cpuid_eax(1) >= 0x30600)
+		msr.lo |= PP1_CURRENT_LIMIT_IVB;
+	else
+		msr.lo |= PP1_CURRENT_LIMIT_SNB;
 	wrmsr(MSR_PP1_CURRENT_CONFIG, msr);
+}
+
+static void configure_thermal_target(void)
+{
+	struct cpu_intel_model_206ax_config *conf;
+	device_t lapic;
+	msr_t msr;
+
+	/* Find pointer to CPU configuration */
+	lapic = dev_find_lapic(SPEEDSTEP_APIC_MAGIC);
+	if (!lapic || !lapic->chip_info)
+		return;
+	conf = lapic->chip_info;
+
+	/* Set TCC activaiton offset if supported */
+	msr = rdmsr(MSR_PLATFORM_INFO);
+	if ((msr.lo & (1 << 30)) && conf->tcc_offset) {
+		msr = rdmsr(MSR_TEMPERATURE_TARGET);
+		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
+		msr.lo |= (conf->tcc_offset & 0xf) << 24;
+		wrmsr(MSR_TEMPERATURE_TARGET, msr);
+	}
 }
 
 static void configure_misc(void)
@@ -373,16 +381,24 @@ static void configure_dca_cap(void)
 
 static void set_max_ratio(void)
 {
-	msr_t msr;
+	msr_t msr, perf_ctl;
 
-	/* Platform Info bits 15:8 give max ratio */
-	msr = rdmsr(MSR_PLATFORM_INFO);
-	msr.hi = 0;
-	msr.lo &= 0xff00;
-	wrmsr(IA32_PERF_CTL, msr);
+	perf_ctl.hi = 0;
+
+	/* Check for configurable TDP option */
+	if (cpu_config_tdp_levels()) {
+		/* Set to nominal TDP ratio */
+		msr = rdmsr(MSR_CONFIG_TDP_NOMINAL);
+		perf_ctl.lo = (msr.lo & 0xff) << 8;
+	} else {
+		/* Platform Info bits 15:8 give max ratio */
+		msr = rdmsr(MSR_PLATFORM_INFO);
+		perf_ctl.lo = msr.lo & 0xff00;
+	}
+	wrmsr(IA32_PERF_CTL, perf_ctl);
 
 	printk(BIOS_DEBUG, "model_x06ax: frequency set to %d\n",
-	       ((msr.lo >> 8) & 0xff) * 100);
+	       ((perf_ctl.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK);
 }
 
 static void set_energy_perf_bias(u8 policy)
@@ -420,22 +436,25 @@ static unsigned ehci_debug_addr;
 static void intel_cores_init(device_t cpu)
 {
 	struct cpuid_result result;
-	unsigned cores, threads, i;
+	unsigned threads_per_package, threads_per_core, i;
 
-	result = cpuid_ext(0xb, 0); /* Threads per core */
-	threads = result.ebx & 0xff;
+	/* Logical processors (threads) per core */
+	result = cpuid_ext(0xb, 0);
+	threads_per_core = result.ebx & 0xffff;
 
-	result = cpuid_ext(0xb, 1); /* Cores per package */
-	cores = result.ebx & 0xff;
+	/* Logical processors (threads) per package */
+	result = cpuid_ext(0xb, 1);
+	threads_per_package = result.ebx & 0xffff;
 
 	/* Only initialize extra cores from BSP */
 	if (cpu->path.apic.apic_id)
 		return;
 
-	printk(BIOS_DEBUG, "CPU: %u has %u cores %u threads\n",
-	       cpu->path.apic.apic_id, cores, threads);
+	printk(BIOS_DEBUG, "CPU: %u has %u cores, %u threads per core\n",
+	       cpu->path.apic.apic_id, threads_per_package/threads_per_core,
+	       threads_per_core);
 
-	for (i = 1; i < cores; ++i) {
+	for (i = 1; i < threads_per_package; ++i) {
 		struct device_path cpu_path;
 		device_t new;
 
@@ -445,7 +464,7 @@ static void intel_cores_init(device_t cpu)
 			cpu->path.apic.apic_id + i;
 
 		/* Update APIC ID if no hyperthreading */
-		if (threads == 1)
+		if (threads_per_core == 1)
 			cpu_path.apic.apic_id <<= 1;
 
 		/* Allocate the new cpu device structure */
@@ -457,12 +476,14 @@ static void intel_cores_init(device_t cpu)
 		       cpu->path.apic.apic_id,
 		       new->path.apic.apic_id);
 
+#if CONFIG_SMP && CONFIG_MAX_CPUS > 1
 		/* Start the new cpu */
 		if (!start_cpu(new)) {
 			/* Record the error in cpu? */
 			printk(BIOS_ERR, "CPU %u would not start!\n",
 			       new->path.apic.apic_id);
 		}
+#endif
 	}
 }
 
@@ -474,8 +495,7 @@ static void model_206ax_init(device_t cpu)
 	/* Turn on caching if we haven't already */
 	x86_enable_cache();
 
-	/* Update the microcode */
-	intel_update_microcode(microcode_updates);
+	intel_update_microcode_from_cbfs();
 
 	/* Clear out pending MCEs */
 	configure_mca();
@@ -508,14 +528,14 @@ static void model_206ax_init(device_t cpu)
 	enable_lapic_tpr();
 	setup_lapic();
 
-	/* Enable virtualization if enabled in CMOS */
-	enable_vmx();
-
 	/* Configure C States */
 	configure_c_states();
 
 	/* Configure Enhanced SpeedStep and Thermal Sensors */
 	configure_misc();
+
+	/* Thermal throttle activation offset */
+	configure_thermal_target();
 
 	/* Enable Direct Cache Access */
 	configure_dca_cap();
@@ -541,6 +561,7 @@ static struct cpu_device_id cpu_table[] = {
 	{ X86_VENDOR_INTEL, 0x206a0 }, /* Intel Sandybridge */
 	{ X86_VENDOR_INTEL, 0x206a6 }, /* Intel Sandybridge D1 */
 	{ X86_VENDOR_INTEL, 0x206a7 }, /* Intel Sandybridge D2/J1 */
+	{ X86_VENDOR_INTEL, 0x306a0 }, /* Intel IvyBridge */
 	{ X86_VENDOR_INTEL, 0x306a2 }, /* Intel IvyBridge */
 	{ X86_VENDOR_INTEL, 0x306a4 }, /* Intel IvyBridge */
 	{ X86_VENDOR_INTEL, 0x306a5 }, /* Intel IvyBridge */

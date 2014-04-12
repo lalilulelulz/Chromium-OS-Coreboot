@@ -1,6 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
+ * Copyright (C) 2012 The ChromiumOS Authors.  All rights reserved.
  * Copyright (C) 2000 Ronald G. Minnich
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +27,16 @@
 #include <cpu/cpu.h>
 #include <cpu/x86/msr.h>
 #include <cpu/intel/microcode.h>
+
+#if CONFIG_MICROCODE_IN_CBFS
+#ifdef __PRE_RAM__
+#include <arch/cbfs.h>
+#else
+#include <smp/spinlock.h>
+#include <cbfs.h>
+DECLARE_SPIN_LOCK(microcode_lock)
+#endif
+#endif
 
 struct microcode {
 	u32 hdrver;	/* Header Version */
@@ -68,6 +79,9 @@ static inline u32 read_microcode_rev(void)
 	return msr.hi;
 }
 
+#if CONFIG_MICROCODE_IN_CBFS
+static
+#endif
 void intel_update_microcode(const void *microcode_updates)
 {
 	u32 eax;
@@ -99,6 +113,9 @@ void intel_update_microcode(const void *microcode_updates)
 	 */
 	printk(BIOS_DEBUG, "microcode: sig=0x%x pf=0x%x revision=0x%x\n",
 			sig, pf, rev);
+#if !defined(__PRE_RAM__)
+	spin_lock(&microcode_lock);
+#endif
 #endif
 
 	m = microcode_updates;
@@ -115,8 +132,8 @@ void intel_update_microcode(const void *microcode_updates)
 #if !defined(__ROMCC__)
 			printk(BIOS_DEBUG, "microcode: updated to revision "
 				    "0x%x date=%04x-%02x-%02x\n", new_rev,
-				    m->date & 0xffff, (m->date >> 16) & 0xff,
-				    (m->date >> 24) & 0xff);
+				    m->date & 0xffff, (m->date >> 24) & 0xff,
+				    (m->date >> 16) & 0xff);
 #endif
 			break;
 		}
@@ -130,4 +147,26 @@ void intel_update_microcode(const void *microcode_updates)
 			c += 2048;
 		}
 	}
+
+#if !defined(__ROMCC__) && !defined(__PRE_RAM__)
+	spin_unlock(&microcode_lock);
+#endif
 }
+
+#if CONFIG_MICROCODE_IN_CBFS
+
+#define MICROCODE_CBFS_FILE "microcode_blob.bin"
+
+void intel_update_microcode_from_cbfs(void)
+{
+	void *microcode_blob;
+
+#ifdef __PRE_RAM__
+	microcode_blob = walkcbfs((char *) MICROCODE_CBFS_FILE);
+#else
+	microcode_blob = cbfs_find_file(MICROCODE_CBFS_FILE,
+					CBFS_TYPE_MICROCODE);
+#endif
+	intel_update_microcode(microcode_blob);
+}
+#endif
