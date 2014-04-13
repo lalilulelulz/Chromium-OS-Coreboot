@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA, 02110-1301 USA
  */
 
+#include <arch/byteorder.h>
 #include <console/console.h>
 #include <fallback.h>
 #include <boot/elf.h>
@@ -29,12 +30,8 @@
 #include <string.h>
 #include <cbfs.h>
 #include <lib.h>
-
-#if !CONFIG_BIG_ENDIAN
-#define ntohl(x) ( ((x&0xff)<<24) | ((x&0xff00)<<8) | \
-		((x&0xff0000) >> 8) | ((x&0xff000000) >> 24) )
-#else
-#define ntohl(x) (x)
+#if CONFIG_COLLECT_TIMESTAMPS
+#include <timestamp.h>
 #endif
 
 /* Maximum physical address we can use for the coreboot bounce buffer.
@@ -49,44 +46,12 @@ extern unsigned char _eram_seg;
 struct segment {
 	struct segment *next;
 	struct segment *prev;
-	struct segment *phdr_next;
-	struct segment *phdr_prev;
 	unsigned long s_dstaddr;
 	unsigned long s_srcaddr;
 	unsigned long s_memsz;
 	unsigned long s_filesz;
 	int compression;
 };
-
-struct verify_callback {
-	struct verify_callback *next;
-	int (*callback)(struct verify_callback *vcb,
-		Elf_ehdr *ehdr, Elf_phdr *phdr, struct segment *head);
-	unsigned long desc_offset;
-	unsigned long desc_addr;
-};
-
-struct ip_checksum_vcb {
-	struct verify_callback data;
-	unsigned short ip_checksum;
-};
-
-static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload);
-
-void * cbfs_load_payload(struct lb_memory *lb_mem, const char *name)
-{
-	struct cbfs_payload *payload;
-
-	payload = (struct cbfs_payload *)cbfs_find_file(name, CBFS_TYPE_PAYLOAD);
-	if (payload == NULL)
-		return (void *) -1;
-	printk(BIOS_DEBUG, "Got a payload\n");
-
-	selfboot(lb_mem, payload);
-	printk(BIOS_EMERG, "SELFBOOT RETURNED!\n");
-
-	return (void *) -1;
-}
 
 /* The problem:
  * Static executables all want to share the same addresses
@@ -171,15 +136,20 @@ static int valid_area(struct lb_memory *mem, unsigned long buffer,
 		mtype = mem->map[i].type;
 		mstart = unpack_lb64(mem->map[i].start);
 		mend = mstart + unpack_lb64(mem->map[i].size);
-		if ((mtype == LB_MEM_RAM) && (start < mend) && (end > mstart)) {
+		if ((mtype == LB_MEM_RAM) && (start >= mstart) && (end < mend)) {
 			break;
 		}
-		if ((mtype == LB_MEM_TABLE) && (start < mend) && (end > mstart)) {
+		if ((mtype == LB_MEM_TABLE) && (start >= mstart) && (end < mend)) {
 			printk(BIOS_ERR, "Payload is overwriting coreboot tables.\n");
 			break;
 		}
 	}
 	if (i == mem_entries) {
+		if (start < (1024*1024) && end <=(1024*1024)) {
+			printk(BIOS_DEBUG, "Payload (probably SeaBIOS) loaded"
+				" into a reserved area in the lower 1MB\n");
+			return 1;
+		}
 		printk(BIOS_ERR, "No matching ram area found for range:\n");
 		printk(BIOS_ERR, "  [0x%016lx, 0x%016lx)\n", start, end);
 		printk(BIOS_ERR, "Ram areas\n");
@@ -259,11 +229,6 @@ static int relocate_segment(unsigned long buffer, struct segment *seg)
 			new->prev = seg->prev;
 			seg->prev->next = new;
 			seg->prev = new;
-			/* Order by original program header order */
-			new->phdr_next = seg;
-			new->phdr_prev = seg->phdr_prev;
-			seg->phdr_prev->phdr_next = new;
-			seg->phdr_prev = new;
 
 			/* compute the new value of start */
 			start = seg->s_dstaddr;
@@ -299,11 +264,6 @@ static int relocate_segment(unsigned long buffer, struct segment *seg)
 			new->prev = seg;
 			seg->next->prev = new;
 			seg->next = new;
-			/* Order by original program header order */
-			new->phdr_next = seg->phdr_next;
-			new->phdr_prev = seg;
-			seg->phdr_next->phdr_prev = new;
-			seg->phdr_next = new;
 
 			printk(BIOS_SPEW, "   late: [0x%016lx, 0x%016lx, 0x%016lx)\n",
 				new->s_dstaddr,
@@ -331,13 +291,14 @@ static int relocate_segment(unsigned long buffer, struct segment *seg)
 static int build_self_segment_list(
 	struct segment *head,
 	struct lb_memory *mem,
-	struct cbfs_payload *payload, u32 *entry)
+	struct cbfs_payload *payload,
+	u32 payload_len,
+	u32 *entry)
 {
 	struct segment *new;
 	struct segment *ptr;
 	struct cbfs_payload_segment *segment, *first_segment;
 	memset(head, 0, sizeof(*head));
-	head->phdr_next = head->phdr_prev = head;
 	head->next = head->prev = head;
 	first_segment = segment = &payload->segments;
 
@@ -361,6 +322,13 @@ static int build_self_segment_list(
 
 			new->s_srcaddr = (u32) ((unsigned char *) first_segment) + ntohl(segment->offset);
 			new->s_filesz = ntohl(segment->len);
+
+			if ((new->s_srcaddr < (u32)payload) ||
+				((new->s_srcaddr + new->s_filesz) >
+				(payload_len + (u32)payload))) {
+				printk(BIOS_WARNING, "WARNING: source address not within payload file!\n");
+			}
+
 			printk(BIOS_DEBUG, "  New segment dstaddr 0x%lx memsize 0x%lx srcaddr 0x%lx filesize 0x%lx\n",
 				new->s_dstaddr, new->s_memsz, new->s_srcaddr, new->s_filesz);
 			/* Clean up the values */
@@ -398,9 +366,10 @@ static int build_self_segment_list(
 			return -1;
 		}
 
+		/* We have found another CODE, DATA or BSS segment */
 		segment++;
 
-		// FIXME: Explain what this is
+		/* Find place where to insert our segment */
 		for(ptr = head->next; ptr != head; ptr = ptr->next) {
 			if (new->s_srcaddr < ntohl((u32) segment->load_addr))
 				break;
@@ -411,12 +380,6 @@ static int build_self_segment_list(
 		new->prev = ptr->prev;
 		ptr->prev->next = new;
 		ptr->prev = new;
-
-		/* Order by original program header order */
-		new->phdr_next = head;
-		new->phdr_prev = head->phdr_prev;
-		head->phdr_prev->phdr_next  = new;
-		head->phdr_prev = new;
 	}
 
 	return 1;
@@ -431,7 +394,8 @@ static int load_self_segments(
 
 	unsigned long bounce_high = lb_end;
 	for(ptr = head->next; ptr != head; ptr = ptr->next) {
-		if (!overlaps_coreboot(ptr)) continue;
+		if (!overlaps_coreboot(ptr))
+			continue;
 		if (ptr->s_dstaddr + ptr->s_memsz > bounce_high)
 			bounce_high = ptr->s_dstaddr + ptr->s_memsz;
 	}
@@ -534,13 +498,13 @@ static int load_self_segments(
 	return 1;
 }
 
-static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload)
+static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload, u32 payload_len)
 {
 	u32 entry=0;
 	struct segment head;
 
 	/* Preprocess the self segments */
-	if (!build_self_segment_list(&head, mem, payload, &entry))
+	if (!build_self_segment_list(&head, mem, payload, payload_len, &entry))
 		goto out;
 
 	/* Load the segments */
@@ -555,11 +519,45 @@ static int selfboot(struct lb_memory *mem, struct cbfs_payload *payload)
 	printk(BIOS_DEBUG, "Jumping to boot code at %x\n", entry);
 	post_code(POST_ENTER_ELF_BOOT);
 
+#if CONFIG_COLLECT_TIMESTAMPS
+	timestamp_add_now(TS_SELFBOOT_JUMP);
+#endif
+
 	/* Jump to kernel */
 	jmp_to_elf_entry((void*)entry, bounce_buffer, bounce_size);
 	return 1;
 
  out:
 	return 0;
+}
+
+void * cbfs_load_payload(struct lb_memory *lb_mem, const char *name)
+{
+	struct cbfs_payload *payload;
+	struct cbfs_file *file = cbfs_find(name);
+
+	if (file == NULL) {
+		printk(BIOS_INFO,  "CBFS: Could not find file %s\n",
+		       name);
+		return (void *) -1;
+	}
+
+	if (ntohl(file->type) != CBFS_TYPE_PAYLOAD) {
+		printk(BIOS_INFO,  "CBFS: File %s is of type %x instead of "
+		       "type %x\n", name, file->type, CBFS_TYPE_PAYLOAD);
+
+		return (void *) -1;
+	}
+
+	payload = (struct cbfs_payload *)CBFS_SUBHEADER(file);
+	if (payload == NULL)
+		return (void *) -1;
+
+	printk(BIOS_DEBUG, "Got a payload\n");
+
+	selfboot(lb_mem, payload, ntohl(file->len));
+	printk(BIOS_EMERG, "SELFBOOT RETURNED!\n");
+
+	return (void *) -1;
 }
 

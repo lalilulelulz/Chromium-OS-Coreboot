@@ -19,8 +19,8 @@
 
 #######################################################################
 # misleadingly named, this is the coreboot version
-REV=-r$(shell if [ -d $(top)/.svn -a -f "`which svnversion`" ]; then svnversion $(top); else if [ -d $(top)/.git -a -f "`which git`" ]; then git --git-dir=/$(top)/.git log|grep git-svn-id|cut -f 2 -d@|cut -f 1 -d' '|sort -g|tail -1; fi; fi)
-export KERNELVERSION      := 4.0$(REV)
+KERNELREVISION?=-r$(shell if [ -d $(top)/.svn -a -f "`which svnversion`" ]; then svnversion $(top); else if [ -d $(top)/.git -a -f "`which git`" ]; then git --git-dir=/$(top)/.git log|grep git-svn-id|cut -f 2 -d@|cut -f 1 -d' '|sort -g|tail -1; fi; fi)
+export KERNELVERSION      := 4.0$(KERNELREVISION)
 
 #######################################################################
 # Basic component discovery
@@ -43,6 +43,7 @@ subdirs-y := src/lib src/boot src/console src/devices src/ec src/southbridge src
 subdirs-y += util/cbfstool util/sconfig
 subdirs-y += src/arch/$(ARCHDIR-y)
 subdirs-y += src/mainboard/$(MAINBOARDDIR)
+subdirs-y += src/vendorcode
 
 subdirs-$(CONFIG_ARCH_X86) += src/pc80
 
@@ -55,6 +56,11 @@ romstage-S-ccopts:=-D__PRE_RAM__
 smm-c-ccopts:=-D__SMM__
 smm-S-ccopts:=-D__SMM__
 
+# SMM TSEG base is dynamic
+ifeq ($(CONFIG_SMM_TSEG),y)
+smm-c-ccopts += -fpic
+endif
+
 ramstage-c-deps:=$$(OPTION_TABLE_H)
 romstage-c-deps:=$$(OPTION_TABLE_H)
 
@@ -64,7 +70,8 @@ define ramstage-objs_asl_template
 $(obj)/$(1).ramstage.o: src/$(1).asl $(obj)/config.h
 	@printf "    IASL       $$(subst $(top)/,,$$(@))\n"
 	$(CC) -x assembler-with-cpp -E -MMD -MT $$(@) -D__ACPI__ -P -include $(abspath $(obj)/config.h) -I$(src) -I$(src)/mainboard/$(MAINBOARDDIR) $$< -o $$(basename $$@).asl
-	iasl -p $$(obj)/$(1) -tc $$(basename $$@).asl
+	cd $$(dir $$@); iasl -p $$(notdir $$(basename $$(obj)/$(1))) \
+				-tc $$(notdir $$(basename $$@)).asl
 	mv $$(obj)/$(1).hex $$(basename $$@).c
 	$(CC) $$(CFLAGS) $$(if $$(subst dsdt,,$$(basename $$(notdir $(1)))), -DAmlCode=AmlCode_$$(basename $$(notdir $(1)))) -c -o $$@ $$(basename $$@).c
 	# keep %.o: %.c rule from catching the temporary .c file after a make clean
@@ -102,7 +109,7 @@ COREBOOT_EXTRA_VERSION := -$(call strip_quotes,$(CONFIG_LOCALVERSION))
 endif
 
 INCLUDES := -Isrc -Isrc/include -I$(obj) -Isrc/arch/$(ARCHDIR-y)/include
-INCLUDES += -Isrc/devices/oprom/include
+INCLUDES += -Isrc/devices/oprom/include -Isrc/include/fdt
 # abspath is a workaround for romcc
 INCLUDES += -include $(abspath $(obj)/config.h)
 
@@ -131,6 +138,7 @@ $(obj)/build.h: .xcompile
 	printf "#define COREBOOT_VERSION \"$(KERNELVERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_EXTRA_VERSION \"$(COREBOOT_EXTRA_VERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_BUILD \"`LANG= date`\"\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_DMI_DATE \"`LANG= date +"%m/%d/%Y"`\"\n" >> $(obj)/build.ht
 	printf "\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_COMPILER \"$(shell LANG= $(CC) --version | head -n1)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_ASSEMBLER \"$(shell LANG= $(AS) --version | head -n1)\"\n" >> $(obj)/build.ht
@@ -182,7 +190,7 @@ $(objutil)/%.o: $(objutil)/%.c
 	@printf "    HOSTCC     $(subst $(objutil)/,,$(@))\n"
 	$(HOSTCC) -MMD -I$(subst $(objutil)/,util/,$(dir $<)) -I$(dir $<) $(HOSTCFLAGS) -c -o $@ $<
 
-$(obj)/%.ramstage.o: $(obj)/%.c $(obj)/config.h $(OPTION_TABLE_H)
+$(obj)/%.ramstage.o $(abspath $(obj))/%.ramstage.o: $(obj)/%.c $(obj)/config.h $(OPTION_TABLE_H)
 	@printf "    CC         $(subst $(obj)/,,$(@))\n"
 	$(CC) -MMD $(CFLAGS) -c -o $@ $<
 

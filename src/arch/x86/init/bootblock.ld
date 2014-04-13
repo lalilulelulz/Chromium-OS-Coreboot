@@ -50,5 +50,12 @@ SECTIONS
 		*(.note.*)
 	}
 
+	. = CONFIG_DCACHE_RAM_BASE;
+	.car.data . (NOLOAD) : {
+		*(.car.global_data);
+		*(.car.cbmem_console);
+	}
+
+	_bogus = ASSERT((SIZEOF(.car.data) <= CONFIG_DCACHE_RAM_SIZE), "Cache as RAM area is too full");
 	_bogus = ASSERT((SIZEOF(.bss) + SIZEOF(.data)) == 0 || CONFIG_AMD_AGESA, "Do not use global variables in romstage");
 }

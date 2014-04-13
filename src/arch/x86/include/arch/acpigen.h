@@ -24,14 +24,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <arch/acpi.h>
+
 void acpigen_patch_len(int len);
 void acpigen_set_current(char *curr);
 char *acpigen_get_current(void);
+int acpigen_write_len_f(void);
 int acpigen_write_package(int nr_el);
+int acpigen_write_register(acpi_addr_t *addr);
 int acpigen_write_byte(unsigned int data);
 int acpigen_emit_byte(unsigned char data);
 int acpigen_emit_stream(const char *data, int size);
 int acpigen_emit_namestring(const char *namepath);
+int acpigen_write_word(unsigned int data);
 int acpigen_write_dword(unsigned int data);
 int acpigen_write_qword(uint64_t data);
 int acpigen_write_name(const char *name);
@@ -40,11 +45,16 @@ int acpigen_write_name_qword(const char *name, uint64_t val);
 int acpigen_write_name_byte(const char *name, uint8_t val);
 int acpigen_write_scope(const char *name);
 int acpigen_write_PPC(u8 nr);
+int acpigen_write_TPC(const char *gnvs_tpc_limit);
 int acpigen_write_empty_PCT(void);
+int acpigen_write_empty_PTC(void);
+int acpigen_write_CST_package(u8 level, acpi_cstate_t *cstate);
+int acpigen_write_TSS_package(int entries, acpi_tstate_t *tstate_list);
 int acpigen_write_PSS_package(u32 coreFreq, u32 power, u32 transLat, u32 busmLat,
 			u32 control, u32 status);
 typedef enum { SW_ALL=0xfc, SW_ANY=0xfd, HW_ALL=0xfe } PSD_coord;
 int acpigen_write_PSD_package(u32 domain, u32 numprocs, PSD_coord coordtype);
+int acpigen_write_TSD_package(u32 domain, u32 numprocs, PSD_coord coordtype);
 int acpigen_write_processor(u8 cpuindex, u32 pblock_addr, u8 pblock_len);
 int acpigen_write_mem32fixed(int readwrite, u32 base, u32 size);
 int acpigen_write_io16(u16 min, u16 max, u8 align, u8 len, u8 decode16);

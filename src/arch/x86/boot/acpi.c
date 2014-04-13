@@ -29,8 +29,12 @@
 #include <string.h>
 #include <arch/acpi.h>
 #include <arch/acpigen.h>
+#include <arch/io.h>
 #include <device/pci.h>
 #include <cbmem.h>
+#if CONFIG_COLLECT_TIMESTAMPS
+#include <timestamp.h>
+#endif
 
 u8 acpi_checksum(u8 *table, u32 length)
 {
@@ -472,8 +476,12 @@ void suspend_resume(void)
 
 	/* If we happen to be resuming find wakeup vector and jump to OS. */
 	wake_vec = acpi_find_wakeup_vector();
-	if (wake_vec)
+	if (wake_vec) {
+		/* Call mainboard resume handler first, if defined. */
+		if (mainboard_suspend_resume)
+			mainboard_suspend_resume();
 		acpi_jump_to_wakeup(wake_vec);
+	}
 }
 
 /* This is to be filled by SB code - startup value what was found. */
@@ -597,6 +605,10 @@ void acpi_jump_to_wakeup(void *vector)
 
 	/* Copy wakeup trampoline in place. */
 	memcpy((void *)WAKEUP_BASE, &__wakeup, (size_t)&__wakeup_size);
+
+#if CONFIG_COLLECT_TIMESTAMPS
+	timestamp_add_now(TS_ACPI_WAKE_JUMP);
+#endif
 
 	acpi_do_wakeup((u32)vector, acpi_backup_memory, CONFIG_RAMBASE,
 		       HIGH_MEMORY_SAVE);

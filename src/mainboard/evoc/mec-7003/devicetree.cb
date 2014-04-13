@@ -1,0 +1,110 @@
+chip northbridge/intel/sandybridge
+
+        device lapic_cluster 0 on
+                chip cpu/intel/socket_rPGA989
+                        device lapic 0 on end
+                end
+        end
+
+        device pci_domain 0 on
+		device pci 00.0 on end # host bridge
+		device pci 02.0 on end # vga controller
+
+                chip southbridge/intel/bd82x6x # Intel Series 6 Cougar Point PCH
+			register "pirqa_routing" = "0x8b"
+			register "pirqb_routing" = "0x8a"
+			register "pirqc_routing" = "0x8b"
+			register "pirqd_routing" = "0x8b"
+			register "pirqe_routing" = "0x80"
+			register "pirqf_routing" = "0x80"
+			register "pirqg_routing" = "0x80"
+			register "pirqh_routing" = "0x80"
+
+			# GPI routing
+			#  0 No effect (default)
+			#  1 SMI# (if corresponding ALT_GPI_SMI_EN bit is also set)
+			#  2 SCI (if corresponding GPIO_EN bit is also set)
+			register "gpi4_routing" = "2"
+			register "gpi5_routing" = "1"
+			register "gpi13_routing" = "2"
+
+                        register "ide_legacy_combined" = "0x1"
+                        register "sata_ahci" = "0x0"
+
+                	device pci 1b.0 on end # High Definition Audio
+                	device pci 1c.0 on end # PCIe
+                	device pci 1c.1 on end # PCIe
+                	device pci 1c.2 on end # PCIe
+			device pci 1c.3 on end # PCIe
+
+                	device pci 1d.0 on end # USB UHCI
+                	device pci 1d.1 on end # USB UHCI
+                	device pci 1d.2 on end # USB UHCI
+                	device pci 1d.3 on end # USB UHCI
+                	device pci 1d.7 on end # USB2 EHCI
+
+                	device pci 1e.0 on end # PCI bridge
+                        device pci 1f.0 on # LPC bridge
+                                chip superio/nuvoton/nct6776f
+					device pnp 2e.4 on # System Wake-Up Control
+						io 0x60 = 0x00
+						io 0x62 = 0x00
+						irq 0x70 = 0
+						irq 0x71 = 1
+					end
+					device pnp 2e.5 on # KBC/Mouse Interface
+						io 0x60 = 0x00
+						io 0x62 = 0x00
+						irq 0x70 = 12
+						irq 0x71 = 1
+					end
+                                        device pnp 2e.6 on # KBC/Keyboard Interface
+						io 0x60 = 0x60
+						io 0x62 = 0x64
+						irq 0x70 = 1
+						irq 0x71 = 1
+                                        end
+                                        device pnp 2e.f on # Shared Memory/Flash Interface
+						io 0x60 = 0x200
+                                        end
+                                        device pnp 2e.10 on # BRAM
+						io 0x62 = 0x700
+                                        end
+                                        device pnp 2e.11 on # Power Management I/F Channel 1
+						io 0x60 = 0x62
+						io 0x62 = 0x66
+						irq 0x70 = 1
+                                        end
+                                        device pnp 2e.12 on # Power Management I/F Channel 2
+						io 0x60 = 0x80
+						io 0x62 = 0x84
+						io 0x64 = 0x400
+						irq 0x70 = 2
+                                        end
+                                end
+                                chip superio/smsc/fdc37n972
+					device pnp 4e.0 off # Floppy
+					end
+					device pnp 4e.1 off # Power Management
+					end
+					device pnp 4e.3 off # Parallel Port
+					end
+					device pnp 4e.4 off # COM1
+					end
+					device pnp 4e.5 off # COM2
+					end
+					device pnp 4e.6 off # RTC
+					end
+					device pnp 4e.7 off # Keyboard
+					end
+					device pnp 4e.8 off # Embedded controller
+					end
+					device pnp 4e.9 off # Mailbox
+					end
+				end
+                        end
+                        device pci 1f.2 on end  # SATA
+                        device pci 1f.3 on end  # SMBus
+                end
+        end
+end

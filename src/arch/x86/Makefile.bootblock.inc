@@ -3,9 +3,11 @@
 
 $(obj)/coreboot.pre: $(obj)/coreboot.romstage $(obj)/coreboot.pre1 $(CBFSTOOL)
 	@printf "    CBFS       $(subst $(obj)/,,$(@))\n"
-	rm -f $@
-	cp $(obj)/coreboot.pre1 $@
-	$(CBFSTOOL) $@ add-stage $(obj)/romstage.elf $(CONFIG_CBFS_PREFIX)/romstage x 0x$(shell cat $(obj)/location.txt)
+	cp $(obj)/coreboot.pre1 $@.tmp
+	$(CBFSTOOL) $@.tmp add-stage $(obj)/romstage.elf \
+            $(CONFIG_CBFS_PREFIX)/romstage x 0x$(shell cat $(obj)/location.txt)
+	mv $@.tmp $@
+
 #FIXME: location.txt might require an offset of header size
 
 #######################################################################

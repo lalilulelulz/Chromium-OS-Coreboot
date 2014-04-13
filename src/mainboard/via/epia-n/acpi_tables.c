@@ -29,6 +29,7 @@
 
 #include <console/console.h>
 #include <string.h>
+#include <stdlib.h>
 #include <arch/acpi.h>
 #include <arch/ioapic.h>
 #include <device/device.h>
@@ -117,10 +118,6 @@ unsigned long acpi_fill_srat(unsigned long current)
 	/* No NUMA, no SRAT */
 	return current;
 }
-
-#define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1)
-#define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
-#define ALIGN_CURRENT current = ((current + 0x0f) & -0x10)
 
 unsigned long write_acpi_tables(unsigned long start)
 {

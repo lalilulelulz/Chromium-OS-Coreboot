@@ -1,0 +1,5 @@
+build
+coreboot-builds
+.config
+.config.old
+.xcompile

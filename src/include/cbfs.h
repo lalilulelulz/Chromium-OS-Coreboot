@@ -49,6 +49,7 @@
 #ifndef _CBFS_H_
 #define _CBFS_H_
 
+#include <arch/byteorder.h>
 #include <boot/coreboot_tables.h>
 /** These are standard values for the known compression
     alogrithms that coreboot knows about for stages and
@@ -72,17 +73,18 @@
 #define CBFS_TYPE_MBI        0x52
 #define CBFS_TYPE_MICROCODE  0x53
 #define CBFS_COMPONENT_CMOS_DEFAULT 0xaa
+#define CBFS_TYPE_FDT	     0xac
 #define CBFS_COMPONENT_CMOS_LAYOUT 0x01aa
 
 
 /** this is the master cbfs header - it need to be
     located somewhere in the bootblock.  Where it
     actually lives is up to coreboot. A pointer to
-    this header will live at 0xFFFFFFFc, so we can
+    this header will live at 0xfffffffc, so we can
     easily find it. */
 
-#define CBFS_HEADER_MAGIC  0x4F524243
-#define CBFS_HEADPTR_ADDR 0xFFFFFFFc
+#define CBFS_HEADER_MAGIC  0x4f524243
+#define CBFS_HEADPTR_ADDR 0xfffffffc
 #define VERSION1 0x31313131
 
 struct cbfs_header {
@@ -152,11 +154,11 @@ struct cbfs_payload {
 	struct cbfs_payload_segment segments;
 };
 
-#define PAYLOAD_SEGMENT_CODE   0x45444F43
+#define PAYLOAD_SEGMENT_CODE   0x45444f43
 #define PAYLOAD_SEGMENT_DATA   0x41544144
 #define PAYLOAD_SEGMENT_BSS    0x20535342
 #define PAYLOAD_SEGMENT_PARAMS 0x41524150
-#define PAYLOAD_SEGMENT_ENTRY  0x52544E45
+#define PAYLOAD_SEGMENT_ENTRY  0x52544e45
 
 struct cbfs_optionrom {
 	u32 compression;
@@ -169,10 +171,12 @@ struct cbfs_optionrom {
 void * cbfs_load_payload(struct lb_memory *lb_mem, const char *name);
 void * cbfs_load_stage(const char *name);
 int cbfs_execute_stage(const char *name);
-void * cbfs_get_file(const char *name);
 void *cbfs_load_optionrom(u16 vendor, u16 device, void * dest);
 int run_address(void *f);
 struct cbfs_file *cbfs_find(const char *name);
 void *cbfs_find_file(const char *name, int type);
+struct cbfs_header *get_cbfs_header(void);
+void *get_cbfs_base(void);
+u32 get_cbfs_size(void);
 #endif
 

@@ -26,6 +26,7 @@
 #define ACPIGEN_MAXLEN 0xfff
 
 #include <string.h>
+#include <arch/acpi.h>
 #include <arch/acpigen.h>
 #include <console/console.h>
 #include <device/device.h>
@@ -35,7 +36,7 @@ static char *gencurrent;
 char *len_stack[ACPIGEN_LENSTACK_SIZE];
 int ltop = 0;
 
-static int acpigen_write_len_f(void)
+int acpigen_write_len_f(void)
 {
 	ASSERT(ltop < (ACPIGEN_LENSTACK_SIZE - 1))
 	    len_stack[ltop++] = gencurrent;
@@ -71,6 +72,26 @@ int acpigen_emit_byte(unsigned char b)
 	return 1;
 }
 
+int acpigen_write_register(acpi_addr_t *addr)
+{
+	acpigen_emit_byte(0x82);		/* Register Descriptor */
+	acpigen_emit_byte(0x0c);		/* Register Length 7:0 */
+	acpigen_emit_byte(0x00);		/* Register Length 15:8 */
+	acpigen_emit_byte(addr->space_id);	/* Address Space ID */
+	acpigen_emit_byte(addr->bit_width);	/* Register Bit Width */
+	acpigen_emit_byte(addr->bit_offset);	/* Register Bit Offset */
+	acpigen_emit_byte(addr->resv);		/* Register Access Size */
+	acpigen_emit_byte(addr->addrl & 0xff);	/* Register Address Low */
+	acpigen_emit_byte((addr->addrl >> 8) & 0xff);
+	acpigen_emit_byte((addr->addrl >> 16) & 0xff);
+	acpigen_emit_byte((addr->addrl >> 24) & 0xff);
+	acpigen_emit_byte(addr->addrh & 0xff);	/* Register Address High */
+	acpigen_emit_byte((addr->addrh >> 8) & 0xff);
+	acpigen_emit_byte((addr->addrh >> 16) & 0xff);
+	acpigen_emit_byte((addr->addrh >> 24) & 0xff);
+	return 15;
+}
+
 int acpigen_write_package(int nr_el)
 {
 	int len;
@@ -87,6 +108,15 @@ int acpigen_write_byte(unsigned int data)
 	acpigen_emit_byte(0xa);
 	acpigen_emit_byte(data & 0xff);
 	return 2;
+}
+
+int acpigen_write_word(unsigned int data)
+{
+	/* word op */
+	acpigen_emit_byte(0xb);
+	acpigen_emit_byte(data & 0xff);
+	acpigen_emit_byte((data >> 8) & 0xff);
+	return 3;
 }
 
 int acpigen_write_dword(unsigned int data)
@@ -315,6 +345,59 @@ int acpigen_write_empty_PCT(void)
 	return acpigen_emit_stream(stream, ARRAY_SIZE(stream));
 }
 
+int acpigen_write_empty_PTC(void)
+{
+/*
+    Name (_PTC, Package (0x02)
+    {
+        ResourceTemplate ()
+        {
+            Register (FFixedHW,
+                0x00,               // Bit Width
+                0x00,               // Bit Offset
+                0x0000000000000000, // Address
+                ,)
+        },
+
+        ResourceTemplate ()
+        {
+            Register (FFixedHW,
+                0x00,               // Bit Width
+                0x00,               // Bit Offset
+                0x0000000000000000, // Address
+                ,)
+        }
+    })
+*/
+	int len, nlen, rlen;
+	acpi_addr_t addr = {
+		.space_id   = ACPI_ADDRESS_SPACE_FIXED,
+		.bit_width  = 0,
+		.bit_offset = 0,
+		.resv       = 0,
+		.addrl      = 0,
+		.addrh      = 0,
+	};
+
+	nlen = acpigen_write_name("_PTC");
+	len = acpigen_write_package(2);
+
+	/* ControlRegister */
+	rlen = acpigen_write_resourcetemplate_header();
+	rlen += acpigen_write_register(&addr);
+	len += acpigen_write_resourcetemplate_footer(rlen);
+	len += rlen;
+
+	/* StatusRegister */
+	rlen = acpigen_write_resourcetemplate_header();
+	rlen += acpigen_write_register(&addr);
+	len += acpigen_write_resourcetemplate_footer(rlen);
+	len += rlen;
+
+	acpigen_patch_len(len - 1);
+	return len + nlen;
+}
+
 /* generates a func with max supported P states */
 int acpigen_write_PPC(u8 nr)
 {
@@ -341,6 +424,91 @@ int acpigen_write_PPC(u8 nr)
 	return len;
 }
 
+int acpigen_write_TPC(const char *gnvs_tpc_limit)
+{
+/*
+    // Sample _TPC method
+    Method (_TPC, 0, NotSerialized)
+    {
+        Return (\TLVL)
+    }
+ */
+	int len;
+
+	len = acpigen_emit_byte(0x14);		/* MethodOp */
+	len += acpigen_write_len_f();		/* PkgLength */
+	len += acpigen_emit_namestring("_TPC");
+	len += acpigen_emit_byte(0x00);		/* No Arguments */
+	len += acpigen_emit_byte(0xa4);		/* ReturnOp */
+	len += acpigen_emit_namestring(gnvs_tpc_limit);
+	acpigen_patch_len(len - 1);
+	return len;
+}
+
+int acpigen_write_CST_package(u8 level, acpi_cstate_t *cstate)
+{
+/*
+    // Sample C2 state _CST package
+    Package (0x04)
+    {
+        ResourceTemplate ()
+        {
+            Register (SystemIO,
+                0x08,               // Register Bit Width
+                0x00,               // Register Bit Offset
+                0x0000000000000514, // Register Address
+            )
+        },
+        0x02,
+        0x0002,
+        0x000001F4
+    }
+ */
+	int len, rlen;
+	len = acpigen_write_package(4);
+	rlen = acpigen_write_resourcetemplate_header();
+	rlen += acpigen_write_register(&cstate->resource);
+	len += acpigen_write_resourcetemplate_footer(rlen);
+	len += rlen;
+	len += acpigen_write_byte((level > 3) ? 3 : level);
+	len += acpigen_write_word(cstate->latency);
+	len += acpigen_write_dword(cstate->power);
+	acpigen_patch_len(len - 1);
+	return len;
+}
+
+int acpigen_write_TSS_package(int entries, acpi_tstate_t *tstate_list)
+{
+/*
+    // Sample _TSS package with 100% and 50% duty cycles
+    Name (_TSS, Package (0x02)
+    {
+        Package(){100, 1000, 0, 0x00, 0)
+        Package(){50, 520, 0, 0x18, 0)
+    })
+ */
+	int i, len, plen, nlen;
+	acpi_tstate_t *tstate = tstate_list;
+
+	nlen = acpigen_write_name("_TSS");
+	plen = acpigen_write_package(entries);
+
+	for (i = 0; i < entries; i++) {
+		len = acpigen_write_package(5);
+		len += acpigen_write_dword(tstate->percent);
+		len += acpigen_write_dword(tstate->power);
+		len += acpigen_write_dword(tstate->latency);
+		len += acpigen_write_dword(tstate->control);
+		len += acpigen_write_dword(tstate->status);
+		acpigen_patch_len(len - 1);
+		tstate++;
+		plen += len;
+	}
+
+	acpigen_patch_len(plen - 1);
+	return plen + nlen;
+}
+
 int acpigen_write_PSS_package(u32 coreFreq, u32 power, u32 transLat,
 			      u32 busmLat, u32 control, u32 status)
 {
@@ -354,6 +522,10 @@ int acpigen_write_PSS_package(u32 coreFreq, u32 power, u32 transLat,
 	len += acpigen_write_dword(status);
 	//pkglen without the len opcode
 	acpigen_patch_len(len - 1);
+
+	printk(BIOS_DEBUG, "PSS: %uMHz power %u control 0x%x status 0x%x\n",
+	       coreFreq, power, control, status);
+
 	return len;
 }
 
@@ -361,6 +533,23 @@ int acpigen_write_PSD_package(u32 domain, u32 numprocs, PSD_coord coordtype)
 {
 	int len, lenh, lenp;
 	lenh = acpigen_write_name("_PSD");
+	lenp = acpigen_write_package(1);
+	len = acpigen_write_package(5);
+	len += acpigen_write_byte(5);	// 5 values
+	len += acpigen_write_byte(0);	// revision 0
+	len += acpigen_write_dword(domain);
+	len += acpigen_write_dword(coordtype);
+	len += acpigen_write_dword(numprocs);
+	acpigen_patch_len(len - 1);
+	len += lenp;
+	acpigen_patch_len(len - 1);
+	return len + lenh;
+}
+
+int acpigen_write_TSD_package(u32 domain, u32 numprocs, PSD_coord coordtype)
+{
+	int len, lenh, lenp;
+	lenh = acpigen_write_name("_TSD");
 	lenp = acpigen_write_package(1);
 	len = acpigen_write_package(5);
 	len += acpigen_write_byte(5);	// 5 values

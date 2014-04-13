@@ -31,6 +31,76 @@
 #include <cpu/x86/cache.h>
 #include <cpu/x86/name.h>
 #include <usbdebug.h>
+#include <arch/acpi.h>
+
+static acpi_cstate_t cstate_map[] = {
+	{	/* 0: C0 */
+	},{	/* 1: C1 */
+		.latency = 1,
+		.power = 1000,
+		.resource = {
+			.addrl = 0x00,	/* HLT */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_HLT,
+		}
+	},
+	{	/* 2: C1E */
+		.latency = 1,
+		.power = 1000,
+		.resource = {
+			.addrl = 0x01,	/* MWAIT State 0 Sub-state 1 */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_width = ACPI_FFIXEDHW_VENDOR_INTEL,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_MWAIT,
+			.resv = ACPI_FFIXEDHW_FLAG_HW_COORD,
+		}
+	},
+	{	/* 3: C2 */
+		.latency = 2,
+		.power = 500,
+		.resource = {
+			.addrl = 0x10,	/* MWAIT State 1 */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_width = ACPI_FFIXEDHW_VENDOR_INTEL,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_MWAIT,
+			.resv = ACPI_FFIXEDHW_FLAG_HW_COORD,
+		}
+	},
+	{	/* 4: C2E */
+		.latency = 2,
+		.power = 500,
+		.resource = {
+			.addrl = 0x11,	/* MWAIT State 1 Sub-state 1 */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_width = ACPI_FFIXEDHW_VENDOR_INTEL,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_MWAIT,
+			.resv = ACPI_FFIXEDHW_FLAG_HW_COORD,
+		}
+	},
+	{	/* 5: C4 */
+		.latency = 57,
+		.power = 100,
+		.resource = {
+			.addrl = 0x30,	/* MWAIT State 3 */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_width = ACPI_FFIXEDHW_VENDOR_INTEL,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_MWAIT,
+			.resv = ACPI_FFIXEDHW_FLAG_HW_COORD,
+		}
+	},
+	{	/* 6: C4E */
+		.latency = 57,
+		.power = 100,
+		.resource = {
+			.addrl = 0x31,	/* MWAIT State 3 Sub-state 1 */
+			.space_id = ACPI_ADDRESS_SPACE_FIXED,
+			.bit_width = ACPI_FFIXEDHW_VENDOR_INTEL,
+			.bit_offset = ACPI_FFIXEDHW_CLASS_MWAIT,
+			.resv = ACPI_FFIXEDHW_FLAG_HW_COORD,
+		}
+	},
+	{ 0 }
+};
 
 static const uint32_t microcode_updates[] = {
 	#include "microcode-2963-M01106C2217.h"
@@ -84,23 +154,24 @@ static void enable_vmx(void)
 #define PMG_IO_BASE_ADDR	0xe3
 #define PMG_IO_CAPTURE_ADDR	0xe4
 
-#define HIGHEST_CLEVEL		3
+#define HIGHEST_CLEVEL		4 // Pineview-M only
 static void configure_c_states(void)
 {
 	msr_t msr;
 
 	msr = rdmsr(PMG_CST_CONFIG_CONTROL);
+	msr.lo |= (1 << 3);  // Enable Dynamic L2 shrinking
 	msr.lo |= (1 << 15); // Lock configuration
 	msr.lo |= (1 << 10); // redirect IO-based CState transition requests to MWAIT
 	msr.lo &= ~(1 << 9); // Issue a single stop grant cycle upon stpclk
-	msr.lo &= ~7; msr.lo |= HIGHEST_CLEVEL; // support at most C3
-	// TODO Do we want Deep C4 and  Dynamic L2 shrinking?
+	msr.lo &= ~7; msr.lo |= HIGHEST_CLEVEL;
 	wrmsr(PMG_CST_CONFIG_CONTROL, msr);
 
-	/* Set Processor MWAIT IO BASE (P_BLK) */
+	/* Set Processor MWAIT IO BASE (P_BLK)
+	 * PMB0 points to PBLK+4,
+	 * PMB1 points to IO address that will trap tp SMM (not used)
+	 */
 	msr.hi = 0;
-	// TODO Do we want PM1_BASE? Needs SMM?
-	//msr.lo = ((PMB0_BASE + 4) & 0xffff) | (((PMB1_BASE + 9) & 0xffff) << 16);
 	msr.lo = ((PMB0_BASE + 4) & 0xffff);
 	wrmsr(PMG_IO_BASE_ADDR, msr);
 
@@ -116,6 +187,12 @@ static void configure_misc(void)
 	msr_t msr;
 
 	msr = rdmsr(IA32_MISC_ENABLE);
+
+	msr.hi |= (1 << (32-32)); 	/* C4E enable */
+	msr.hi |= (1 << (33-32)); 	/* Hard C4E enable */
+	msr.lo |= (1 << 26); 	/* C2E enable */
+	msr.lo |= (1 << 25); 	/* C1E enable */
+
 	msr.lo |= (1 << 3); 	/* TM1 enable */
 	msr.lo |= (1 << 13);	/* TM2 enable */
 	msr.lo |= (1 << 17);	/* Bidirectional PROCHOT# */
@@ -124,8 +201,8 @@ static void configure_misc(void)
 
 	// TODO: Only if  IA32_PLATFORM_ID[17] = 0 and IA32_PLATFORM_ID[50] = 1
 	msr.lo |= (1 << 16);	/* Enhanced SpeedStep Enable */
+	msr.lo |= (1 << 0);	/* Fast String Enable */
 
-	// TODO Do we want Deep C4 and  Dynamic L2 shrinking?
 	wrmsr(IA32_MISC_ENABLE, msr);
 
 	msr.lo |= (1 << 20);	/* Lock Enhanced SpeedStep Enable */
@@ -189,11 +266,13 @@ static struct device_operations cpu_dev_ops = {
 
 static struct cpu_device_id cpu_table[] = {
 	{ X86_VENDOR_INTEL, 0x106c0 }, /* Intel Atom 230 */
+	{ X86_VENDOR_INTEL, 0x106ca }, /* Intel Pineview */
 	{ 0, 0 },
 };
 
 static const struct cpu_driver driver __cpu_driver = {
 	.ops      = &cpu_dev_ops,
 	.id_table = cpu_table,
+	.cstates  = cstate_map,
 };
 

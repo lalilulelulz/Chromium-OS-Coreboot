@@ -87,7 +87,7 @@ config SCONFIG_GENPARSER
 	help
 	  Enable this option if you are working on the sconfig
 	  device tree parser and made changes to sconfig.l and
-	  sconfig.y. 
+	  sconfig.y.
 	  Otherwise, say N.
 
 config USE_OPTION_TABLE
@@ -106,6 +106,37 @@ config COMPRESS_RAMSTAGE
 	  that decompression might slow down booting if the boot flash
 	  is connected through a slow Link (i.e. SPI)
 
+config ADD_FDT
+	bool "Add FDT to the coreboot table"
+	default n
+	help
+	  Make coreboot look for the Flat Device Tree (FDT) in CBFS and once
+	  found insert the device tree into the coreboot table (potentially
+	  modifying the tree as needed). The FDT is used by the payload.
+
+config FDT_FILE_NAME
+	depends on ADD_FDT
+	string "Name of the CBFS file containing the compiled FDT"
+	default "u-boot.dtb"
+	help
+	  Name of the CBFS file containing the binary representation of the
+	  device tree to be optionally modified and passed to the payload.
+
+config EARLY_CBMEM_INIT
+	bool "Initialize CBMEM while in ROM stage"
+	default n
+	help
+	  Make coreboot initialize the cbmem structures while running in rom
+	  stage. This could be useful when the rom stage wants to communicate
+	  some, for instance, execution timestamps.
+
+config COLLECT_TIMESTAMPS
+	bool "Create a table of timestamps collected during boot"
+	depends on EARLY_CBMEM_INIT
+	help
+	  Make coreboot create a table of timer id/timer value pairs to
+	  allow measuring time spent at different phases of the boot
+	  process.
 endmenu
 
 source src/mainboard/Kconfig
@@ -233,6 +264,10 @@ config IOAPIC
 	bool
 	default n
 
+config TPM
+	bool
+	default n
+
 # TODO: Can probably be removed once all chipsets have kconfig options for it.
 config VIDEO_MB
 	int
@@ -298,6 +333,10 @@ config GENERATE_PIRQ_TABLE
 	bool
 	default HAVE_PIRQ_TABLE
 
+config GENERATE_SMBIOS_TABLES
+	bool
+	default y
+
 menu "System tables"
 
 config WRITE_HIGH_TABLES
@@ -333,6 +372,15 @@ config GENERATE_PIRQ_TABLE
 	default y
 	help
 	  Generate a PIRQ table for this board.
+
+	  If unsure, say Y.
+
+config GENERATE_SMBIOS_TABLES
+	depends on ARCH_X86
+	bool "Generate SMBIOS tables"
+	default y
+	help
+	  Generate SMBIOS tables for this board.
 
 	  If unsure, say Y.
 
@@ -497,13 +545,42 @@ config MBI_FILE
 
 endmenu
 
-menu "Bootsplash"
-	depends on PCI_OPTION_ROM_RUN_YABEL
+menu "Display"
+	depends on PCI_OPTION_ROM_RUN_YABEL || PCI_OPTION_ROM_RUN_REALMODE
+
+config FRAMEBUFFER_SET_VESA_MODE
+	prompt "Set VESA framebuffer mode"
+	bool
+	depends on PCI_OPTION_ROM_RUN_YABEL || PCI_OPTION_ROM_RUN_REALMODE
+	help
+	  Set VESA framebuffer mode (needed for bootsplash)
+
+# TODO: Turn this into a "choice".
+config FRAMEBUFFER_VESA_MODE
+	prompt "VESA framebuffer video mode"
+	hex
+	default 0x117
+	depends on FRAMEBUFFER_SET_VESA_MODE
+	help
+	  This option sets the resolution used for the coreboot framebuffer (and
+	  bootsplash screen). Set to 0x117 for 1024x768x16. A diligent soul will
+	  some day make this a "choice".
+
+config FRAMEBUFFER_KEEP_VESA_MODE
+	prompt "Keep VESA framebuffer"
+	bool
+	depends on PCI_OPTION_ROM_RUN_YABEL || PCI_OPTION_ROM_RUN_REALMODE
+	help
+	  This option keeps the framebuffer mode set after coreboot finishes
+	  execution. If this option is enabled, coreboot will pass a
+	  framebuffer entry in its coreboot table and the payload will need a
+	  framebuffer driver. If this option is disabled, coreboot will switch
+	  back to text mode before handing control to a payload.
 
 config BOOTSPLASH
 	prompt "Show graphical bootsplash"
 	bool
-	depends on PCI_OPTION_ROM_RUN_YABEL
+	depends on FRAMEBUFFER_SET_VESA_MODE
 	help
 	  This option shows a graphical bootsplash screen. The grapics are
 	  loaded from the CBFS file bootsplash.jpg.
@@ -515,29 +592,6 @@ config BOOTSPLASH_FILE
 	help
 	  The path and filename of the file to use as graphical bootsplash
 	  screen. The file format has to be jpg.
-
-# TODO: Turn this into a "choice".
-config FRAMEBUFFER_VESA_MODE
-	prompt "VESA framebuffer video mode"
-	hex
-	default 0x117
-	depends on BOOTSPLASH
-	help
-	  This option sets the resolution used for the coreboot framebuffer and
-	  bootsplash screen. Set to 0x117 for 1024x768x16. A diligent soul will
-	  some day make this a "choice".
-
-config COREBOOT_KEEP_FRAMEBUFFER
-	prompt "Keep VESA framebuffer"
-	bool
-	depends on BOOTSPLASH
-	help
-	  This option keeps the framebuffer mode set after coreboot finishes
-	  execution. If this option is enabled, coreboot will pass a
-	  framebuffer entry in its coreboot table and the payload will need a
-	  framebuffer driver. If this option is disabled, coreboot will switch
-	  back to text mode before handing control to a payload.
-
 endmenu
 
 menu "Debugging"
@@ -809,6 +863,23 @@ config LLSHELL
 	  Put llshell() in your (romstage) code to start the shell.
 	  See src/arch/x86/llshell/llshell.inc for details.
 
+if SOUTHBRIDGE_INTEL_BD82X6X && DEFAULT_CONSOLE_LOGLEVEL_8
+# Only visible with the right southbridge and loglevel.
+config DEBUG_INTEL_ME
+	bool "Verbose logging for Intel Management Engine"
+	default n
+	help
+	  Enable verbose logging for Intel Management Engine driver that
+	  is present on Intel 6-series chipsets.
+endif
+
+config DEBUG_CBFS
+	bool "Output verbose CBFS debug messages"
+	default n
+	help
+	  This option enables additional CBFS related debug messages when
+	  enabling console loglevel SPEW.
+
 endmenu
 
 config LIFT_BSP_APIC_ID
@@ -876,3 +947,4 @@ config POWER_BUTTON_IS_OPTIONAL
 	  Internal option that controls ENABLE_POWER_BUTTON visibility.
 
 source src/Kconfig.deprecated_options
+source src/vendorcode/Kconfig

@@ -1,3 +1,14 @@
+#include <stdint.h>
+#include <arch/io.h>
+#include <arch/romcc_io.h>
+#include <cpu/x86/tsc.h>
+
+static void post_code(uint16_t value)
+{
+	outb(value, 0x80);
+	outb(value >> 8, 0x90);
+}
+
 #if CONFIG_LOGICAL_CPUS && \
  (defined(CONFIG_BOOTBLOCK_NORTHBRIDGE_INIT) || defined(CONFIG_BOOTBLOCK_SOUTHBRIDGE_INIT))
 #include <cpu/x86/lapic/boot_cpu.c>

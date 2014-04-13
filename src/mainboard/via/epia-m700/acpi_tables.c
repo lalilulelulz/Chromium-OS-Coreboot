@@ -30,6 +30,7 @@
 
 #include <console/console.h>
 #include <string.h>
+#include <stdlib.h>
 #include <arch/acpi.h>
 #include <device/device.h>
 #include <device/pci_ids.h>
@@ -113,9 +114,6 @@ unsigned long acpi_fill_srat(unsigned long current)
 	/* No NUMA, no SRAT. */
 	return current;
 }
-
-#define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1)
-#define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
 
 unsigned long write_acpi_tables(unsigned long start)
 {

@@ -18,6 +18,8 @@
 ##
 
 
+config SUPERIO_ITE_IT8500
+	bool
 config SUPERIO_ITE_IT8661F
 	bool
 config SUPERIO_ITE_IT8671F
@@ -35,4 +37,6 @@ config SUPERIO_ITE_IT8716F_OVERRIDE_FANCTL
 	depends on SUPERIO_ITE_IT8716F
 	default n
 config SUPERIO_ITE_IT8718F
+	bool
+config SUPERIO_ITE_IT8772F
 	bool

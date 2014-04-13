@@ -4,3 +4,20 @@ config CPU_INTEL_MODEL_106CX
 	select SSE2
 	select UDELAY_LAPIC
 	select AP_IN_SIPI_WAIT
+
+if CPU_INTEL_MODEL_106CX
+
+config BOOTBLOCK_CPU_INIT
+	string
+	default "cpu/intel/model_106cx/bootblock.c"
+
+config CACHE_MRC_BIN
+	bool
+	default n
+
+config SERIAL_CPU_INIT
+	bool
+	default n
+
+endif
+

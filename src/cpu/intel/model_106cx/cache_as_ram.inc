@@ -63,22 +63,27 @@ clear_mtrrs:
 
 	/* Set Cache-as-RAM mask. */
 	movl	$(MTRRphysMask_MSR(0)), %ecx
-	movl	$(~((CACHE_AS_RAM_SIZE - 1)) | (1 << 11)), %eax
+	movl	$(~(CACHE_AS_RAM_SIZE - 1) | MTRRphysMaskValid), %eax
 	xorl	%edx, %edx
 	wrmsr
 
 	/* Enable MTRR. */
 	movl	$MTRRdefType_MSR, %ecx
 	rdmsr
-	orl	$(1 << 11), %eax
+	orl	$MTRRdefTypeEn, %eax
 	wrmsr
 
 	/* Enable L2 cache. */
 	movl	$0x11e, %ecx
 	rdmsr
+	bt	$0, %eax
+	jnc	L2done
+	bt	$23, %eax
+	jc	L2done
 	orl	$(1 << 8), %eax
 	wrmsr
 
+L2done:
 	/* Enable cache (CR0.CD = 0, CR0.NW = 0). */
         movl	%cr0, %eax
 	andl	$(~((1 << 30) | (1 << 29))), %eax
@@ -98,7 +103,6 @@ clear_mtrrs:
 	orl	$(1 << 30), %eax
 	movl	%eax, %cr0
 
-#if defined(CONFIG_XIP_ROM_SIZE) && defined(CONFIG_XIP_ROM_BASE)
 	/* Enable cache for our code in Flash because we do XIP here */
 	movl	$MTRRphysBase_MSR(1), %ecx
 	xorl	%edx, %edx
@@ -113,14 +117,27 @@ clear_mtrrs:
 	 * http://www.coreboot.org/pipermail/coreboot/2010-October/060855.html
 	 */
 	movl	$REAL_XIP_ROM_BASE, %eax
-	orl	$MTRR_TYPE_WRBACK, %eax
+	orl	$MTRR_TYPE_WRPROT, %eax
 	wrmsr
 
 	movl	$MTRRphysMask_MSR(1), %ecx
 	xorl	%edx, %edx
-	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | 0x800), %eax
+	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | MTRRphysMaskValid), %eax
 	wrmsr
-#endif /* CONFIG_XIP_ROM_SIZE && CONFIG_XIP_ROM_BASE */
+
+#if CONFIG_CACHE_MRC_BIN
+	/* Enable caching for the last 32k of memory for 
+	 * ram init code to run faster
+	 */
+	movl	$MTRRphysBase_MSR(2), %ecx
+	movl	$(0xffff0000 | MTRR_TYPE_WRPROT), %eax
+	xorl	%edx, %edx
+	wrmsr
+	movl	$MTRRphysMask_MSR(2), %ecx
+	movl	$((~((64*1024) - 1)) | MTRRphysMaskValid), %eax
+	xorl	%edx, %edx
+	wrmsr
+#endif
 
 	/* Enable cache. */
 	movl	%cr0, %eax
@@ -148,6 +165,15 @@ clear_mtrrs:
 
 	post_code(0x2f)
 
+#if CONFIG_USBDEBUG
+	/* Copy global variable space (for USBDEBUG) to memory */
+	cld
+	movl	$(CACHE_AS_RAM_BASE + CACHE_AS_RAM_SIZE - 24), %esi
+	movl	$(CONFIG_RAMTOP - 24), %edi
+	movl	24, %ecx
+	rep	movsb
+#endif
+
 	post_code(0x30)
 
 	/* Disable cache. */
@@ -160,7 +186,7 @@ clear_mtrrs:
 	/* Disable MTRR. */
 	movl	$MTRRdefType_MSR, %ecx
 	rdmsr
-	andl	$(~(1 << 11)), %eax
+	andl	$(~MTRRdefTypeEn), %eax
 	wrmsr
 
 	post_code(0x31)
@@ -195,13 +221,27 @@ clear_mtrrs:
 
 	post_code(0x38)
 
-	/* Enable Write Back and Speculative Reads for the first 1MB. */
+	/* Enable Write Back and Speculative Reads for the first MB
+	 * and coreboot_ram.
+	 */
 	movl	$MTRRphysBase_MSR(0), %ecx
 	movl	$(0x00000000 | MTRR_TYPE_WRBACK), %eax
 	xorl	%edx, %edx
 	wrmsr
 	movl	$MTRRphysMask_MSR(0), %ecx
-	movl	$(~(1024 * 1024 - 1) | (1 << 11)), %eax
+	movl	$(~(CONFIG_RAMTOP - 1) | MTRRphysMaskValid), %eax
+	xorl	%edx, %edx
+	wrmsr
+
+	/* Enable Caching and speculative Reads for the
+	 * complete ROM now that we actually have RAM.
+	 */
+	movl	$MTRRphysBase_MSR(1), %ecx
+	movl	$(0xffc00000 | MTRR_TYPE_WRPROT), %eax
+	xorl	%edx, %edx
+	wrmsr
+	movl	$MTRRphysMask_MSR(1), %ecx
+	movl	$(~(4*1024*1024 - 1) | MTRRphysMaskValid), %eax
 	xorl	%edx, %edx
 	wrmsr
 
@@ -217,7 +257,7 @@ clear_mtrrs:
 	/* Enable MTRR. */
 	movl	$MTRRdefType_MSR, %ecx
 	rdmsr
-	orl	$(1 << 11), %eax
+	orl	$MTRRdefTypeEn, %eax
 	wrmsr
 
 	post_code(0x3b)

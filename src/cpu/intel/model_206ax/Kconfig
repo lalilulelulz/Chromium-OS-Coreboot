@@ -1,0 +1,24 @@
+config CPU_INTEL_MODEL_206AX
+	bool
+	select SMP
+	select SSE2
+	select UDELAY_LAPIC
+	select SMM_TSEG
+	#select AP_IN_SIPI_WAIT
+
+if CPU_INTEL_MODEL_206AX
+
+config BOOTBLOCK_CPU_INIT
+	string
+	default "cpu/intel/model_206ax/bootblock.c"
+
+config SERIAL_CPU_INIT
+	bool
+	default n
+
+config SMM_TSEG_SIZE
+	int
+	default 0x800000
+
+endif
+

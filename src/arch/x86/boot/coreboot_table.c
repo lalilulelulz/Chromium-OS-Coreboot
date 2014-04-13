@@ -29,9 +29,21 @@
 #include <version.h>
 #include <device/device.h>
 #include <stdlib.h>
-#if (CONFIG_USE_OPTION_TABLE == 1)
-#include <option_table.h>
 #include <cbfs.h>
+#include <cbmem.h>
+#if CONFIG_USE_OPTION_TABLE
+#include <option_table.h>
+#endif
+#if CONFIG_CHROMEOS
+#include <arch/acpi.h>
+#endif
+#if CONFIG_ADD_FDT
+#include <fdt/fdt.h>
+#include <fdt/libfdt.h>
+#include <fdt/libfdt_env.h>
+#if CONFIG_CHROMEOS
+#include <vendorcode/google/chromeos/gnvs.h>
+#endif
 #endif
 
 static struct lb_header *lb_table_init(unsigned long addr)
@@ -91,7 +103,6 @@ static struct lb_record *lb_new_record(struct lb_header *header)
 	return rec;
 }
 
-
 static struct lb_memory *lb_memory(struct lb_header *header)
 {
 	struct lb_record *rec;
@@ -112,14 +123,32 @@ static struct lb_serial *lb_serial(struct lb_header *header)
 	serial = (struct lb_serial *)rec;
 	serial->tag = LB_TAG_SERIAL;
 	serial->size = sizeof(*serial);
-	serial->ioport = CONFIG_TTYS0_BASE;
+	serial->type = LB_SERIAL_TYPE_IO_MAPPED;
+	serial->baseaddr = CONFIG_TTYS0_BASE;
 	serial->baud = CONFIG_TTYS0_BAUD;
 	return serial;
+#elif CONFIG_CONSOLE_SERIAL8250MEM
+	if (uartmem_getbaseaddr()) {
+		struct lb_record *rec;
+		struct lb_serial *serial;
+		rec = lb_new_record(header);
+		serial = (struct lb_serial *)rec;
+		serial->tag = LB_TAG_SERIAL;
+		serial->size = sizeof(*serial);
+		serial->type = LB_SERIAL_TYPE_MEMORY_MAPPED;
+		serial->baseaddr = uartmem_getbaseaddr();
+		serial->baud = CONFIG_TTYS0_BAUD;
+		return serial;
+	} else {
+		return NULL;
+	}
 #else
 	return NULL;
 #endif
 }
 
+#if CONFIG_CONSOLE_SERIAL8250 || CONFIG_CONSOLE_SERIAL8250MEM || \
+    CONFIG_CONSOLE_LOGBUF || CONFIG_USBDEBUG
 static void add_console(struct lb_header *header, u16 consoletype)
 {
 	struct lb_console *console;
@@ -129,6 +158,7 @@ static void add_console(struct lb_header *header, u16 consoletype)
 	console->size = sizeof(*console);
 	console->type = consoletype;
 }
+#endif
 
 static void lb_console(struct lb_header *header)
 {
@@ -148,7 +178,7 @@ static void lb_console(struct lb_header *header)
 
 static void lb_framebuffer(struct lb_header *header)
 {
-#if CONFIG_BOOTSPLASH && CONFIG_COREBOOT_KEEP_FRAMEBUFFER
+#if CONFIG_FRAMEBUFFER_KEEP_VESA_MODE
 	void fill_lb_framebuffer(struct lb_framebuffer *framebuffer);
 
 	struct lb_framebuffer *framebuffer;
@@ -157,6 +187,187 @@ static void lb_framebuffer(struct lb_header *header)
 	framebuffer->size = sizeof(*framebuffer);
 	fill_lb_framebuffer(framebuffer);
 #endif
+}
+
+#if CONFIG_CHROMEOS
+static void lb_gpios(struct lb_header *header)
+{
+	struct lb_gpios *gpios;
+	gpios = (struct lb_gpios *)lb_new_record(header);
+	gpios->tag = LB_TAG_GPIO;
+	gpios->size = sizeof(*gpios);
+	gpios->count = 0;
+	fill_lb_gpios(gpios);
+}
+
+static void lb_vdat(struct lb_header *header)
+{
+	struct lb_vdat* vdat;
+
+	vdat = (struct lb_vdat *)lb_new_record(header);
+	vdat->tag = LB_TAG_VDAT;
+	vdat->size = sizeof(*vdat);
+	acpi_get_vdat_info(&vdat->vdat_addr, &vdat->vdat_size);
+}
+
+static void lb_vbnv(struct lb_header *header)
+{
+	struct lb_vbnv* vbnv;
+
+	vbnv = (struct lb_vbnv *)lb_new_record(header);
+	vbnv->tag = LB_TAG_VBNV;
+	vbnv->size = sizeof(*vbnv);
+	vbnv->vbnv_start = CONFIG_VBNV_OFFSET + 14;
+	vbnv->vbnv_size = CONFIG_VBNV_SIZE;
+
+}
+#endif
+
+#if CONFIG_ADD_FDT
+static void lb_map_lb_serial_to_fdt(struct fdt_header *fdt_header, struct lb_serial *serial)
+{
+	char serial_node_name[64];
+	const int name_len = ARRAY_SIZE(serial_node_name) - 1;
+	serial_node_name[name_len] = 0;
+	int root_offset = fdt_path_offset(fdt_header, "/");
+
+	/* Pick a name for the serial node. */
+	if (serial) {
+		sprintf(serial_node_name, "serial@%x", serial->baseaddr);
+	} else {
+		strncpy(serial_node_name, "null-serial@0", name_len);
+	}
+
+	/* Find or create the /aliases node. */
+	int alias_offset = fdt_path_offset(fdt_header, "/aliases");
+	if (alias_offset < 0) {
+		/* It wasn't found, so try to create it. */
+		alias_offset = fdt_add_subnode(fdt_header, root_offset,
+			"/aliases");
+	}
+	if (alias_offset < 0)
+		printk(BIOS_ERR, "Couldn't find/make fdt \"aliases\" node.\n");
+
+	/* Add a "console" property, and point it at the serial node. */
+	if (alias_offset >= 0) {
+		char alias[name_len + 2];
+		sprintf(alias, "/%s", serial_node_name);
+		fdt_setprop_string(fdt_header, alias_offset, "console", alias);
+	}
+
+	/* Add the serial node itself. */
+	int serial_offset =
+		fdt_add_subnode(fdt_header, root_offset, serial_node_name);
+	if (serial_offset < 0) {
+		printk(BIOS_ERR, "Couldn't create serial node \"%s\"\n",
+			serial_node_name);
+	}
+
+	/* If there's a serial node and device, populate the node. */
+	if (serial_offset >= 0 && serial) {
+		fdt_setprop_string(fdt_header, serial_offset,
+			"compatible", "ns16550");
+		uint32_t reg[2] = {
+			cpu_to_fdt32(serial->baseaddr),
+			cpu_to_fdt32(0x8)
+		};
+		fdt_setprop(fdt_header, serial_offset,
+			"reg", reg, sizeof(reg));
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"id", 1);
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"reg-shift", 1);
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"baudrate", serial->baud);
+#if CONFIG_DRIVERS_OXFORD_OXPCIE
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"clock-frequency", 4000000);
+#else
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"clock-frequency", 115200);
+#endif
+		fdt_setprop_cell(fdt_header, serial_offset,
+			"multiplier", 1);
+		if (serial->type == LB_SERIAL_TYPE_IO_MAPPED) {
+			fdt_setprop_cell(fdt_header, serial_offset,
+				"io-mapped", 1);
+		}
+		fdt_setprop_string(fdt_header, serial_offset,
+			"status", "ok");
+	}
+}
+
+static void lb_fdt(struct lb_header *header, struct lb_serial *serial)
+{
+	struct lb_fdt *fdt_record;
+	struct fdt_header *fdt_header;
+	u32 magic, fdt_size;
+
+	fdt_header = cbfs_find_file(CONFIG_FDT_FILE_NAME, CBFS_TYPE_FDT);
+	if (!fdt_header) {
+		printk(BIOS_ERR, "Can't find FDT (%s)\n", CONFIG_FDT_FILE_NAME);
+		return;
+	}
+
+	magic = fdt32_to_cpu(fdt_header->magic);
+	if (magic != FDT_MAGIC) {
+		printk(BIOS_ERR, "FDT header corrupted (0x%x)\n", magic);
+		return;
+	}
+
+	fdt_size = fdt32_to_cpu(fdt_header->totalsize);
+	fdt_record = (struct lb_fdt *) lb_new_record(header);
+	fdt_record->tag = LB_TAG_FDT;
+	fdt_record->size = sizeof(*fdt_record) + fdt_size;
+	memcpy(fdt_record + 1, fdt_header, fdt_size);
+	fdt_header = (struct fdt_header *)(fdt_record + 1);
+
+#if CONFIG_CHROMEOS
+	chromeos_set_vboot_data_ptr(fdt_header);
+#endif
+
+	lb_map_lb_serial_to_fdt(fdt_header, serial);
+
+	fdt_size = fdt32_to_cpu(fdt_header->totalsize);
+	fdt_record->size = sizeof(*fdt_record) + fdt_size;
+
+	printk(BIOS_SPEW, "FDT of %d bytes added\n", fdt_size);
+}
+#endif
+
+static void add_cbmem_pointers(struct lb_header *header)
+{
+	/*
+	 * These CBMEM sections' addresses are included in the coreboot table
+	 * with the appropriate tags.
+	 */
+	const struct section_id {
+		int cbmem_id;
+		int table_tag;
+	} section_ids[] = {
+		{CBMEM_ID_TIMESTAMP, LB_TAG_TIMESTAMPS},
+		{CBMEM_ID_MRCDATA, LB_TAG_MRC_CACHE},
+		{CBMEM_ID_CONSOLE, LB_TAG_CBMEM_CONSOLE}
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(section_ids); i++) {
+		const struct section_id *sid = section_ids + i;
+		struct lb_cbmem_ref *cbmem_ref;
+		void *cbmem_addr = cbmem_find(sid->cbmem_id);
+
+		if (!cbmem_addr)
+			continue;  /* This section is not present */
+
+		cbmem_ref = (struct lb_cbmem_ref *)lb_new_record(header);
+		if (!cbmem_ref) {
+			printk(BIOS_ERR, "No more room in coreboot table!\n");
+			break;
+		}
+		cbmem_ref->tag = sid->table_tag;
+		cbmem_ref->size = sizeof(*cbmem_ref);
+		cbmem_ref->cbmem_addr = cbmem_addr;
+	}
 }
 
 static struct lb_mainboard *lb_mainboard(struct lb_header *header)
@@ -183,7 +394,7 @@ static struct lb_mainboard *lb_mainboard(struct lb_header *header)
 	return mainboard;
 }
 
-#if (CONFIG_USE_OPTION_TABLE == 1)
+#if CONFIG_USE_OPTION_TABLE
 static struct cmos_checksum *lb_cmos_checksum(struct lb_header *header)
 {
 	struct lb_record *rec;
@@ -305,9 +516,10 @@ static unsigned long lb_table_fini(struct lb_header *head, int fixup)
 	head->table_checksum = compute_ip_checksum(first_rec, head->table_bytes);
 	head->header_checksum = 0;
 	head->header_checksum = compute_ip_checksum(head, sizeof(*head));
-	printk(BIOS_DEBUG, "Wrote coreboot table at: %p - %p  checksum %x\n",
-		head, rec, head->table_checksum);
-	return (unsigned long)rec;
+	printk(BIOS_DEBUG,
+	       "Wrote coreboot table at: %p, 0x%x bytes, checksum %x\n",
+	       head, head->table_bytes, head->table_checksum);
+	return (unsigned long)rec + rec->size;
 }
 
 static void lb_cleanup_memory_ranges(struct lb_memory *mem)
@@ -497,10 +709,6 @@ static void add_lb_reserved(struct lb_memory *mem)
 		lb_add_rsvd_range, mem);
 }
 
-#if CONFIG_WRITE_HIGH_TABLES == 1
-extern uint64_t high_tables_base, high_tables_size;
-#endif
-
 unsigned long write_coreboot_table(
 	unsigned long low_table_start, unsigned long low_table_end,
 	unsigned long rom_table_start, unsigned long rom_table_end)
@@ -508,7 +716,7 @@ unsigned long write_coreboot_table(
 	struct lb_header *head;
 	struct lb_memory *mem;
 
-#if CONFIG_WRITE_HIGH_TABLES == 1
+#if CONFIG_WRITE_HIGH_TABLES
 	printk(BIOS_DEBUG, "Writing high table forward entry at 0x%08lx\n",
 			low_table_end);
 	head = lb_table_init(low_table_end);
@@ -544,7 +752,7 @@ unsigned long write_coreboot_table(
 	rom_table_end &= ~0xffff;
 	printk(BIOS_DEBUG, "0x%08lx \n", rom_table_end);
 
-#if (CONFIG_USE_OPTION_TABLE == 1)
+#if CONFIG_USE_OPTION_TABLE
 	{
 		struct cmos_option_table *option_table = cbfs_find_file("cmos_layout.bin", 0x1aa);
 		if (option_table) {
@@ -569,7 +777,7 @@ unsigned long write_coreboot_table(
 	lb_add_memory_range(mem, LB_MEM_TABLE,
 		rom_table_start, rom_table_end-rom_table_start);
 
-#if CONFIG_WRITE_HIGH_TABLES == 1
+#if CONFIG_WRITE_HIGH_TABLES
 	printk(BIOS_DEBUG, "Adding high table area\n");
 	// should this be LB_MEM_ACPI?
 	lb_add_memory_range(mem, LB_MEM_TABLE,
@@ -579,7 +787,7 @@ unsigned long write_coreboot_table(
 	/* Add reserved regions */
 	add_lb_reserved(mem);
 
-#if (CONFIG_HAVE_MAINBOARD_RESOURCES == 1)
+#if CONFIG_HAVE_MAINBOARD_RESOURCES
 	add_mainboard_resources(mem);
 #endif
 
@@ -595,13 +803,33 @@ unsigned long write_coreboot_table(
 	/* Record our motherboard */
 	lb_mainboard(head);
 	/* Record the serial port, if present */
-	lb_serial(head);
+	struct lb_serial *serial;
+	serial = lb_serial(head);
 	/* Record our console setup */
 	lb_console(head);
 	/* Record our various random string information */
 	lb_strings(head);
 	/* Record our framebuffer */
 	lb_framebuffer(head);
+
+#if CONFIG_CHROMEOS
+	/* Record our GPIO settings (ChromeOS specific) */
+	lb_gpios(head);
+
+	/* pass along the VDAT buffer adress */
+	lb_vdat(head);
+
+	/* pass along VBNV offsets in CMOS */
+	lb_vbnv(head);
+#endif
+#if CONFIG_ADD_FDT
+	/*
+	 * Copy FDT from CBFS into the coreboot table possibly augmenting it
+	 * along the way.
+	 */
+	lb_fdt(head, serial);
+#endif
+	add_cbmem_pointers(head);
 
 	/* Remember where my valid memory ranges are */
 	return lb_table_fini(head, 1);

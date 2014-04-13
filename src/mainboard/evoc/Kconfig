@@ -1,0 +1,17 @@
+if VENDOR_EVOC
+
+choice
+	prompt "Mainboard model"
+
+config BOARD_EVOC_MEC_7003
+	bool "MEC-7003"
+
+endchoice
+
+source "src/mainboard/evoc/mec-7003/Kconfig"
+
+config MAINBOARD_VENDOR
+	string
+	default "Evoc"
+
+endif # VENDOR_EVOC
