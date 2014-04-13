@@ -19,7 +19,7 @@
 
 #######################################################################
 # misleadingly named, this is the coreboot version
-export KERNELVERSION := $(shell if [ -d "$(top)/.git" -a -f "`which git`" ]; then git describe --dirty; else echo unknown; fi)
+export KERNELVERSION := $(shell if [ -d "$(top)/.git" -a -f "`which git`" ]; then git describe --dirty; else echo 4.0$(KERNELREVISION); fi)
 
 #######################################################################
 # Basic component discovery
@@ -67,11 +67,15 @@ ifeq ($(CONFIG_TRACE),y)
 ramstage-c-ccopts:= -finstrument-functions
 endif
 
+ifneq ($(CONFIG_CHROMEOS),y)
+# In the ChromeOS build system we keep the 3rdparty binaries in the same
+# repository.
 ifeq ($(CONFIG_USE_BLOBS),y)
 forgetthis:=$(shell git submodule update --init --checkout 3rdparty)
 else
 ifeq ($(CONFIG_REQUIRES_BLOB),y)
 $(error Your current configuration requires binary-only components, but you did not choose to use them)
+endif
 endif
 endif
 
@@ -178,6 +182,10 @@ $(obj)/build.h: .xcompile
 	printf "#define COREBOOT_VERSION \"$(KERNELVERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_EXTRA_VERSION \"$(COREBOOT_EXTRA_VERSION)\"\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_BUILD \"`LANG= date`\"\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_YEAR `LANG= date +"%-y"`\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_MONTH `LANG= date +"%-m"` \n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_DAY `LANG= date +"%-d"`\n" >> $(obj)/build.ht
+	printf "#define COREBOOT_BUILD_WEEKDAY `LANG= date +"%-u"`\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_DMI_DATE \"`LANG= date +"%m/%d/%Y"`\"\n" >> $(obj)/build.ht
 	printf "\n" >> $(obj)/build.ht
 	printf "#define COREBOOT_COMPILER \"$(shell LANG= $(CC) --version | head -n1)\"\n" >> $(obj)/build.ht

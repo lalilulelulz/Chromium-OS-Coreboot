@@ -44,15 +44,8 @@ static int get_cores_per_package(void)
 	if (c.x86 != 6)
 		return 1;
 
-	switch (c.x86_model) {
-	case CONFIG_CPU_MODEL_INDEX:
-		result = cpuid_ext(0xb, 1);
-		cores = result.ebx & 0xff;
-		break;
-	default:
-		cores = (cpuid_ebx(1) >> 16) & 0xff;
-		break;
-	}
+	result = cpuid_ext(0xb, 1);
+	cores = result.ebx & 0xff;
 
 	return cores;
 }
@@ -85,7 +78,7 @@ static int generate_cstate_entries(acpi_cstate_t *cstates,
 		length += acpigen_write_CST_package_entry(&cstates[c2]);
 	}
 	if (c3 > 0) {
-		cstates[c2].ctype = 2;
+		cstates[c3].ctype = 3;
 		length += acpigen_write_CST_package_entry(&cstates[c3]);
 	}
 
@@ -235,7 +228,16 @@ static int generate_P_state_entries(int core, int cores_per_package)
 	/* Get bus ratio limits and calculate clock speeds */
 	msr = rdmsr(MSR_PLATFORM_INFO);
 	ratio_min = (msr.hi >> (40-32)) & 0xff; /* Max Efficiency Ratio */
-	ratio_max = (msr.lo >> 8) & 0xff;       /* Max Non-Turbo Ratio */
+
+	/* Determine if this CPU has configurable TDP */
+	if (cpu_config_tdp_levels()) {
+		/* Set max ratio to nominal TDP ratio */
+		msr = rdmsr(MSR_CONFIG_TDP_NOMINAL);
+		ratio_max = msr.lo & 0xff;
+	} else {
+		/* Max Non-Turbo Ratio */
+		ratio_max = (msr.lo >> 8) & 0xff;
+	}
 	clock_max = ratio_max * SANDYBRIDGE_BCLK;
 
 	/* Calculate CPU TDP in mW */
@@ -248,7 +250,7 @@ static int generate_P_state_entries(int core, int cores_per_package)
 	len = acpigen_write_empty_PCT();
 
 	/* Write _PPC with no limit on supported P-state */
-	len += acpigen_write_PPC(0);
+	len += acpigen_write_PPC_NVS();
 
 	/* Write PSD indicating configured coordination type */
 	len += acpigen_write_PSD_package(core, cores_per_package, coord_type);
@@ -359,5 +361,5 @@ void generate_cpu_entries(void)
 }
 
 struct chip_operations cpu_intel_model_206ax_ops = {
-	CHIP_NAME(CONFIG_CPU_MODEL_NAME)
+	CHIP_NAME("Intel SandyBridge/IvyBridge CPU")
 };

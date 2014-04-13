@@ -21,11 +21,13 @@ config NORTHBRIDGE_INTEL_SANDYBRIDGE
 	bool
 	select CACHE_MRC_BIN
 	select CPU_INTEL_MODEL_206AX
+	select REQUIRES_BLOB
 
 config NORTHBRIDGE_INTEL_IVYBRIDGE
 	bool
 	select CACHE_MRC_BIN
 	select CPU_INTEL_MODEL_306AX
+	select REQUIRES_BLOB
 
 if NORTHBRIDGE_INTEL_SANDYBRIDGE
 
@@ -44,15 +46,13 @@ config MRC_CACHE_BASE
 
 config MRC_CACHE_LOCATION
 	hex
+	depends on !CHROMEOS
 	default 0x1ec000
 
 config MRC_CACHE_SIZE
 	hex
+	depends on !CHROMEOS
 	default 0x10000
-
-config MRC_CACHE_ALIGNMENT
-	hex
-	default 0x1000
 
 config DCACHE_RAM_BASE
 	hex
@@ -77,6 +77,21 @@ config EXTERNAL_MRC_BLOB
 config CACHE_MRC_SIZE_KB
 	int
 	default 512
+
+# FIXME: build from rom size
+config MRC_CACHE_BASE
+	hex
+	default 0xff800000
+
+config MRC_CACHE_LOCATION
+	hex
+	depends on !CHROMEOS
+	default 0x370000
+
+config MRC_CACHE_SIZE
+	hex
+	depends on !CHROMEOS
+	default 0x10000
 
 config DCACHE_RAM_BASE
 	hex

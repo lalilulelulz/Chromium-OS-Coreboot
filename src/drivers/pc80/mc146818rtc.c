@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <build.h>
 #include <console/console.h>
 #include <pc80/mc146818rtc.h>
 #include <boot/coreboot_tables.h>
@@ -6,6 +7,9 @@
 #if CONFIG_USE_OPTION_TABLE
 #include "option_table.h"
 #include <cbfs.h>
+#endif
+#if CONFIG_HAVE_ACPI_RESUME
+#include <arch/acpi.h>
 #endif
 
 /* control registers - Moto names
@@ -113,11 +117,13 @@ static void rtc_set_checksum(int range_start, int range_end, int cks_loc)
 #endif
 #endif
 
+#ifndef __SMM__
 void rtc_init(int invalid)
 {
+	int cmos_invalid = 0;
+	int checksum_invalid = 0;
 #if CONFIG_USE_OPTION_TABLE
 	unsigned char x;
-	int cmos_invalid, checksum_invalid;
 #endif
 
 	printk(BIOS_DEBUG, "RTC Init\n");
@@ -132,38 +138,48 @@ void rtc_init(int invalid)
 			PC_CKS_RANGE_END,PC_CKS_LOC);
 
 #define CLEAR_CMOS 0
+#else
+#define CLEAR_CMOS 1
+#endif
+
 	if (invalid || cmos_invalid || checksum_invalid) {
+#if CLEAR_CMOS
+		int i;
+
+		cmos_write(0, 0x01);
+		cmos_write(0, 0x03);
+		cmos_write(0, 0x05);
+		for(i = 10; i < 128; i++) {
+			cmos_write(0, i);
+		}
+#endif
+
+		/* Now setup a default date equals to the build date */
+		cmos_write(0, RTC_CLK_SECOND);
+		cmos_write(0, RTC_CLK_MINUTE);
+		cmos_write(1, RTC_CLK_HOUR);
+		cmos_write(RTC_TO_BCD(COREBOOT_BUILD_WEEKDAY),
+			   RTC_CLK_DAYOFWEEK);
+		cmos_write(RTC_TO_BCD(COREBOOT_BUILD_DAY),
+			   RTC_CLK_DAYOFMONTH);
+		cmos_write(RTC_TO_BCD(COREBOOT_BUILD_MONTH),
+			   RTC_CLK_MONTH);
+		cmos_write(RTC_TO_BCD(COREBOOT_BUILD_YEAR),
+			   RTC_CLK_YEAR);
+
 		printk(BIOS_WARNING, "RTC:%s%s%s%s\n",
 			invalid?" Clear requested":"",
 			cmos_invalid?" Power Problem":"",
 			checksum_invalid?" Checksum invalid":"",
 			CLEAR_CMOS?" zeroing cmos":"");
-#if CLEAR_CMOS
-		cmos_write(0, 0x01);
-		cmos_write(0, 0x03);
-		cmos_write(0, 0x05);
-		for(i = 10; i < 48; i++) {
-			cmos_write(0, i);
-		}
-
-		if (cmos_invalid) {
-			/* Now setup a default date of Sat 1 January 2000 */
-			cmos_write(0, 0x00); /* seconds */
-			cmos_write(0, 0x02); /* minutes */
-			cmos_write(1, 0x04); /* hours */
-			cmos_write(7, 0x06); /* day of week */
-			cmos_write(1, 0x07); /* day of month */
-			cmos_write(1, 0x08); /* month */
-			cmos_write(0, 0x09); /* year */
-		}
-#endif
 	}
-#endif
 
 	/* Setup the real time clock */
 	cmos_write(RTC_CONTROL_DEFAULT, RTC_CONTROL);
 	/* Setup the frequency it operates at */
 	cmos_write(RTC_FREQ_SELECT_DEFAULT, RTC_FREQ_SELECT);
+	/* Ensure all reserved bits are 0 in register D */
+	cmos_write(RTC_VRT, RTC_VALID);
 
 #if CONFIG_USE_OPTION_TABLE
 	/* See if there is a LB CMOS checksum error */
@@ -177,9 +193,20 @@ void rtc_init(int invalid)
                         PC_CKS_RANGE_END,PC_CKS_LOC);
 #endif
 
+#if CONFIG_HAVE_ACPI_RESUME
+	/*
+	 * Avoid clearing pending interrupts in the resume path because
+	 * the Linux kernel relies on this to know if it should restart
+	 * the RTC timerqueue if the wake was due to the RTC alarm.
+	 */
+	if (acpi_slp_type == 3)
+		return;
+#endif
+
 	/* Clear any pending interrupts */
 	(void) cmos_read(RTC_INTR_FLAGS);
 }
+#endif
 
 
 #if CONFIG_USE_OPTION_TABLE

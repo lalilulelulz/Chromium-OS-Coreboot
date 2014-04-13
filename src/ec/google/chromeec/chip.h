@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2012 The Chromium OS Authors. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#ifndef EC_GOOGLE_CHROMEEC_CHIP_H
+#define EC_GOOGLE_CHROMEEC_CHIP_H
 
-#if CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE
-	#include "microcode-m12206a7_00000025.h"
-#elif CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE
-#else
-#error "Which microcode to use?"
+#include <device/device.h>
+#include <pc80/keyboard.h>
+
+extern struct chip_operations ec_google_chromeec_ops;
+
+struct ec_google_chromeec_config {
+	struct pc_keyboard keyboard;
+};
+
 #endif
-	/*  Dummy terminator  */
-        0x0, 0x0, 0x0, 0x0,
-        0x0, 0x0, 0x0, 0x0,
-        0x0, 0x0, 0x0, 0x0,
-        0x0, 0x0, 0x0, 0x0,

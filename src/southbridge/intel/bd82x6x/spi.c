@@ -27,20 +27,43 @@
 #include <delay.h>
 #include <arch/io.h>
 #include <console/console.h>
-#include <device/pci.h>
 #include <device/pci_ids.h>
 
 #include <spi.h>
 
 #define min(a, b) ((a)<(b)?(a):(b))
 
-typedef device_t pci_dev_t;
-#define pci_read_config_byte(dev, reg, targ) *(targ) = pci_read_config8(dev, reg)
-#define pci_read_config_word(dev, reg, targ) *(targ) = pci_read_config16(dev, reg)
-#define pci_read_config_dword(dev, reg, targ) *(targ) = pci_read_config32(dev, reg)
-#define pci_write_config_byte(dev, reg, val) pci_write_config8(dev, reg, val)
-#define pci_write_config_word(dev, reg, val) pci_write_config16(dev, reg, val)
-#define pci_write_config_dword(dev, reg, val) pci_write_config32(dev, reg, val)
+#ifdef __SMM__
+#include <arch/romcc_io.h>
+#include <northbridge/intel/sandybridge/pcie_config.c>
+#define pci_read_config_byte(dev, reg, targ)\
+	*(targ) = pcie_read_config8(dev, reg)
+#define pci_read_config_word(dev, reg, targ)\
+	*(targ) = pcie_read_config16(dev, reg)
+#define pci_read_config_dword(dev, reg, targ)\
+	*(targ) = pcie_read_config32(dev, reg)
+#define pci_write_config_byte(dev, reg, val)\
+	pcie_write_config8(dev, reg, val)
+#define pci_write_config_word(dev, reg, val)\
+	pcie_write_config16(dev, reg, val)
+#define pci_write_config_dword(dev, reg, val)\
+	pcie_write_config32(dev, reg, val)
+#else /* !__SMM__ */
+#include <device/device.h>
+#include <device/pci.h>
+#define pci_read_config_byte(dev, reg, targ)\
+	*(targ) = pci_read_config8(dev, reg)
+#define pci_read_config_word(dev, reg, targ)\
+	*(targ) = pci_read_config16(dev, reg)
+#define pci_read_config_dword(dev, reg, targ)\
+	*(targ) = pci_read_config32(dev, reg)
+#define pci_write_config_byte(dev, reg, val)\
+	pci_write_config8(dev, reg, val)
+#define pci_write_config_word(dev, reg, val)\
+	pci_write_config16(dev, reg, val)
+#define pci_write_config_dword(dev, reg, val)\
+	pci_write_config32(dev, reg, val)
+#endif /* !__SMM__ */
 
 typedef struct spi_slave ich_spi_slave;
 
@@ -162,7 +185,7 @@ enum {
 
 static u8 readb_(const void *addr)
 {
-	u8 v = readb(addr);
+	u8 v = read8((unsigned long)addr);
 	printk(BIOS_DEBUG, "read %2.2x from %4.4x\n",
 	       v, ((unsigned) addr & 0xffff) - 0xf020);
 	return v;
@@ -170,7 +193,7 @@ static u8 readb_(const void *addr)
 
 static u16 readw_(const void *addr)
 {
-	u16 v = readw(addr);
+	u16 v = read16((unsigned long)addr);
 	printk(BIOS_DEBUG, "read %4.4x from %4.4x\n",
 	       v, ((unsigned) addr & 0xffff) - 0xf020);
 	return v;
@@ -178,7 +201,7 @@ static u16 readw_(const void *addr)
 
 static u32 readl_(const void *addr)
 {
-	u32 v = readl(addr);
+	u32 v = read32((unsigned long)addr);
 	printk(BIOS_DEBUG, "read %8.8x from %4.4x\n",
 	       v, ((unsigned) addr & 0xffff) - 0xf020);
 	return v;
@@ -186,21 +209,21 @@ static u32 readl_(const void *addr)
 
 static void writeb_(u8 b, const void *addr)
 {
-	writeb(b, addr);
+	write8((unsigned long)addr, b);
 	printk(BIOS_DEBUG, "wrote %2.2x to %4.4x\n",
 	       b, ((unsigned) addr & 0xffff) - 0xf020);
 }
 
 static void writew_(u16 b, const void *addr)
 {
-	writew(b, addr);
+	write16((unsigned long)addr, b);
 	printk(BIOS_DEBUG, "wrote %4.4x to %4.4x\n",
 	       b, ((unsigned) addr & 0xffff) - 0xf020);
 }
 
 static void writel_(u32 b, const void *addr)
 {
-	writel(b, addr);
+	write32((unsigned long)addr, b);
 	printk(BIOS_DEBUG, "wrote %8.8x to %4.4x\n",
 	       b, ((unsigned) addr & 0xffff) - 0xf020);
 }
@@ -280,17 +303,24 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	return slave;
 }
 
-void spi_free_slave(struct spi_slave *_slave)
+/*
+ * Check if this device ID matches one of supported Intel PCH devices.
+ *
+ * Return the ICH version if there is a match, or zero otherwise.
+ */
+static inline int get_ich_version(uint16_t device_id)
 {
-	ich_spi_slave *slave = (ich_spi_slave *)_slave;
-	free(slave);
-}
+	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC)
+		return 7;
 
-static inline int spi_is_cougarpoint_lpc(uint16_t device_id)
-{
-	return device_id >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN &&
-		device_id <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX;
-};
+	if ((device_id >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN &&
+	     device_id <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX) ||
+	    (device_id >= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MIN &&
+	     device_id <= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MAX))
+		return 9;
+
+	return 0;
+}
 
 void spi_init(void)
 {
@@ -299,11 +329,15 @@ void spi_init(void)
 	uint8_t *rcrb; /* Root Complex Register Block */
 	uint32_t rcba; /* Root Complex Base Address */
 	uint8_t bios_cntl;
-	pci_dev_t dev;
+	device_t dev;
 	uint32_t ids;
 	uint16_t vendor_id, device_id;
 
+#ifdef __SMM__
+	dev = PCI_DEV(0, 31, 0);
+#else
 	dev = dev_find_slot(0, PCI_DEVFN(31, 0));
+#endif
 	pci_read_config_dword(dev, 0, &ids);
 	vendor_id = ids;
 	device_id = (ids >> 16);
@@ -313,11 +347,9 @@ void spi_init(void)
 		return;
 	}
 
-	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC) {
-		ich_version = 7;
-	} else if (spi_is_cougarpoint_lpc(device_id)) {
-		ich_version = 9;
-	} else {
+	ich_version = get_ich_version(device_id);
+
+	if (!ich_version) {
 		printk(BIOS_DEBUG, "ICH SPI: No known ICH found.\n");
 		return;
 	}
@@ -473,6 +505,10 @@ static int spi_setup_opcode(spi_transaction *trans)
 		uint8_t optype;
 		uint16_t opcode_index;
 
+		/* Write Enable is handled as atomic prefix */
+		if (trans->opcode == SPI_OPCODE_WREN)
+			return 0;
+
 		read_reg(cntlr.opmenu, opmenu, sizeof(opmenu));
 		for (opcode_index = 0; opcode_index < cntlr.menubytes;
 				opcode_index++) {
@@ -591,13 +627,14 @@ int spi_xfer(struct spi_slave *slave, const void *dout,
 	if ((with_address = spi_setup_offset(&trans)) < 0)
 		return -1;
 
-	if (!ichspi_lock && trans.opcode == 0x06) {
+	if (trans.opcode == SPI_OPCODE_WREN) {
 		/*
 		 * Treat Write Enable as Atomic Pre-Op if possible
 		 * in order to prevent the Management Engine from
 		 * issuing a transaction between WREN and DATA.
 		 */
-		writew_(trans.opcode, cntlr.preop);
+		if (!ichspi_lock)
+			writew_(trans.opcode, cntlr.preop);
 		return 0;
 	}
 
@@ -609,6 +646,10 @@ int spi_xfer(struct spi_slave *slave, const void *dout,
 		control |= SPIC_ACS;
 
 	if (!trans.bytesout && !trans.bytesin) {
+		/* SPI addresses are 24 bit only */
+		if (with_address)
+			writel_(trans.offset & 0x00FFFFFF, cntlr.addr);
+
 		/*
 		 * This is a 'no data' command (like Write Enable), its
 		 * bitesout size was 1, decremented to zero while executing
