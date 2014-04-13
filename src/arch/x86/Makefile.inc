@@ -34,6 +34,12 @@ cmos_layout.bin-type = 0x01aa
 OPTION_TABLE_H:=$(obj)/option_table.h
 endif
 
+ifeq ($(CONFIG_MICROCODE_IN_CBFS),y)
+cbfs-files-y += microcode_blob.bin
+microcode_blob.bin-file = $(obj)/microcode_blob.bin
+microcode_blob.bin-type = 0x53
+endif
+
 #######################################################################
 # Build the final rom image
 COREBOOT_ROM_DEPENDENCIES:=
@@ -319,6 +325,10 @@ $(objcbfs)/bootblock.debug: $(objgenerated)/bootblock.o $(objgenerated)/bootbloc
 $(objcbfs)/romstage_null.debug: $$(romstage-objs) $(objgenerated)/romstage_null.ld
 	@printf "    LINK       $(subst $(obj)/,,$(@))\n"
 	$(CC) -nostdlib -nostartfiles -static -o $@ -L$(obj) -T $(objgenerated)/romstage_null.ld $(romstage-objs)
+	$(NM) $@ | grep -q " [DdBb] "; if [ $$? -eq 0 ]; then \
+		echo "Forbidden global variables in romstage:"; \
+		$(NM) $@ | grep " [DdBb] "; test "$(CONFIG_CPU_AMD_AGESA)" == y; \
+		else true; fi
 
 $(objcbfs)/romstage_xip.debug: $$(romstage-objs) $(objgenerated)/romstage_xip.ld
 	@printf "    LINK       $(subst $(obj)/,,$(@))\n"

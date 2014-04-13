@@ -67,6 +67,19 @@ struct southbridge_intel_bd82x6x_config {
 	uint32_t ide_legacy_combined;
 	uint32_t sata_ahci;
 	uint8_t sata_port_map;
+	uint32_t sata_port0_gen3_tx;
+	uint32_t sata_port1_gen3_tx;
+
+	/**
+	 * SATA Interface Speed Support Configuration
+	 *
+	 * Only the lower two bits have a meaning:
+	 * 00 - No effect (leave as chip default)
+	 * 01 - 1.5 Gb/s maximum speed
+	 * 10 - 3.0 Gb/s maximum speed
+	 * 11 - 6.0 Gb/s maximum speed
+	 */
+	uint8_t sata_interface_speed_support;
 
 	uint32_t gen1_dec;
 	uint32_t gen2_dec;
@@ -75,6 +88,16 @@ struct southbridge_intel_bd82x6x_config {
 
 	/* Enable linear PCIe Root Port function numbers starting at zero */
 	uint8_t pcie_port_coalesce;
+
+	/* Override PCIe ASPM */
+	uint8_t pcie_aspm_f0;
+	uint8_t pcie_aspm_f1;
+	uint8_t pcie_aspm_f2;
+	uint8_t pcie_aspm_f3;
+	uint8_t pcie_aspm_f4;
+	uint8_t pcie_aspm_f5;
+	uint8_t pcie_aspm_f6;
+	uint8_t pcie_aspm_f7;
 };
 
 extern struct chip_operations southbridge_intel_bd82x6x_ops;

@@ -318,6 +318,7 @@ u32 map_oprom_vendev(u32 vendev)
 	case 0x80860116:		/* GT2 Mobile */
 	case 0x80860122:		/* GT2 Desktop >=1.3GHz */
 	case 0x80860126:		/* GT2 Mobile >=1.3GHz */
+	case 0x80860156:                /* IVB */
 	case 0x80860166:                /* IVB */
 		new_vendev=0x80860106;	/* GT1 Mobile */
 		break;
@@ -374,19 +375,11 @@ static void gma_pm_init_pre_vbios(struct device *dev)
 	if (bridge_silicon_revision() < IVB_STEP_C0) {
 		/* 1: Enable force wake */
 		gtt_write(0xa18c, 0x00000001);
-		if (!gtt_poll(0x130090, (1 << 0), (1 << 0)))
-			return;
+		gtt_poll(0x130090, (1 << 0), (1 << 0));
 	} else {
 		gtt_write(0xa180, 1 << 5);
 		gtt_write(0xa188, 0xffff0001);
-		if (!gtt_poll(0x130040, (1 << 0), (1 << 0)))
-			return;
-		/*
-		 * HACK: also poll on 0x130090, for some reason graphics does
-		 * not work on all SKUs unless this register is polled at boot.
-		 */
-		if (!gtt_poll(0x130090, (1 << 0), (1 << 0)))
-			return;
+		gtt_poll(0x130040, (1 << 0), (1 << 0));
 	}
 
 	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_SNB) {
@@ -432,7 +425,7 @@ static void gma_pm_init_pre_vbios(struct device *dev)
 				gtt_write_powermeter(ivb_pm_gt2_17w);
 			} else if ((tdp >= 25) && (tdp <= 35)) {
 				/* 25W-35W */
-				printk(BIOS_DEBUG, "IVB GT2 35W "
+				printk(BIOS_DEBUG, "IVB GT2 25W-35W "
 				       "Power Meter Weights\n");
 				gtt_write_powermeter(ivb_pm_gt2_35w);
 			} else {
@@ -472,8 +465,7 @@ static void gma_pm_init_pre_vbios(struct device *dev)
 		reg32 &= 0xf;
 		reg32 |= (1 << 1);
 		gtt_write(0x941c, reg32);
-		if (!gtt_poll(0x941c, (1 << 1), (0 << 1)))
-			return;
+		gtt_poll(0x941c, (1 << 1), (0 << 1));
 	}
 
 	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
@@ -489,15 +481,13 @@ static void gma_pm_init_pre_vbios(struct device *dev)
 	}
 
 	/* 7 */
-	if (!gtt_poll(0x138124, (1 << 31), (0 << 31)))
-		return;
-	gtt_write(0x138128, 0x00000029); /* Mailbox Data */
-	gtt_write(0x138124, 0x80000004); /* Mailbox Cmd for RC6 VID */
-	if (!gtt_poll(0x138124, (1 << 31), (0 << 31)))
-		return;
-	gtt_write(0x138124, 0x8000000a); /* Mailbox Cmd to clear RC6 count */
-	if (!gtt_poll(0x138124, (1 << 31), (0 << 31)))
-		return;
+	if (gtt_poll(0x138124, (1 << 31), (0 << 31))) {
+		gtt_write(0x138128, 0x00000029); /* Mailbox Data */
+		gtt_write(0x138124, 0x80000004); /* Mailbox Cmd for RC6 VID */
+		if (gtt_poll(0x138124, (1 << 31), (0 << 31)))
+			gtt_write(0x138124, 0x8000000a);
+		gtt_poll(0x138124, (1 << 31), (0 << 31));
+	}
 
 	/* 8 */
 	gtt_write(0xa090, 0x00000000); /* RC Control */
@@ -530,8 +520,13 @@ static void gma_pm_init_pre_vbios(struct device *dev)
 
 	/* 11a: Enable Render Standby (RC6) */
 	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
-		/* on IVB: also enable DeepRenderStandby */
-		gtt_write(0xa090, 0x88060000); /* HW RC Control */
+		/*
+		 * IvyBridge should also support DeepRenderStandby.
+		 *
+		 * Unfortunately it does not work reliably on all SKUs so
+		 * disable it here and it can be enabled by the kernel.
+		 */
+		gtt_write(0xa090, 0x88040000); /* HW RC Control */
 	} else {
 		gtt_write(0xa090, 0x88040000); /* HW RC Control */
 	}
@@ -566,22 +561,11 @@ static void gma_pm_init_post_vbios(struct device *dev)
 	/* 15: Deassert Force Wake */
 	if (bridge_silicon_revision() < IVB_STEP_C0) {
 		gtt_write(0xa18c, gtt_read(0xa18c) & ~1);
-		if (!gtt_poll(0x130090, (1 << 0), (0 << 0))) {
-			return;
-		}
+		gtt_poll(0x130090, (1 << 0), (0 << 0));
 	} else {
 		gtt_write(0xa188, 0x1fffe);
-		if (!gtt_poll(0x130040, (1 << 0), (0 << 0))) {
-			return;
-		}
-		/*
-		 * HACK: also poll on 0x130090, for some reason graphics does
-		 * not work on all SKUs unless this register is polled at boot.
-		 */
-		if (!gtt_poll(0x130090, (1 << 0), (0 << 0))) {
-			return;
-		}
-		gtt_write(0xa188, gtt_read(0xa188) | 1);
+		if (gtt_poll(0x130040, (1 << 0), (0 << 0)))
+			gtt_write(0xa188, gtt_read(0xa188) | 1);
 	}
 
 	/* 16: SW RC Control */
@@ -716,6 +700,12 @@ static const struct pci_driver gma_gt2_mobile_fast __pci_driver = {
 	.ops	= &gma_func0_ops,
 	.vendor	= PCI_VENDOR_ID_INTEL,
 	.device	= 0x0126,
+};
+
+static const struct pci_driver gma_func0_driver_4 __pci_driver = {
+	.ops    = &gma_func0_ops,
+	.vendor = PCI_VENDOR_ID_INTEL,
+	.device = 0x0156,
 };
 
 static const struct pci_driver gma_func0_driver_3 __pci_driver = {

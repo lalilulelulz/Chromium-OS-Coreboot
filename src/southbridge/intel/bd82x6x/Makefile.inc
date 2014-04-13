@@ -17,9 +17,6 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-me-src-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += me.c
-me-src-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += me_8.x.c
-
 driver-y += pch.c
 driver-y += azalia.c
 driver-y += lpc.c
@@ -27,19 +24,23 @@ driver-y += pci.c
 driver-y += pcie.c
 driver-y += sata.c
 driver-y += usb_ehci.c
-driver-y += $(me-src-y)
+driver-y += usb_xhci.c
+driver-y += me.c
+driver-y += me_8.x.c
 driver-y += smbus.c
 
 ramstage-y += me_status.c
 ramstage-y += reset.c
 ramstage-y += watchdog.c
 
+ramstage-$(CONFIG_ELOG) += elog.c
 ramstage-y += spi.c
+smm-$(CONFIG_SPI_FLASH_SMM) += spi.c
 
 ramstage-$(CONFIG_HAVE_SMI_HANDLER) += smi.c
-smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c $(me-src-y) finalize.c
+smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c me.c me_8.x.c finalize.c pch.c
 
 romstage-y += early_usb.c early_smbus.c early_me.c me_status.c gpio.c
 romstage-$(CONFIG_USBDEBUG) += usb_debug.c
-romstage-y += reset.c
+romstage-y += reset.c early_spi.c
 

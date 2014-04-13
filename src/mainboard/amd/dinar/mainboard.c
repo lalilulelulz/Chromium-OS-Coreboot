@@ -26,7 +26,6 @@
 #include <cpu/amd/mtrr.h>
 #include <device/pci_def.h>
 #include <NbPlatform.h>
-#include "chip.h"
 
 #define ONE_MB  0x100000
 //#define SMBUS_IO_BASE 0x6000

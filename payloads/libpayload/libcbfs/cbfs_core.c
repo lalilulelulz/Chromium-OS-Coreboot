@@ -107,7 +107,7 @@ struct cbfs_file *cbfs_find(const char *name)
 		if (memcmp(CBFS_FILE_MAGIC, file->magic, strlen(CBFS_FILE_MAGIC)) != 0) {
 			// no file header found. corruption?
 			// proceed in aligned steps to resynchronize
-			LOG("ERROR: No file header found at %p, attempting to recover by searching for header\n", data);
+			LOG("WARNING: No file header found at %p, attempting to recover by searching for header\n", data);
 			data = phys_to_virt(CBFS_ALIGN_UP(virt_to_phys(data), align));
 			continue;
 		}

@@ -55,7 +55,8 @@ typedef struct {
 	u8	f4of; /* 0x22 - FAN 4 OFF Threshold */
 	u8	f4on; /* 0x23 - FAN 4 ON Threshold */
 	u8	f4pw; /* 0x24 - FAN 4 PWM value */
-	u8	rsvd3[3];
+	u8	tmps; /* 0x25 - Temperature Sensor ID */
+	u8	rsvd3[2];
 	/* Processor Identification */
 	u8	apic; /* 0x28 - APIC enabled */
 	u8	mpen; /* 0x29 - MP capable/enabled */
@@ -112,7 +113,9 @@ typedef struct {
 	u8	gtf2[7];
 	u8	idem;
 	u8	idet;
-	u8	rsvd11[7];
+	u8	rsvd11[6];
+	/* XHCI */
+	u8 xhci;
 	/* IGD OpRegion (not implemented yet) */
 	u32	aslb; /* 0xb4 - IGD OpRegion Base Address */
 	u8	ibtt;
@@ -137,3 +140,7 @@ typedef struct {
 	chromeos_acpi_t chromeos;
 } __attribute__((packed)) global_nvs_t;
 
+#ifdef __SMM__
+/* Used in SMM to find the ACPI GNVS address */
+global_nvs_t *smm_get_gnvs(void);
+#endif

@@ -35,6 +35,7 @@
 #include <device/pci_def.h>
 #include <string.h>
 #include <delay.h>
+#include <elog.h>
 
 #ifdef __SMM__
 # include <arch/romcc_io.h>
@@ -353,8 +354,9 @@ static inline int mei_sendrecv(struct mei_header *mei, struct mkhi_header *mkhi,
 	return 0;
 }
 
+#ifdef __SMM__
 /* Send END OF POST message to the ME */
-int mkhi_end_of_post(void)
+static int mkhi_end_of_post(void)
 {
 	struct mkhi_header mkhi = {
 		.group_id	= MKHI_GROUP_ID_GEN,
@@ -376,6 +378,7 @@ int mkhi_end_of_post(void)
 	printk(BIOS_INFO, "ME: END OF POST message successful\n");
 	return 0;
 }
+#endif
 
 #if (CONFIG_DEFAULT_CONSOLE_LOGLEVEL >= BIOS_DEBUG) && !defined(__SMM__)
 /* Get ME firmware version */
@@ -460,6 +463,7 @@ static int mkhi_get_fwcaps(void)
 }
 #endif
 
+#if CONFIG_CHROMEOS && 0 /* DISABLED */
 /* Tell ME to issue a global reset */
 int mkhi_global_reset(void)
 {
@@ -490,10 +494,10 @@ int mkhi_global_reset(void)
 	printk(BIOS_ERR, "ME: Global Reset failed\n");
 	return -1;
 }
+#endif
 
 #ifdef __SMM__
-
-void intel_me_finalize_smm(void)
+static void intel_me7_finalize_smm(void)
 {
 	struct me_hfs hfs;
 	u32 reg32;
@@ -528,6 +532,20 @@ void intel_me_finalize_smm(void)
 	RCBA32_OR(FD2, PCH_DISABLE_MEI1);
 }
 
+void intel_me_finalize_smm(void)
+{
+	u32 did = pcie_read_config32(PCH_ME_DEV, PCI_VENDOR_ID);
+	switch (did) {
+	case 0x1c3a8086:
+		intel_me7_finalize_smm();
+		break;
+	case 0x1e3a8086:
+		intel_me8_finalize_smm();
+		break;
+	default:
+		printk(BIOS_ERR, "No finalize handler for ME %08x.\n", did);
+	}
+}
 #else /* !__SMM__ */
 
 /* Determine the path that we should take based on ME status */
@@ -549,10 +567,6 @@ static me_bios_path intel_me_path(device_t dev)
 
 	/* Check and dump status */
 	intel_me_status(&hfs, &gmes);
-
-	/* Check for valid firmware */
-	if (hfs.fpt_bad)
-		return ME_ERROR_BIOS_PATH;
 
 	/* Check Current Working State */
 	switch (hfs.working_state) {
@@ -580,9 +594,26 @@ static me_bios_path intel_me_path(device_t dev)
 		break;
 	}
 
-	/* Check for any error code */
-	if (hfs.error_code)
+	/* Check for any error code and valid firmware */
+	if (hfs.error_code || hfs.fpt_bad)
 		path = ME_ERROR_BIOS_PATH;
+
+#if CONFIG_ELOG
+	if (path != ME_NORMAL_BIOS_PATH) {
+		struct elog_event_data_me_extended data = {
+			.current_working_state = hfs.working_state,
+			.operation_state       = hfs.operation_state,
+			.operation_mode        = hfs.operation_mode,
+			.error_code            = hfs.error_code,
+			.progress_code         = gmes.progress_code,
+			.current_pmevent       = gmes.current_pmevent,
+			.current_state         = gmes.current_state,
+		};
+		elog_add_event_byte(ELOG_TYPE_MANAGEMENT_ENGINE, path);
+		elog_add_event_raw(ELOG_TYPE_MANAGEMENT_ENGINE_EXT,
+				   &data, sizeof(data));
+	}
+#endif
 
 	return path;
 }
@@ -621,7 +652,7 @@ static int intel_mei_setup(device_t dev)
 static int intel_me_extend_valid(device_t dev)
 {
 	struct me_heres status;
-	u32 extend[] = {0};
+	u32 extend[8] = {0};
 	int i, count = 0;
 
 	pci_read_dword_ptr(dev, &status, PCI_ME_HERES);
@@ -710,9 +741,6 @@ static void intel_me_init(device_t dev)
 	case ME_RECOVERY_BIOS_PATH:
 	case ME_DISABLE_BIOS_PATH:
 	case ME_FIRMWARE_UPDATE_BIOS_PATH:
-		/*
-		 * TODO(dlaurie) Force recovery mode if ME is unhappy?
-		 */
 		break;
 	}
 }

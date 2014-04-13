@@ -32,6 +32,7 @@ endif
 ramstage-y += memcmp.c
 ramstage-y += memmove.c
 ramstage-y += malloc.c
+smm-$(CONFIG_SMM_TSEG) += malloc.c
 ramstage-y += delay.c
 ramstage-y += fallback_boot.c
 ramstage-y += compute_ip_checksum.c
@@ -39,6 +40,7 @@ ramstage-y += version.c
 ramstage-y += cbfs.c
 ramstage-y += lzma.c
 #ramstage-y += lzmadecode.c
+ramstage-y += stack.c
 ramstage-y += gcc.c
 ramstage-y += clog2.c
 ramstage-y += cbmem.c

@@ -29,6 +29,7 @@
 #include <arch/ioapic.h>
 #include <arch/acpi.h>
 #include <cpu/cpu.h>
+#include <elog.h>
 #include "pch.h"
 
 #define NMI_OFF	0
@@ -296,14 +297,19 @@ static void pch_rtc_init(struct device *dev)
 	if (rtc_failed) {
 		reg8 &= ~RTC_BATTERY_DEAD;
 		pci_write_config8(dev, GEN_PMCON_3, reg8);
+#if CONFIG_ELOG
+		elog_add_event(ELOG_TYPE_RTC_RESET);
+#endif
 	}
 	printk(BIOS_DEBUG, "rtc_failed = 0x%x\n", rtc_failed);
 
 	rtc_init(rtc_failed);
 }
 
-static void pch_pm_init(struct device *dev)
+/* CougarPoint PCH Power Management init */
+static void cpt_pm_init(struct device *dev)
 {
+	printk(BIOS_DEBUG, "CougarPoint PM init\n");
 	pci_write_config8(dev, 0xa9, 0x47);
 	RCBA32_AND_OR(0x2238, ~0UL, (1 << 6)|(1 << 0));
 	RCBA32_AND_OR(0x228c, ~0UL, (1 << 0));
@@ -338,6 +344,49 @@ static void pch_pm_init(struct device *dev)
 	RCBA32(0x3a6c) = 0x00000001;
 	RCBA32_AND_OR(0x2344, 0x00ffff00, 0xff00000c);
 	RCBA32_AND_OR(0x80c, ~(0xff << 20), 0x11 << 20);
+	RCBA32(0x33c8) = 0;
+	RCBA32_AND_OR(0x21b0, ~0UL, 0xf);
+}
+
+/* PantherPoint PCH Power Management init */
+static void ppt_pm_init(struct device *dev)
+{
+	printk(BIOS_DEBUG, "PantherPoint PM init\n");
+	pci_write_config8(dev, 0xa9, 0x47);
+	RCBA32_AND_OR(0x2238, ~0UL, (1 << 0));
+	RCBA32_AND_OR(0x228c, ~0UL, (1 << 0));
+	RCBA16_AND_OR(0x1100, ~0UL, (1 << 13)|(1 << 14));
+	RCBA16_AND_OR(0x0900, ~0UL, (1 << 14));
+	RCBA32(0x2304) = 0xc03b8400;
+	RCBA32_AND_OR(0x2314, ~0UL, (1 << 5)|(1 << 18));
+	RCBA32_AND_OR(0x2320, ~0UL, (1 << 15)|(1 << 1));
+	RCBA32_AND_OR(0x3314, ~0x1f, 0xf);
+	RCBA32(0x3318) = 0x054f0000;
+	RCBA32(0x3324) = 0x04000000;
+	RCBA32_AND_OR(0x3340, ~0UL, 0xfffff);
+	RCBA32_AND_OR(0x3344, ~0UL, (1 << 1)|(1 << 0));
+	RCBA32(0x3360) = 0x0001c000;
+	RCBA32(0x3368) = 0x00061100;
+	RCBA32(0x3378) = 0x7f8fdfff;
+	RCBA32(0x337c) = 0x000003fd;
+	RCBA32(0x3388) = 0x00001000;
+	RCBA32(0x3390) = 0x0001c000;
+	RCBA32(0x33a0) = 0x00000800;
+	RCBA32(0x33b0) = 0x00001000;
+	RCBA32(0x33c0) = 0x00093900;
+	RCBA32(0x33cc) = 0x24653002;
+	RCBA32(0x33d0) = 0x067388fe;
+	RCBA32_AND_OR(0x33d4, 0xf000f000, 0x00670060);
+	RCBA32(0x3a28) = 0x01010000;
+	RCBA32(0x3a2c) = 0x01010404;
+	RCBA32(0x3a80) = 0x01040000;
+	RCBA32_AND_OR(0x3a84, ~0x0000ffff, 0x00001001);
+	RCBA32_AND_OR(0x3a84, ~0UL, (1 << 24)); /* SATA 2/3 disabled */
+	RCBA32_AND_OR(0x3a88, ~0UL, (1 << 0));  /* SATA 4/5 disabled */
+	RCBA32(0x3a6c) = 0x00000001;
+	RCBA32_AND_OR(0x2344, 0x00ffff00, 0xff00000c);
+	RCBA32_AND_OR(0x80c, ~(0xff << 20), 0x11 << 20);
+	RCBA32_AND_OR(0x33a4, ~0UL, (1 << 0));
 	RCBA32(0x33c8) = 0;
 	RCBA32_AND_OR(0x21b0, ~0UL, 0xf);
 }
@@ -500,7 +549,16 @@ static void lpc_init(struct device *dev)
 	pch_power_options(dev);
 
 	/* Initialize power management */
-	pch_pm_init(dev);
+	switch (pch_silicon_type()) {
+	case PCH_TYPE_CPT: /* CougarPoint */
+		cpt_pm_init(dev);
+		break;
+	case PCH_TYPE_PPT: /* PantherPoint */
+		ppt_pm_init(dev);
+		break;
+	default:
+		printk(BIOS_ERR, "Unknown Chipset: 0x%04x\n", dev->device);
+	}
 
 	/* Set the state of the GPIO lines. */
 	//gpio_init(dev);
@@ -535,18 +593,20 @@ static void lpc_init(struct device *dev)
 static void pch_lpc_read_resources(device_t dev)
 {
 	struct resource *res;
+	config_t *config = dev->chip_info;
+	u8 io_index = 0;
 
 	/* Get the normal PCI resources of this device. */
 	pci_dev_read_resources(dev);
 
 	/* Add an extra subtractive resource for both memory and I/O. */
-	res = new_resource(dev, IOINDEX_SUBTRACTIVE(0, 0));
+	res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
 	res->base = 0;
 	res->size = 0x1000;
 	res->flags = IORESOURCE_IO | IORESOURCE_SUBTRACTIVE |
 		     IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
 
-	res = new_resource(dev, IOINDEX_SUBTRACTIVE(1, 0));
+	res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
 	res->base = 0xff800000;
 	res->size = 0x00800000; /* 8 MB for flash */
 	res->flags = IORESOURCE_MEM | IORESOURCE_SUBTRACTIVE |
@@ -556,6 +616,39 @@ static void pch_lpc_read_resources(device_t dev)
 	res->base = IO_APIC_ADDR;
 	res->size = 0x00001000;
 	res->flags = IORESOURCE_MEM | IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
+
+	/* Set PCH IO decode ranges if required.*/
+	if ((config->gen1_dec & 0xFFFC) > 0x1000) {
+		res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
+		res->base = config->gen1_dec & 0xFFFC;
+		res->size = (config->gen1_dec >> 16) & 0xFC;
+		res->flags = IORESOURCE_IO | IORESOURCE_SUBTRACTIVE |
+				 IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
+	}
+
+	if ((config->gen2_dec & 0xFFFC) > 0x1000) {
+		res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
+		res->base = config->gen2_dec & 0xFFFC;
+		res->size = (config->gen2_dec >> 16) & 0xFC;
+		res->flags = IORESOURCE_IO | IORESOURCE_SUBTRACTIVE |
+				 IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
+	}
+
+	if ((config->gen3_dec & 0xFFFC) > 0x1000) {
+		res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
+		res->base = config->gen3_dec & 0xFFFC;
+		res->size = (config->gen3_dec >> 16) & 0xFC;
+		res->flags = IORESOURCE_IO | IORESOURCE_SUBTRACTIVE |
+				 IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
+	}
+
+	if ((config->gen4_dec & 0xFFFC) > 0x1000) {
+		res = new_resource(dev, IOINDEX_SUBTRACTIVE(io_index++, 0));
+		res->base = config->gen4_dec & 0xFFFC;
+		res->size = (config->gen4_dec >> 16) & 0xFC;
+		res->flags = IORESOURCE_IO| IORESOURCE_SUBTRACTIVE |
+				 IORESOURCE_ASSIGNED | IORESOURCE_FIXED;
+	}
 }
 
 static void pch_lpc_enable_resources(device_t dev)
@@ -599,88 +692,21 @@ static struct device_operations device_ops = {
 };
 
 
-/* IDs for LPC device of Intel 6 series Chipset and
- * Intel C200 Series Chipset according to specification
- * update from August 2011
+/* IDs for LPC device of Intel 6 Series Chipset, Intel 7 Series Chipset, and
+ * Intel C200 Series Chipset
  */
 
-static const struct pci_driver q67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4e,
+static const unsigned short pci_device_ids[] = { 0x1c46, 0x1c47, 0x1c49, 0x1c4a,
+						 0x1c4b, 0x1c4c, 0x1c4d, 0x1c4e,
+						 0x1c4f, 0x1c50, 0x1c52, 0x1c54,
+						 0x1e55, 0x1c56, 0x1e57, 0x1c5c,
+						 0x1e5d, 0x1e5e, 0x1e5f,
+						 0 };
+
+static const struct pci_driver pch_lpc __pci_driver = {
+	.ops	 = &device_ops,
+	.vendor	 = PCI_VENDOR_ID_INTEL,
+	.devices = pci_device_ids,
 };
-static const struct pci_driver q65_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4c,
-};
-static const struct pci_driver b65_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c50,
-};
-static const struct pci_driver h67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4a,
-};
-static const struct pci_driver z68_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c46,
-};
-static const struct pci_driver h61_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c5c,
-};
-static const struct pci_driver c202_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c52,
-};
-static const struct pci_driver c204_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c54,
-};
-static const struct pci_driver c206_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c56,
-};
-static const struct pci_driver qm67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4f,
-};
-static const struct pci_driver um67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c47,
-};
-static const struct pci_driver hm67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4b,
-};
-static const struct pci_driver hm65_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c49,
-};
-static const struct pci_driver qs67_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c4d,
-};
-static const struct pci_driver c216_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1e55,
-};
-static const struct pci_driver hm75_lpc __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1e5d,
-};
+
+

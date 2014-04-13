@@ -30,7 +30,16 @@
 #ifndef PEI_DATA_H
 #define PEI_DATA_H
 
-#define PEI_VERSION 1
+typedef struct {
+  uint16_t mode;                // 0: Disable; 1: Enable, 2: Auto, 3: Smart Auto
+  uint16_t hs_port_switch_mask; // 4 bit mask, 1: switchable, 0: not switchable
+  uint16_t preboot_support;     // 0: No xHCI preOS driver; 1: xHCI preOS driver
+  uint16_t xhci_streams;        // 0: Disable; 1: Enable
+} pch_usb3_controller_settings;
+
+typedef void (*tx_byte_func)(unsigned char byte);
+#define PEI_VERSION 5
+
 struct pei_data
 {
 	uint32_t pei_version;
@@ -78,6 +87,9 @@ struct pei_data
 	 *  [1] = overcurrent pin
 	 *  [2] = length
 	 *
+	 * Ports 0-7 can be mapped to OC0-OC3
+	 * Ports 8-13 can be mapped to OC4-OC7
+	 *
 	 * Port Length
 	 *  MOBILE:
 	 *   < 0x050 = Setting 1 (back panel, 1-5in, lowest tx amplitude)
@@ -88,11 +100,15 @@ struct pei_data
 	 *   < 0x150 = Setting 3 (back panel, 13-15in, higest tx amplitude)
 	 */
 	uint16_t usb_port_config[16][3];
+	/* See the usb3 struct above for details */
+	pch_usb3_controller_settings usb3;
 	/* SPD data array for onboard RAM. Specify address 0xf0,
 	 * 0xf1, 0xf2, 0xf3 to index one of the 4 slots in
 	 * spd_address for a given "DIMM".
 	 */
 	uint8_t spd_data[4][256];
+	tx_byte_func tx_byte;
+	int ddr3lv_support;
 } __attribute__((packed));
 
 #endif

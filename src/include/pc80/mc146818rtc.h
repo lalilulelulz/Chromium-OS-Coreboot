@@ -63,6 +63,8 @@
 # define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
 # define RTC_DST_EN 0x01	/* auto switch DST - works f. USA only */
 
+#define RTC_TO_BCD(value) (((value / 10) << 4) | (value % 10))
+
 /**********************************************************************/
 #define RTC_INTR_FLAGS	RTC_REG_C
 /* caution - cleared by read */
@@ -75,6 +77,18 @@
 #define RTC_VALID	RTC_REG_D
 # define RTC_VRT 0x80		/* valid RAM and time */
 /**********************************************************************/
+
+/* Date and Time in RTC CMOS */
+#define RTC_CLK_SECOND		0
+#define RTC_CLK_SECOND_ALARM	1
+#define RTC_CLK_MINUTE		2
+#define RTC_CLK_MINUTE_ALARM	3
+#define RTC_CLK_HOUR		4
+#define RTC_CLK_HOUR_ALARM	5
+#define RTC_CLK_DAYOFWEEK	6
+#define RTC_CLK_DAYOFMONTH	7
+#define RTC_CLK_MONTH		8
+#define RTC_CLK_YEAR		9
 
 /* On PCs, the checksum is built only over bytes 16..45 */
 #define PC_CKS_RANGE_START	16
@@ -138,5 +152,28 @@ static inline int get_option(void *dest __attribute__((unused)),
 #include <drivers/pc80/mc146818rtc_early.c>
 #endif
 #define read_option(name, default) read_option_lowlevel(CMOS_VSTART_ ##name, CMOS_VLEN_ ##name, (default))
+
+#if CONFIG_CMOS_POST
+#if CONFIG_USE_OPTION_TABLE
+# include "option_table.h"
+# define CMOS_POST_OFFSET (CMOS_VSTART_cmos_post_offset >> 3)
+#else
+# if defined(CONFIG_CMOS_POST_OFFSET)
+#  define CMOS_POST_OFFSET CONFIG_CMOS_POST_OFFSET
+# else
+#  error "Must define CONFIG_CMOS_POST_OFFSET"
+# endif
+#endif
+
+#define CMOS_POST_BANK_OFFSET     (CMOS_POST_OFFSET)
+#define CMOS_POST_BANK_0_MAGIC    0x80
+#define CMOS_POST_BANK_0_OFFSET   (CMOS_POST_OFFSET + 1)
+#define CMOS_POST_BANK_1_MAGIC    0x81
+#define CMOS_POST_BANK_1_OFFSET   (CMOS_POST_OFFSET + 2)
+
+#if !defined(__ROMCC__)
+void cmos_post_log(void);
+#endif
+#endif /* CONFIG_CMOS_POST */
 
 #endif /*  PC80_MC146818RTC_H */

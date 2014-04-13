@@ -25,36 +25,55 @@
 #include <arch/romcc_io.h>
 #include <console/console.h>
 #include <cpu/x86/cache.h>
-#include <cpu/x86/smm.h>
 #include <device/pci_def.h>
 #include <cpu/x86/smm.h>
+#include <elog.h>
+#include <pc80/mc146818rtc.h>
 #include "pch.h"
 
 #include "nvs.h"
 
+/* We are using PCIe accesses for now
+ *  1. the chipset can do it
+ *  2. we don't need to worry about how we leave 0xcf8/0xcfc behind
+ */
+#include <northbridge/intel/sandybridge/sandybridge.h>
+#include <northbridge/intel/sandybridge/pcie_config.c>
+
 /* While we read PMBASE dynamically in case it changed, let's
  * initialize it with a sane value
  */
-u16 pmbase = DEFAULT_PMBASE;
-u8 smm_initialized = 0;
+static u16 pmbase = DEFAULT_PMBASE;
+u16 smm_get_pmbase(void)
+{
+	return pmbase;
+}
+
+static u8 smm_initialized = 0;
 
 /* GNVS needs to be updated by an 0xEA PM Trap (B2) after it has been located
  * by coreboot.
  */
-global_nvs_t *gnvs = (global_nvs_t *)0x0;
-void *tcg = (void *)0x0;
-void *smi1 = (void *)0x0;
+static global_nvs_t *gnvs = (global_nvs_t *)0x0;
+global_nvs_t *smm_get_gnvs(void)
+{
+	return gnvs;
+}
 
 #if CONFIG_SMM_TSEG
 static u32 tseg_base = 0;
-static inline void tseg_fixup(void **ptr)
+u32 smi_get_tseg_base(void)
+{
+	if (!tseg_base)
+		tseg_base = pcie_read_config32(PCI_DEV(0, 0, 0), TSEG) & ~1;
+	return tseg_base;
+}
+void tseg_relocate(void **ptr)
 {
 	/* Adjust pointer with TSEG base */
-	if (*ptr)
-		*ptr = (void *)(((u8*)*ptr) + tseg_base);
+	if (*ptr && *ptr < (void*)smi_get_tseg_base())
+		*ptr = (void *)(((u8*)*ptr) + smi_get_tseg_base());
 }
-#else
-#define tseg_fixup(x) do {} while(0)
 #endif
 
 /**
@@ -208,13 +227,6 @@ static void dump_tco_status(u32 tco_sts)
 	printk(BIOS_DEBUG, "\n");
 }
 
-/* We are using PCIe accesses for now
- *  1. the chipset can do it
- *  2. we don't need to worry about how we leave 0xcf8/0xcfc behind
- */
-#include <northbridge/intel/sandybridge/sandybridge.h>
-#include <northbridge/intel/sandybridge/pcie_config.c>
-
 int southbridge_io_trap_handler(int smif)
 {
 	switch (smif) {
@@ -314,16 +326,67 @@ static void southbridge_gate_memory_reset(void)
 	outl(reg32, gpiobase + GP_LVL2);
 }
 
+static void xhci_sleep(u8 slp_typ)
+{
+	u32 reg32, xhci_bar;
+	u16 reg16;
+
+	switch (slp_typ) {
+	case SLP_TYP_S3:
+	case SLP_TYP_S4:
+		reg16 = pcie_read_config16(PCH_XHCI_DEV, 0x74);
+		reg16 &= ~0x03UL;
+		pcie_write_config32(PCH_XHCI_DEV, 0x74, reg16);
+
+		reg32 = pcie_read_config32(PCH_XHCI_DEV, PCI_COMMAND);
+		reg32 |= (PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
+		pcie_write_config32(PCH_XHCI_DEV, PCI_COMMAND, reg32);
+
+		xhci_bar = pcie_read_config32(PCH_XHCI_DEV,
+				              PCI_BASE_ADDRESS_0) & ~0xFUL;
+
+		if ((xhci_bar + 0x4C0) & 1)
+			pch_iobp_update(0xEC000082, ~0UL, (3 << 2));
+		if ((xhci_bar + 0x4D0) & 1)
+			pch_iobp_update(0xEC000182, ~0UL, (3 << 2));
+		if ((xhci_bar + 0x4E0) & 1)
+			pch_iobp_update(0xEC000282, ~0UL, (3 << 2));
+		if ((xhci_bar + 0x4F0) & 1)
+			pch_iobp_update(0xEC000382, ~0UL, (3 << 2));
+
+		reg32 = pcie_read_config32(PCH_XHCI_DEV, PCI_COMMAND);
+		reg32 &= ~(PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
+		pcie_write_config32(PCH_XHCI_DEV, PCI_COMMAND, reg32);
+
+		reg16 = pcie_read_config16(PCH_XHCI_DEV, 0x74);
+		reg16 |= 0x03;
+		pcie_write_config16(PCH_XHCI_DEV, 0x74, reg16);
+		break;
+
+	case SLP_TYP_S5:
+		reg16 = pcie_read_config16(PCH_XHCI_DEV, 0x74);
+		reg16 |= ((1 << 8) | 0x03);
+		pcie_write_config16(PCH_XHCI_DEV, 0x74, reg16);
+		break;
+	}
+}
+
+
 static void southbridge_smi_sleep(unsigned int node, smm_state_save_area_t *state_save)
 {
 	u8 reg8;
 	u32 reg32;
 	u8 slp_typ;
-	/* FIXME: the power state on boot should be read from
-	 * CMOS or even better from GNVS. Right now it's hard
-	 * coded at compile time.
-	 */
 	u8 s5pwr = CONFIG_MAINBOARD_POWER_ON_AFTER_POWER_FAIL;
+
+	// save and recover RTC port values
+	u8 tmp70, tmp72;
+	tmp70 = inb(0x70);
+	tmp72 = inb(0x72);
+	get_option(&s5pwr, "power_on_after_fail");
+	outb(tmp70, 0x70);
+	outb(tmp72, 0x72);
+
 	void (*mainboard_sleep)(u8 slp_typ) = mainboard_smi_sleep;
 
 	/* First, disable further SMIs */
@@ -336,10 +399,19 @@ static void southbridge_smi_sleep(unsigned int node, smm_state_save_area_t *stat
 	printk(BIOS_SPEW, "SMI#: SLP = 0x%08x\n", reg32);
 	slp_typ = (reg32 >> 10) & 7;
 
+	if(smm_get_gnvs()->xhci)
+		xhci_sleep(slp_typ);
+
 	/* Do any mainboard sleep handling */
-	tseg_fixup((void **)&mainboard_sleep);
+	tseg_relocate((void **)&mainboard_sleep);
 	if (mainboard_sleep)
-		mainboard_sleep(slp_typ);
+		mainboard_sleep(slp_typ-2);
+
+#if CONFIG_ELOG_GSMI
+	/* Log S3, S4, and S5 entry */
+	if (slp_typ >= 5)
+		elog_add_event_byte(ELOG_TYPE_ACPI_ENTER, slp_typ-2);
+#endif
 
 	/* Next, do the deed.
 	 */
@@ -362,16 +434,16 @@ static void southbridge_smi_sleep(unsigned int node, smm_state_save_area_t *stat
 
 		outl(0, pmbase + GPE0_EN);
 
-		/* Should we keep the power state after a power loss?
-		 * In case the setting is "ON" or "OFF" we don't have
-		 * to do anything. But if it's "KEEP" we have to switch
-		 * to "OFF" before entering S5.
+		/* Always set the flag in case CMOS was changed on runtime. For
+		 * "KEEP", switch to "OFF" - KEEP is software emulated
 		 */
-		if (s5pwr == MAINBOARD_POWER_KEEP) {
-			reg8 = pcie_read_config8(PCI_DEV(0, 0x1f, 0), GEN_PMCON_3);
+		reg8 = pcie_read_config8(PCI_DEV(0, 0x1f, 0), GEN_PMCON_3);
+		if (s5pwr == MAINBOARD_POWER_ON) {
+			reg8 &= ~1;
+		} else {
 			reg8 |= 1;
-			pcie_write_config8(PCI_DEV(0, 0x1f, 0), GEN_PMCON_3, reg8);
 		}
+		pcie_write_config8(PCI_DEV(0, 0x1f, 0), GEN_PMCON_3, reg8);
 
 		/* also iterates over all bridges on bus 0 */
 		busmaster_disable_on_bus(0);
@@ -401,11 +473,73 @@ static void southbridge_smi_sleep(unsigned int node, smm_state_save_area_t *stat
 	}
 }
 
+/*
+ * Look for Synchronous IO SMI and use save state from that
+ * core in case we are not running on the same core that
+ * initiated the IO transaction.
+ */
+static em64t101_smm_state_save_area_t *smi_apmc_find_state_save(u8 cmd)
+{
+	em64t101_smm_state_save_area_t *state;
+	u32 base = smi_get_tseg_base() + 0x8000 + 0x7d00;
+	int node;
+
+	/* Check all nodes looking for the one that issued the IO */
+	for (node = 0; node < CONFIG_MAX_CPUS; node++) {
+		state = (em64t101_smm_state_save_area_t *)
+			(base - (node * 0x400));
+
+		/* Check for Synchronous IO (bit0==1) */
+		if (!(state->io_misc_info & (1 << 0)))
+			continue;
+
+		/* Make sure it was a write (bit4==0) */
+		if (state->io_misc_info & (1 << 4))
+			continue;
+
+		/* Check for APMC IO port */
+		if (((state->io_misc_info >> 16) & 0xff) != APM_CNT)
+			continue;
+
+		/* Check AX against the requested command */
+		if ((state->rax & 0xff) != cmd)
+			continue;
+
+		return state;
+	}
+
+	return NULL;
+}
+
+#if CONFIG_ELOG_GSMI
+static void southbridge_smi_gsmi(void)
+{
+	u32 *ret, *param;
+	u8 sub_command;
+	em64t101_smm_state_save_area_t *io_smi =
+		smi_apmc_find_state_save(ELOG_GSMI_APM_CNT);
+
+	if (!io_smi)
+		return;
+
+	/* Command and return value in EAX */
+	ret = (u32*)&io_smi->rax;
+	sub_command = (u8)(*ret >> 8);
+
+	/* Parameter buffer in EBX */
+	param = (u32*)&io_smi->rbx;
+
+	/* drivers/elog/gsmi.c */
+	*ret = gsmi_exec(sub_command, param);
+}
+#endif
+
 static void southbridge_smi_apmc(unsigned int node, smm_state_save_area_t *state_save)
 {
 	u32 pmctrl;
 	u8 reg8;
 	int (*mainboard_apmc)(u8 apmc) = mainboard_smi_apmc;
+	em64t101_smm_state_save_area_t *state;
 
 	/* Emulate B2 register as the FADT / Linux expects it */
 
@@ -442,15 +576,22 @@ static void southbridge_smi_apmc(unsigned int node, smm_state_save_area_t *state
 			printk(BIOS_DEBUG, "SMI#: SMM structures already initialized!\n");
 			return;
 		}
-		gnvs = *(global_nvs_t **)0x500;
-		tcg  = *(void **)0x504;
-		smi1 = *(void **)0x508;
-		smm_initialized = 1;
-		printk(BIOS_DEBUG, "SMI#: Setting up structures to %p, %p, %p\n", gnvs, tcg, smi1);
+		state = smi_apmc_find_state_save(reg8);
+		if (state) {
+			/* EBX in the state save contains the GNVS pointer */
+			gnvs = (global_nvs_t *)((u32)state->rbx);
+			smm_initialized = 1;
+			printk(BIOS_DEBUG, "SMI#: Setting GNVS to %p\n", gnvs);
+		}
 		break;
+#if CONFIG_ELOG_GSMI
+	case ELOG_GSMI_APM_CNT:
+		southbridge_smi_gsmi();
+		break;
+#endif
 	}
 
-	tseg_fixup((void **)&mainboard_apmc);
+	tseg_relocate((void **)&mainboard_apmc);
 	if (mainboard_apmc)
 		mainboard_apmc(reg8);
 }
@@ -469,6 +610,9 @@ static void southbridge_smi_pm1(unsigned int node, smm_state_save_area_t *state_
 		// power button pressed
 		u32 reg32;
 		reg32 = (7 << 10) | (1 << 13);
+#if CONFIG_ELOG_GSMI
+		elog_add_event(ELOG_TYPE_POWER_BUTTON);
+#endif
 		outl(reg32, pmbase + PM1_CNT);
 	}
 }
@@ -490,7 +634,7 @@ static void southbridge_smi_gpi(unsigned int node, smm_state_save_area_t *state_
 
 	reg16 &= inw(pmbase + ALT_GP_SMI_EN);
 
-	tseg_fixup((void **)&mainboard_gpi);
+	tseg_relocate((void **)&mainboard_gpi);
 	if (mainboard_gpi) {
 		mainboard_gpi(reg16);
 	} else {
@@ -672,11 +816,6 @@ void southbridge_smi_handler(unsigned int node, smm_state_save_area_t *state_sav
 	/* Update global variable pmbase */
 	pmbase = pcie_read_config16(PCI_DEV(0, 0x1f, 0), 0x40) & 0xfffc;
 
-#if CONFIG_SMM_TSEG
-	/* Update global variable TSEG base */
-	tseg_base = pcie_read_config32(PCI_DEV(0, 0, 0), TSEG) & ~1;
-#endif
-
 	/* We need to clear the SMI status registers, or we won't see what's
 	 * happening in the following calls.
 	 */
@@ -688,7 +827,8 @@ void southbridge_smi_handler(unsigned int node, smm_state_save_area_t *state_sav
 			if (southbridge_smi[i]) {
 #if CONFIG_SMM_TSEG
 				smi_handler_t handler = (smi_handler_t)
-					((u8*)southbridge_smi[i] + tseg_base);
+					((u8*)southbridge_smi[i] +
+					 smi_get_tseg_base());
 				if (handler)
 					handler(node, state_save);
 #else

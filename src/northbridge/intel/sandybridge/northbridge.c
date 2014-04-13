@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <delay.h>
 #include <cpu/intel/model_206ax/model_206ax.h>
+#include <cpu/x86/msr.h>
 #include <device/device.h>
 #include <device/pci.h>
 #include <device/pci_ids.h>
@@ -390,8 +391,27 @@ static void northbridge_dmi_init(struct device *dev)
 static void northbridge_init(struct device *dev)
 {
 	u8 bios_reset_cpl;
+	u32 bridge_type;
 
 	northbridge_dmi_init(dev);
+
+	bridge_type = MCHBAR32(0x5f10);
+	bridge_type &= ~0xff;
+
+	if ((bridge_silicon_revision() & BASE_REV_MASK) == BASE_REV_IVB) {
+		/* Enable Power Aware Interrupt Routing */
+		u8 pair = MCHBAR8(0x5418);
+		pair &= ~0xf;	/* Clear 3:0 */
+		pair |= 0x4;	/* Fixed Priority */
+		MCHBAR8(0x5418) = pair;
+
+		/* 30h for IvyBridge */
+		bridge_type |= 0x30;
+	} else {
+		/* 20h for Sandybridge */
+		bridge_type |= 0x20;
+	}
+	MCHBAR32(0x5f10) = bridge_type;
 
 	/*
 	 * Set bit 0 of BIOS_RESET_CPL to indicate to the CPU
@@ -405,6 +425,16 @@ static void northbridge_init(struct device *dev)
 	/* Configure turbo power limits 1ms after reset complete bit */
 	mdelay(1);
 	set_power_limits(28);
+
+	/*
+	 * CPUs with configurable TDP also need power limits set
+	 * in MCHBAR.  Use same values from MSR_PKG_POWER_LIMIT.
+	 */
+	if (cpu_config_tdp_levels()) {
+		msr_t msr = rdmsr(MSR_PKG_POWER_LIMIT);
+		MCHBAR32(0x59A0) = msr.lo;
+		MCHBAR32(0x59A4) = msr.hi;
+	}
 
 	/* Set here before graphics PM init */
 	MCHBAR32(0x5500) = 0x00100001;
@@ -442,6 +472,12 @@ static struct device_operations mc_ops = {
 	.enable           = northbridge_enable,
 	.scan_bus         = 0,
 	.ops_pci          = &intel_pci_ops,
+};
+
+static const struct pci_driver mc_driver_0100 __pci_driver = {
+	.ops    = &mc_ops,
+	.vendor = PCI_VENDOR_ID_INTEL,
+	.device = 0x0100,
 };
 
 static const struct pci_driver mc_driver __pci_driver = {
@@ -484,6 +520,6 @@ static void enable_dev(device_t dev)
 }
 
 struct chip_operations northbridge_intel_sandybridge_ops = {
-	CHIP_NAME("Intel i7 (Sandybridge) integrated Northbridge")
+	CHIP_NAME("Intel i7 (SandyBridge/IvyBridge) integrated Northbridge")
 	.enable_dev = enable_dev,
 };

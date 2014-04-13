@@ -38,10 +38,6 @@
 #endif
 
 #ifndef __PRE_RAM__
-void console_tx_byte(unsigned char byte);
-void console_tx_flush(void);
-unsigned char console_rx_byte(void);
-int console_tst_byte(void);
 struct console_driver {
 	void (*init)(void);
 	void (*tx_byte)(unsigned char byte);
@@ -68,7 +64,13 @@ extern int console_loglevel;
 
 #ifndef __ROMCC__
 void console_init(void);
+void console_tx_byte(unsigned char byte);
+void console_tx_flush(void);
+unsigned char console_rx_byte(void);
+int console_tst_byte(void);
 void post_code(u8 value);
+/* this function is weak and can be overridden by a mainboard function. */
+void mainboard_post(u8 value);
 void __attribute__ ((noreturn)) die(const char *msg);
 int do_printk(int msg_level, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 
