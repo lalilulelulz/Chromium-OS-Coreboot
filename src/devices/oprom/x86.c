@@ -25,42 +25,20 @@
 #include <arch/registers.h>
 #include <console/console.h>
 #include <arch/interrupt.h>
-
-#define REALMODE_BASE ((void *)0x600)
-
-struct realmode_idt {
-	u16 offset, cs;
-};
-
-void x86_exception(struct eregs *info);
-
-/* From x86_asm.S */
-extern unsigned char __idt_handler, __idt_handler_size;
-extern unsigned char __realmode_code, __realmode_code_size;
-extern unsigned char __realmode_call, __realmode_interrupt;
+#include <cbfs.h>
+#include <delay.h>
+#include <pc80/i8259.h>
+#include "x86.h"
+#include "vbe.h"
+#include "../../src/lib/jpeg.h"
 
 void (*realmode_call)(u32 addr, u32 eax, u32 ebx, u32 ecx, u32 edx,
-		u32 esi, u32 edi) __attribute__((regparm(0))) = (void *)&__realmode_call;
+		u32 esi, u32 edi) __attribute__((regparm(0))) =
+						(void *)&__realmode_call;
 
 void (*realmode_interrupt)(u32 intno, u32 eax, u32 ebx, u32 ecx, u32 edx, 
-		u32 esi, u32 edi) __attribute__((regparm(0))) = (void *)&__realmode_interrupt;
-
-#define FAKE_MEMORY_SIZE (1024*1024) // only 1MB
-#define INITIAL_EBDA_SEGMENT 0xF600
-#define INITIAL_EBDA_SIZE 0x400
-
-static void setup_bda(void)
-{
-	/* clear BIOS DATA AREA */
-	memset((void *)0x400, 0, 0x200);
-
-	write16(0x413, FAKE_MEMORY_SIZE / 1024);
-	write16(0x40e, INITIAL_EBDA_SEGMENT);
-
-	/* Set up EBDA */
-	memset((void *)(INITIAL_EBDA_SEGMENT << 4), 0, INITIAL_EBDA_SIZE);
-	write16((INITIAL_EBDA_SEGMENT << 4) + 0x0, INITIAL_EBDA_SIZE / 1024);
-}
+		u32 esi, u32 edi) __attribute__((regparm(0))) =
+						(void *)&__realmode_interrupt;
 
 static void setup_rombios(void)
 {
@@ -80,14 +58,9 @@ static int intXX_exception_handler(struct eregs *regs)
 {
 	printk(BIOS_INFO, "Oops, exception %d while executing option rom\n",
 			regs->vector);
-#if 0
-	// Odd: The i945GM VGA oprom chokes on a pushl %eax and will
-	// die with an exception #6 if we run the coreboot exception 
-	// handler. Just continue, as it executes fine.
 	x86_exception(regs);	// Call coreboot exception handler
-#endif
 
-	return 0;		// Never returns?
+	return 0;		// Never really returns
 }
 
 static int intXX_unknown_handler(struct eregs *regs)
@@ -103,79 +76,6 @@ void mainboard_interrupt_handlers(int intXX, void *intXX_func)
 {
 	intXX_handler[intXX] = intXX_func;
 }
-
-static int int10_handler(struct eregs *regs)
-{
-	int res=-1;
-	static u8 cursor_row=0, cursor_col=0;
-	switch((regs->eax & 0xff00)>>8) {
-	case 0x01: // Set cursor shape
-		res = 0;
-		break;
-	case 0x02: // Set cursor position
-		if (cursor_row != ((regs->edx >> 8) & 0xff) ||
-		    cursor_col >= (regs->edx & 0xff)) {
-			printk(BIOS_INFO, "\n");
-		}
-		cursor_row = (regs->edx >> 8) & 0xff;
-		cursor_col = regs->edx & 0xff;
-		res = 0;
-		break;
-	case 0x03: // Get cursor position
-		regs->eax &= 0x00ff;
-		regs->ecx = 0x0607;
-		regs->edx = (cursor_row << 8) | cursor_col;
-		res = 0;
-		break;
-	case 0x06: // Scroll up
-		printk(BIOS_INFO, "\n");
-		res = 0;
-		break;
-	case 0x08: // Get Character and Mode at Cursor Position
-		regs->eax = 0x0f00 | 'A'; // White on black 'A'
-		res = 0;
-		break;
-	case 0x09: // Write Character and attribute
-	case 0x10: // Write Character
-		printk(BIOS_INFO, "%c", regs->eax & 0xff);
-		res = 0;
-		break;
-	case 0x0f: // Get video mode
-		regs->eax = 0x5002; //80x25
-		regs->ebx &= 0x00ff;
-		res = 0;
-		break;
-        default:
-		printk(BIOS_WARNING, "Unknown INT10 function %04x!\n",
-				regs->eax & 0xffff);
-		break;
-	}
-	return res;
-}
-
-static int int16_handler(struct eregs *regs)
-{
-	int res=-1;
-	switch((regs->eax & 0xff00)>>8) {
-	case 0x00: // Check for Keystroke
-		regs->eax = 0x6120; // Space Bar, Space
-		res = 0;
-		break;
-	case 0x01: // Check for Keystroke
-		regs->eflags |= 1<<6; // Zero Flag set (no key available)
-		res = 0;
-		break;
-        default:
-		printk(BIOS_WARNING, "Unknown INT16 function %04x!\n",
-				regs->eax & 0xffff);
-		break;
-	}
-	return res;
-}
-
-int int12_handler(struct eregs *regs);
-int int15_handler(struct eregs *regs);
-int int1a_handler(struct eregs *regs);
 
 static void setup_interrupt_handlers(void)
 {
@@ -195,9 +95,9 @@ static void setup_interrupt_handlers(void)
 		if(!intXX_handler[i])
 		{
 			/* Now set the default functions that are actually
-			 * needed to initialize the option roms. This is very
-			 * slick, as it allows us to implement mainboard specific
-			 * interrupt handlers, such as the int15
+			 * needed to initialize the option roms. This is
+			 * very slick, as it allows us to implement mainboard
+			 * specific interrupt handlers, such as the int15.
 			 */
 			switch (i) {
 			case 0x10:
@@ -205,9 +105,6 @@ static void setup_interrupt_handlers(void)
 				break;
 			case 0x12:
 				intXX_handler[0x12] = &int12_handler;
-				break;
-			case 0x15:
-				intXX_handler[0x15] = &int15_handler;
 				break;
 			case 0x16:
 				intXX_handler[0x16] = &int16_handler;
@@ -269,12 +166,98 @@ static void setup_realmode_idt(void)
 	write_idt_stub((void *)0xffe6e, 0x1a);
 }
 
+#if CONFIG_FRAMEBUFFER_SET_VESA_MODE
+static u8 vbe_get_mode_info(vbe_mode_info_t * mode_info)
+{
+	printk(BIOS_DEBUG, "Getting information about VESA mode %04x\n",
+		mode_info->video_mode);
+	char *buffer = (char *)&__buffer;
+	u16 buffer_seg = (((unsigned long)buffer) >> 4) & 0xff00;
+	u16 buffer_adr = ((unsigned long)buffer) & 0xffff;
+	realmode_interrupt(0x10, VESA_GET_MODE_INFO, 0x0000,
+			mode_info->video_mode, 0x0000, buffer_seg, buffer_adr);
+	memcpy(mode_info->mode_info_block, buffer, sizeof(vbe_mode_info_t));
+	return 0;
+}
+
+static u8 vbe_set_mode(vbe_mode_info_t * mode_info)
+{
+	printk(BIOS_DEBUG, "Setting VESA mode %04x\n", mode_info->video_mode);
+	// request linear framebuffer mode
+	mode_info->video_mode |= (1 << 14);
+	// request clearing of framebuffer
+	mode_info->video_mode &= ~(1 << 15);
+	realmode_interrupt(0x10, VESA_SET_MODE, mode_info->video_mode,
+			0x0000, 0x0000, 0x0000, 0x0000);
+	return 0;
+}
+
+vbe_mode_info_t mode_info;
+
+/* These two functions could probably even be generic between
+ * yabel and x86 native. TBD later.
+ */
+void vbe_set_graphics(void)
+{
+	mode_info.video_mode = (1 << 14) | CONFIG_FRAMEBUFFER_VESA_MODE;
+	vbe_get_mode_info(&mode_info);
+	unsigned char *framebuffer =
+		(unsigned char *)mode_info.vesa.phys_base_ptr;
+	printk(BIOS_DEBUG, "framebuffer: %p\n", framebuffer);
+	vbe_set_mode(&mode_info);
+#if CONFIG_BOOTSPLASH
+	struct jpeg_decdata *decdata;
+	decdata = malloc(sizeof(*decdata));
+	unsigned char *jpeg = cbfs_find_file("bootsplash.jpg",
+						CBFS_TYPE_BOOTSPLASH);
+	if (!jpeg) {
+		return;
+	}
+	int ret = 0;
+	ret = jpeg_decode(jpeg, framebuffer, 1024, 768, 16, decdata);
+#endif
+}
+
+void vbe_textmode_console(void)
+{
+	delay(2);
+	realmode_interrupt(0x10, 0x0003, 0x0000, 0x0000,
+				0x0000, 0x0000, 0x0000);
+}
+
+void fill_lb_framebuffer(struct lb_framebuffer *framebuffer)
+{
+	framebuffer->physical_address = mode_info.vesa.phys_base_ptr;
+
+	framebuffer->x_resolution = le16_to_cpu(mode_info.vesa.x_resolution);
+	framebuffer->y_resolution = le16_to_cpu(mode_info.vesa.y_resolution);
+	framebuffer->bytes_per_line =
+				le16_to_cpu(mode_info.vesa.bytes_per_scanline);
+	framebuffer->bits_per_pixel = mode_info.vesa.bits_per_pixel;
+
+	framebuffer->red_mask_pos = mode_info.vesa.red_mask_pos;
+	framebuffer->red_mask_size = mode_info.vesa.red_mask_size;
+
+	framebuffer->green_mask_pos = mode_info.vesa.green_mask_pos;
+	framebuffer->green_mask_size = mode_info.vesa.green_mask_size;
+
+	framebuffer->blue_mask_pos = mode_info.vesa.blue_mask_pos;
+	framebuffer->blue_mask_size = mode_info.vesa.blue_mask_size;
+
+	framebuffer->reserved_mask_pos = mode_info.vesa.reserved_mask_pos;
+	framebuffer->reserved_mask_size = mode_info.vesa.reserved_mask_size;
+}
+#endif
+
 void run_bios(struct device *dev, unsigned long addr)
 {
 	u32 num_dev = (dev->bus->secondary << 8) | dev->path.pci.devfn;
 
-	/* Set up BIOS Data Area */
-	setup_bda();
+	/* Setting up required hardware.
+	 * Removing this will cause random illegal instruction exceptions
+	 * in some option roms.
+	 */
+	setup_i8259();
 
 	/* Set up some legacy information in the F segment */
 	setup_rombios();
@@ -294,6 +277,10 @@ void run_bios(struct device *dev, unsigned long addr)
 	/* Option ROM entry point is at OPROM start + 3 */
 	realmode_call(addr + 0x0003, num_dev, 0xffff, 0x0000, 0xffff, 0x0, 0x0);
 	printk(BIOS_DEBUG, "... Option ROM returned.\n");
+
+#if CONFIG_FRAMEBUFFER_SET_VESA_MODE
+	vbe_set_graphics();
+#endif
 }
 
 #if CONFIG_GEODE_VSA

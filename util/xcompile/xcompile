@@ -41,7 +41,8 @@ touch $TMPFILE
 # This should be a loop over all supported architectures
 TARCH=i386
 TWIDTH=32
-for gccprefixes in `pwd`/util/crossgcc/xgcc/bin/${TARCH}-elf- ${TARCH}-elf- ""; do
+for gccprefixes in `pwd`/util/crossgcc/xgcc/bin/${TARCH}-elf- ${CROSS_COMPILE} \
+		${TARCH}-elf- ""; do
 	if ! which ${gccprefixes}as 2>/dev/null >/dev/null; then
 		continue
 	fi
@@ -78,11 +79,17 @@ CC="${GCCPREFIX}gcc"
 testcc "$CC" "$CFLAGS-Wa,--divide " && CFLAGS="$CFLAGS-Wa,--divide "
 testcc "$CC" "$CFLAGS-fno-stack-protector " && CFLAGS="$CFLAGS-fno-stack-protector "
 testcc "$CC" "$CFLAGS-Wl,--build-id=none " && CFLAGS="$CFLAGS-Wl,--build-id=none "
+# Use bfd linker instead of gold if available:
+testcc "$CC" "$CFLAGS-fuse-ld=bfd " && CFLAGS="$CFLAGS-fuse-ld=bfd " && LINKER_SUFFIX='.bfd'
+# Prevent SSE instructions sneaking in:
+testcc "$CC" "$CFLAGS-mno-sse " && CFLAGS="$CFLAGS-mno-sse "
 
-if which gcc 2>/dev/null >/dev/null; then
-	HOSTCC=gcc
-else
-	HOSTCC=cc
+if [ -z "${HOSTCC}" ]; then
+	if which gcc 2>/dev/null >/dev/null; then
+		HOSTCC=gcc
+	else
+		HOSTCC=cc
+	fi
 fi
 
 cat << EOF
@@ -90,7 +97,7 @@ cat << EOF
 AS:=${GCCPREFIX}as ${ASFLAGS}
 CC:=${GCCPREFIX}gcc ${CFLAGS}
 AR:=${GCCPREFIX}ar
-LD:=${GCCPREFIX}ld ${LDFLAGS}
+LD:=${GCCPREFIX}ld${LINKER_SUFFIX} ${LDFLAGS}
 STRIP:=${GCCPREFIX}strip
 NM:=${GCCPREFIX}nm
 OBJCOPY:=${GCCPREFIX}objcopy

@@ -66,6 +66,12 @@ typedef struct acpi_gen_regaddr {
 #define ACPI_ADDRESS_SPACE_EC		   3	/* Embedded controller */
 #define ACPI_ADDRESS_SPACE_SMBUS	   4	/* SMBus */
 #define ACPI_ADDRESS_SPACE_FIXED	0x7f	/* Functional fixed hardware */
+#define  ACPI_FFIXEDHW_VENDOR_INTEL	   1	/* Intel */
+#define  ACPI_FFIXEDHW_CLASS_HLT	   0	/* C1 Halt */
+#define  ACPI_FFIXEDHW_CLASS_IO_HLT	   1	/* C1 I/O then Halt */
+#define  ACPI_FFIXEDHW_CLASS_MWAIT	   2    /* MWAIT Native C-state */
+#define  ACPI_FFIXEDHW_FLAG_HW_COORD	   1	/* Hardware Coordination bit */
+#define  ACPI_FFIXEDHW_FLAG_BM_STS  	   2	/* BM_STS avoidance bit */
 /* 0x80-0xbf: Reserved */
 /* 0xc0-0xff: OEM defined */
 
@@ -357,6 +363,20 @@ typedef struct acpi_ecdt {
 	u8 ec_id[];				/* EC ID  */
 } __attribute__ ((packed)) acpi_ecdt_t;
 
+typedef struct acpi_cstate {
+	u16 latency;
+	u32 power;
+	acpi_addr_t resource;
+} __attribute__ ((packed)) acpi_cstate_t;
+
+typedef struct acpi_tstate {
+	u32 percent;
+	u32 power;
+	u32 latency;
+	u32 control;
+	u32 status;
+} __attribute__ ((packed)) acpi_tstate_t;
+
 /* These are implemented by the target port or north/southbridge. */
 unsigned long write_acpi_tables(unsigned long addr);
 unsigned long acpi_fill_madt(unsigned long current);
@@ -417,12 +437,14 @@ void acpi_write_rsdp(acpi_rsdp_t *rsdp, acpi_rsdt_t *rsdt, acpi_xsdt_t *xsdt);
 extern u8 acpi_slp_type;
 
 void suspend_resume(void);
+void __attribute__((weak)) mainboard_suspend_resume(void);
 void *acpi_find_wakeup_vector(void);
 void *acpi_get_wakeup_rsdp(void);
 void acpi_jump_to_wakeup(void *wakeup_addr);
 
 int acpi_get_sleep_type(void);
-
+#else
+#define acpi_slp_type 0
 #endif
 
 /* northbridge/amd/amdfam10/amdfam10_acpi.c */
@@ -434,7 +456,11 @@ void generate_cpu_entries(void);
 #else // CONFIG_GENERATE_ACPI_TABLES
 
 #define write_acpi_tables(start) (start)
+#define acpi_slp_type 0
 
 #endif
 
+#if CONFIG_CHROMEOS
+void acpi_get_vdat_info(void **vdat_addr, uint32_t *vdat_size);
+#endif
 #endif

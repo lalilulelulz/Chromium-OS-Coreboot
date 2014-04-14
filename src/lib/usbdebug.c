@@ -575,17 +575,38 @@ int early_usbdebug_init(void)
 
 	return usbdebug_init(CONFIG_EHCI_BAR, CONFIG_EHCI_DEBUG_OFFSET, dbg_info);
 }
+#endif /* __PRE_RAM__ */
 
+#if defined(__PRE_RAM__) || defined(__SMM__)
 void usbdebug_tx_byte(unsigned char data)
 {
+	/* SMM needs some extra love. Define an empty function for now */
+#ifndef __SMM__
 	struct ehci_debug_info *dbg_info;
 
+#if CONFIG_ARCH_X86
+	/* XXX hack alert XXX */
+	/* XXX this should be done differently, or at least be moved */
+
 	/* "Find" dbg_info structure in Cache */
+	u32 esp = 0;
+	asm volatile ("movl %%esp, %%eax\n" : "=a" (esp) );
+
+	if (esp < CONFIG_RAMTOP) {
+		dbg_info = (struct ehci_debug_info *)((CONFIG_RAMTOP) - sizeof(struct ehci_debug_info));
+	} else {
+		dbg_info = (struct ehci_debug_info *)
+			(CONFIG_DCACHE_RAM_BASE + CONFIG_DCACHE_RAM_SIZE - sizeof(struct ehci_debug_info));
+	}
+#else
 	dbg_info = (struct ehci_debug_info *)
 	    (CONFIG_DCACHE_RAM_BASE + CONFIG_DCACHE_RAM_SIZE - sizeof(struct ehci_debug_info));
+
+#endif
 
 	if (dbg_info->ehci_debug) {
 		dbgp_bulk_write_x(dbg_info, (char*)&data, 1);
 	}
+#endif
 }
 #endif

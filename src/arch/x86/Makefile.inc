@@ -58,13 +58,15 @@ extract_nth=$(word $(1), $(subst |, ,$(2)))
 ifneq ($(CONFIG_UPDATE_IMAGE),y)
 prebuild-files = \
 	$(foreach file,$(cbfs-files), \
-		$(CBFSTOOL) $@ add $(call extract_nth,1,$(file)) $(call extract_nth,2,$(file)) $(call extract_nth,3,$(file)) $(call extract_nth,4,$(file)); )
+	$(CBFSTOOL) $@.tmp add $(call extract_nth,1,$(file)) \
+	$(call extract_nth,2,$(file)) $(call extract_nth,3,$(file)) \
+	$(call extract_nth,4,$(file)) &&)
 prebuilt-files = $(foreach file,$(cbfs-files), $(call extract_nth,1,$(file)))
 
 $(obj)/coreboot.pre1: $(obj)/coreboot.bootblock $$(prebuilt-files) $(CBFSTOOL)
-	rm -f $@
-	$(CBFSTOOL) $@ create $(CONFIG_COREBOOT_ROMSIZE_KB)K $(obj)/coreboot.bootblock
-	$(prebuild-files)
+	$(CBFSTOOL) $@.tmp create $(CONFIG_COREBOOT_ROMSIZE_KB)K $(obj)/coreboot.bootblock
+	$(prebuild-files) true
+	mv $@.tmp $@
 else
 $(obj)/coreboot.pre1: $(CBFSTOOL)
 	mv $(obj)/coreboot.rom $@
@@ -206,13 +208,6 @@ endif
 
 crt0s += $(obj)/mainboard/$(MAINBOARDDIR)/romstage.inc
 
-ifeq ($(CONFIG_SSE),y)
-crt0s += $(src)/cpu/x86/sse_disable.inc
-endif
-ifeq ($(CONFIG_MMX),y)
-crt0s += $(src)/cpu/x86/mmx_disable.inc
-endif
-
 ifeq ($(CONFIG_BIG_BOOTBLOCK),y)
 crt0s += $(chipset_bootblock_inc)
 ldscripts += $(chipset_bootblock_lds)
@@ -240,7 +235,8 @@ $(obj)/mainboard/$(MAINBOARDDIR)/romstage.pre.inc: $(src)/mainboard/$(MAINBOARDD
 
 $(obj)/mainboard/$(MAINBOARDDIR)/romstage.inc: $(obj)/mainboard/$(MAINBOARDDIR)/romstage.pre.inc
 	@printf "    POST       romstage.inc\n"
-	sed -e 's/\.rodata/.rom.data/g' -e 's/\.text/.section .rom.text/g' $^ > $@.tmp
+	sed -e 's/\.rodata/.rom.data/g' -e 's/\^\.text/.section .rom.text/g' \
+		-e 's/\^\.section \.text/.section .rom.text/g' $^ > $@.tmp
 	mv $@.tmp $@
 endif
 

@@ -109,7 +109,7 @@ endif
 endif
 
 ifeq ($(CONFIG_CCACHE),y)
-CCACHE:=$(wildcard $(addsuffix /ccache,$(subst :, ,$(PATH))))
+CCACHE:=$(word 1,$(wildcard $(addsuffix /ccache,$(subst :, ,$(PATH)))))
 ifeq ($(CCACHE),)
 $(error ccache selected, but not found in PATH)
 endif
@@ -176,7 +176,7 @@ includemakefiles= \
 	$(foreach class,$(classes), \
 		$(eval $(class)-srcs+= \
 			$$(subst $(top)/,, \
-			$$(abspath $$(addprefix $(dir $(1)),$$($(class)-y)))))) \
+			$$(abspath $$(subst $(dir $(1))/,/,$$(addprefix $(dir $(1)),$$($(class)-y))))))) \
 	$(foreach special,$(special-classes), \
 		$(foreach item,$($(special)-y), $(call $(special)-handler,$(dir $(1)),$(item)))) \
 	$(eval subdirs+=$$(subst $(CURDIR)/,,$$(abspath $$(addprefix $(dir $(1)),$$(subdirs-y)))))

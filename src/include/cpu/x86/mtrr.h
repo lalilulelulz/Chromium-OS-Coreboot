@@ -17,6 +17,9 @@
 #define MTRRdefTypeEn		(1 << 11)
 #define MTRRdefTypeFixEn	(1 << 10)
 
+#define SMRRphysBase_MSR 0x1f2
+#define SMRRphysMask_MSR 0x1f3
+
 #define MTRRphysBase_MSR(reg) (0x200 + 2 * (reg))
 #define MTRRphysMask_MSR(reg) (0x200 + 2 * (reg) + 1)
 
@@ -34,6 +37,8 @@
 #define MTRRfix4K_E8000_MSR 0x26d
 #define MTRRfix4K_F0000_MSR 0x26e
 #define MTRRfix4K_F8000_MSR 0x26f
+
+#define NoEvictMod_MSR 0x2e0
 
 #if !defined (__ASSEMBLER__) && !defined(__PRE_RAM__)
 #include <device/device.h>
@@ -67,7 +72,7 @@ void x86_setup_fixed_mtrrs(void);
 # error "CONFIG_RAMTOP must be a power of 2"
 #endif
 
-#if !defined (__ASSEMBLER__)
+#if !defined (__ASSEMBLER__) && !defined(__PRE_RAM__)
 #if defined(CONFIG_XIP_ROM_SIZE)
 # if CONFIG_TINY_BOOTBLOCK
    extern unsigned long AUTO_XIP_ROM_BASE;

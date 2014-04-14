@@ -674,6 +674,33 @@ out:
 	return res;
 }
 
+/*
+ * Return malloced string the contents of which are a concatenation of the
+ * directory name of the first argument and the second argument.
+ */
+static char* get_tmp_file_name(const char* base, const char *tmp_name)
+{
+        char *file_name, *p;
+        /* for sure a few bytes longer than needed */
+        int file_name_size = strlen(base) + sizeof(file_name) + 10;
+
+        file_name = malloc(file_name_size);
+        if (!file_name) {
+                fprintf(stderr, "%s:%d: failed to allocate %d bytes\n",
+                        __FILE__, __LINE__, file_name_size);
+               return 0;
+        }
+
+        strcpy(file_name, base);
+        p = strrchr(file_name, '/');
+        if (p)
+                strcpy(p + 1, tmp_name);
+        else
+                strcpy(file_name, tmp_name);
+
+        return file_name;
+}
+
 int conf_write_autoconf(void)
 {
 	struct symbol *sym;
@@ -682,8 +709,18 @@ int conf_write_autoconf(void)
 	FILE *out, *out_h;
 	time_t now;
 	int i, l;
+	char *tmp_conf, *tmp_conf_h;
 
 	sym_clear_all_valid();
+
+	name = getenv("KCONFIG_AUTOHEADER");
+	if (!name)
+		name = "include/linux/autoconf.h";
+
+	tmp_conf = get_tmp_file_name(name, ".tmpconfig");
+	tmp_conf_h = get_tmp_file_name(name, ".tmpconfig.h");
+	if (!tmp_conf || !tmp_conf_h)
+		return 1;
 
 	file_write_dep("build/auto.conf.cmd");
 
@@ -692,11 +729,11 @@ int conf_write_autoconf(void)
 		return 1;
 #endif
 
-	out = fopen(".tmpconfig", "w");
+	out = fopen(tmp_conf, "w");
 	if (!out)
 		return 1;
 
-	out_h = fopen(".tmpconfig.h", "w");
+	out_h = fopen(tmp_conf_h, "w");
 	if (!out_h) {
 		fclose(out);
 		return 1;
@@ -787,11 +824,8 @@ int conf_write_autoconf(void)
 	fclose(out);
 	fclose(out_h);
 
-	name = getenv("KCONFIG_AUTOHEADER");
-	if (!name)
-		name = "include/linux/autoconf.h";
 	UNLINK_IF_NECESSARY(name);
-	if (rename(".tmpconfig.h", name))
+	if (rename(tmp_conf_h, name))
 		return 1;
 	name = getenv("KCONFIG_AUTOCONFIG");
 	if (!name)
@@ -801,9 +835,11 @@ int conf_write_autoconf(void)
 	 * and this marks the successful completion of the previous steps.
 	 */
 	UNLINK_IF_NECESSARY(name);
-	if (rename(".tmpconfig", name))
+	if (rename(tmp_conf, name))
 		return 1;
 
+	free(tmp_conf_h);
+	free(tmp_conf);
 	return 0;
 }
 

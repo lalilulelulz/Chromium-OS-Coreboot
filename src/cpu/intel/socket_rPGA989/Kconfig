@@ -1,0 +1,37 @@
+config CPU_INTEL_SOCKET_RPGA989
+	bool
+
+if CPU_INTEL_SOCKET_RPGA989
+
+config SOCKET_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select CPU_INTEL_MODEL_206AX
+	select MMX
+	select SSE
+	select CACHE_AS_RAM
+
+config CACHE_MRC_BIN
+	bool
+	default n
+
+config CACHE_MRC_SIZE_KB
+	int "MRC Cache Size in KB"
+	default 256
+
+config DCACHE_MRC_BASE
+	hex
+	default 0xfffd0000
+
+config DCACHE_RAM_BASE
+	hex
+	default 0xff7f0000
+
+config DCACHE_RAM_SIZE
+	hex
+	default 0x10000
+
+config DCACHE_RAM_MRC_VAR_SIZE
+	hex
+	default 0x4000
+
+endif

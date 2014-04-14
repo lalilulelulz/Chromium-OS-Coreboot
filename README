@@ -42,6 +42,7 @@ Optional:
  * gdb (for better debugging facilities on some targets)
  * ncurses (for 'make menuconfig')
  * flex and bison (for regenerating parsers)
+ * git (for internal SeaBIOS payload)
 
 
 Building coreboot

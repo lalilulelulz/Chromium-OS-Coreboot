@@ -33,6 +33,13 @@ config VGA_ROM_RUN
 	  Execute VGA option ROMs, if found. This is required to enable
 	  PCI/AGP/PCI-E video cards.
 
+config S3_VGA_ROM_RUN
+	bool "Re-run VGA option ROMs on S3 resume"
+	default y
+	depends on VGA_ROM_RUN && HAVE_ACPI_RESUME
+	help
+	  Execute VGA option ROMs when coming out of an S3 resume.
+
 config PCI_ROM_RUN
 	bool "Run non-VGA option ROMs"
 	default y
@@ -41,6 +48,19 @@ config PCI_ROM_RUN
 
 	  Examples include IDE/SATA controller option ROMs and option ROMs
 	  for network cards (NICs).
+
+config ON_DEVICE_ROM_RUN
+	bool "Run option ROMs on PCI devices"
+	default y
+	help
+	  Execute option ROMs that are stored on PCI/PCIe/AGP devices.
+
+	  If disabled, only option ROMs stored in CBFS will be executed. If
+	  you are concerned about security, you might want to disable this
+	  option, but it might leave your system in a state of degraded
+	  functionality.
+
+	  If unsure, say Y
 
 choice
 	prompt "Option ROM execution type"
@@ -143,3 +163,17 @@ config AGP_PLUGIN_SUPPORT
 config CARDBUS_PLUGIN_SUPPORT
 	bool
 	default y
+
+config PCIEXP_COMMON_CLOCK
+	prompt "Enable PCIe Common Clock"
+	bool
+	default n
+	help
+	  Detect and enable Common Clock on PCIe links.
+
+config PCIEXP_ASPM
+	prompt "Enable PCIe ASPM"
+	bool
+	default n
+	help
+	  Detect and enable ASPM on PCIe links.

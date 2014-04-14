@@ -6,6 +6,8 @@ choice
 
 config VENDOR_ABIT
 	bool "Abit"
+config VENDOR_ACER
+	bool "Acer"
 config VENDOR_ADVANTECH
 	bool "Advantech"
 config VENDOR_AMD
@@ -44,10 +46,14 @@ config VENDOR_ECS
 	bool "ECS"
 config VENDOR_EMULATION
 	bool "Emulation"
+config VENDOR_EVOC
+	bool "Evoc"
 config VENDOR_GETAC
 	bool "Getac"
 config VENDOR_GIGABYTE
 	bool "GIGABYTE"
+config VENDOR_GOOGLE
+	bool "Google"
 config VENDOR_HP
 	bool "HP"
 config VENDOR_IBASE
@@ -90,6 +96,8 @@ config VENDOR_RCA
 	bool "RCA"
 config VENDOR_RODA
 	bool "Roda"
+config VENDOR_SAMSUNG
+	bool "SAMSUNG"
 config VENDOR_SOYO
 	bool "Soyo"
 config VENDOR_SUNW
@@ -119,6 +127,7 @@ endchoice
 
 source "src/mainboard/a-trend/Kconfig"
 source "src/mainboard/abit/Kconfig"
+source "src/mainboard/acer/Kconfig"
 source "src/mainboard/advantech/Kconfig"
 source "src/mainboard/amd/Kconfig"
 source "src/mainboard/arima/Kconfig"
@@ -137,6 +146,7 @@ source "src/mainboard/digitallogic/Kconfig"
 source "src/mainboard/eaglelion/Kconfig"
 source "src/mainboard/ecs/Kconfig"
 source "src/mainboard/emulation/Kconfig"
+source "src/mainboard/evoc/Kconfig"
 source "src/mainboard/getac/Kconfig"
 source "src/mainboard/gigabyte/Kconfig"
 source "src/mainboard/hp/Kconfig"
@@ -160,6 +170,7 @@ source "src/mainboard/nvidia/Kconfig"
 source "src/mainboard/pcengines/Kconfig"
 source "src/mainboard/rca/Kconfig"
 source "src/mainboard/roda/Kconfig"
+source "src/mainboard/samsung/Kconfig"
 source "src/mainboard/soyo/Kconfig"
 source "src/mainboard/sunw/Kconfig"
 source "src/mainboard/supermicro/Kconfig"

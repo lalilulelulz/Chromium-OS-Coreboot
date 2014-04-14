@@ -27,4 +27,5 @@ subdirs-y += lpc47n217
 subdirs-y += lpc47n227
 subdirs-y += sio10n268
 subdirs-y += kbc1100
+subdirs-y += mec1308
 subdirs-y += smscsuperio

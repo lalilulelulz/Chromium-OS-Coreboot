@@ -1,9 +1,11 @@
 #ifndef CPU_X86_LAPIC_H
 #define CPU_X86_LAPIC_H
 
+#ifndef __ROMCC__
 #include <cpu/x86/lapic_def.h>
 #include <cpu/x86/msr.h>
 #include <arch/hlt.h>
+#include <delay.h>
 
 /* See if I need to initialize the local apic */
 #if CONFIG_SMP || CONFIG_IOAPIC
@@ -26,8 +28,6 @@ static inline __attribute__((always_inline)) void lapic_wait_icr_idle(void)
 {
 	do { } while ( lapic_read( LAPIC_ICR ) & LAPIC_ICR_BUSY );
 }
-
-
 
 static inline void enable_lapic(void)
 {
@@ -132,7 +132,7 @@ static inline int lapic_remote_read(int apicid, int reg, unsigned long *pvalue)
 	lapic_write_around(LAPIC_ICR, LAPIC_DM_REMRD | (reg >> 4));
 	timeout = 0;
 	do {
-#if 0
+#if 1
 		udelay(100);
 #endif
 		status = lapic_read(LAPIC_ICR) & LAPIC_ICR_RR_MASK;
@@ -155,5 +155,8 @@ int start_cpu(struct device *cpu);
 #endif /* CONFIG_SMP */
 
 #endif /* !__PRE_RAM__ */
+
+int boot_cpu(void);
+#endif
 
 #endif /* CPU_X86_LAPIC_H */

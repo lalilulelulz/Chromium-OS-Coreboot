@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <getopt.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -93,7 +94,8 @@ void *map_physical(uint64_t phys_addr, size_t len)
 		    fd_mem, (off_t) phys_addr);
 
 	if (virt_addr == MAP_FAILED) {
-		printf("Error mapping physical memory 0x%08lx[0x%x]\n", phys_addr, len);
+		printf("Error mapping physical memory 0x%08" PRIx64 "[0x%x]\n",
+			phys_addr, len);
 		return NULL;
 	}
 

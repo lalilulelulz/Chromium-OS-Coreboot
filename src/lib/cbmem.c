@@ -21,6 +21,9 @@
 #include <string.h>
 #include <cbmem.h>
 #include <console/console.h>
+#if CONFIG_HAVE_ACPI_RESUME && !defined(__PRE_RAM__)
+#include <arch/acpi.h>
+#endif
 
 // The CBMEM TOC reserves 512 bytes to keep
 // the other entries somewhat aligned.
@@ -118,6 +121,22 @@ void *cbmem_add(u32 id, u64 size)
 {
 	struct cbmem_entry *cbmem_toc;
 	int i;
+	void *p;
+
+	/*
+	 * This could be a restart, check if the section is there already. It
+	 * is remotely possible that the dram contents persisted over the
+	 * bootloader upgrade AND the same section now needs more room, but
+	 * this is quite a remote possibility and it is ignored here.
+	 */
+	p = cbmem_find(id);
+	if (p) {
+		printk(BIOS_NOTICE,
+		       "CBMEM section %x: using existing location at %p.\n",
+		       id, p);
+		return p;
+	}
+
 	cbmem_toc = get_cbmem_toc();
 
 	if (cbmem_toc == NULL) {
@@ -183,28 +202,33 @@ void *cbmem_find(u32 id)
 	return (void *)NULL;
 }
 
-#ifndef __PRE_RAM__
-#if CONFIG_HAVE_ACPI_RESUME
-extern u8 acpi_slp_type;
+#if CONFIG_EARLY_CBMEM_INIT || !defined(__PRE_RAM__)
+/* Returns True if it was not intialized before. */
+int cbmem_initialize(void)
+{
+	int rv = 0;
+
+#ifdef __PRE_RAM__
+	extern unsigned long get_top_of_ram(void);
+	uint64_t high_tables_base = get_top_of_ram() - HIGH_MEMORY_SIZE;
+	uint64_t high_tables_size = HIGH_MEMORY_SIZE;
 #endif
 
-void cbmem_initialize(void)
-{
-#if CONFIG_HAVE_ACPI_RESUME
-	if (acpi_slp_type == 3) {
-		if (!cbmem_reinit(high_tables_base)) {
-			/* Something went wrong, our high memory area got wiped */
+	/* We expect the romstage to always initialize it. */
+	if (!cbmem_reinit(high_tables_base)) {
+#if CONFIG_HAVE_ACPI_RESUME && !defined(__PRE_RAM__)
+		if (acpi_slp_type == 3)
 			acpi_slp_type = 0;
-			cbmem_init(high_tables_base, high_tables_size);
-		}
-	} else {
-		cbmem_init(high_tables_base, high_tables_size);
-	}
-#else
-	cbmem_init(high_tables_base, high_tables_size);
 #endif
+		cbmem_init(high_tables_base, high_tables_size);
+		rv = 1;
+	}
+#ifndef __PRE_RAM__
 	cbmem_arch_init();
+#endif
+	return rv;
 }
+#endif
 
 #ifndef __PRE_RAM__
 void cbmem_list(void)
@@ -229,6 +253,10 @@ void cbmem_list(void)
 		case CBMEM_ID_PIRQ:	 printk(BIOS_DEBUG, "IRQ TABLE  "); break;
 		case CBMEM_ID_MPTABLE:	 printk(BIOS_DEBUG, "SMP TABLE  "); break;
 		case CBMEM_ID_RESUME:	 printk(BIOS_DEBUG, "ACPI RESUME"); break;
+		case CBMEM_ID_SMBIOS:    printk(BIOS_DEBUG, "SMBIOS     "); break;
+		case CBMEM_ID_TIMESTAMP: printk(BIOS_DEBUG, "TIME STAMP "); break;
+		case CBMEM_ID_MRCDATA:   printk(BIOS_DEBUG, "MRC DATA   "); break;
+		case CBMEM_ID_CONSOLE:   printk(BIOS_DEBUG, "CONSOLE    "); break;
 		default: printk(BIOS_DEBUG, "%08x ", cbmem_toc[i].id);
 		}
 		printk(BIOS_DEBUG, "%08llx ", cbmem_toc[i].base);
@@ -237,5 +265,4 @@ void cbmem_list(void)
 }
 #endif
 
-#endif
 

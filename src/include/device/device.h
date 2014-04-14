@@ -16,6 +16,9 @@ struct smbus_bus_operations;
 struct chip_operations {
 	void (*enable_dev)(struct device *dev);
 	const char *name;
+#if CONFIG_GENERATE_SMBIOS_TABLES
+	int (*get_smbios_data)(device_t dev, int *handle, unsigned long *current);
+#endif
 };
 
 #define CHIP_NAME(X) .name = X,
@@ -31,6 +34,9 @@ struct device_operations {
 	void (*enable)(device_t dev);
 	void (*set_link)(device_t dev, unsigned int link);
 	void (*reset_bus)(struct bus *bus);
+#if CONFIG_GENERATE_SMBIOS_TABLES
+	int (*get_smbios_data)(device_t dev, int *handle, unsigned long *current);
+#endif
 	const struct pci_operations *ops_pci;
 	const struct smbus_bus_operations *ops_smbus_bus;
 	const struct pci_bus_operations *ops_pci_bus;
@@ -126,6 +132,8 @@ device_t dev_find_device (u16 vendor, u16 device, device_t from);
 device_t dev_find_class (unsigned int class, device_t from);
 device_t dev_find_slot (unsigned int bus, unsigned int devfn);
 device_t dev_find_slot_on_smbus (unsigned int bus, unsigned int addr);
+device_t dev_find_lapic(unsigned apic_id);
+int dev_count_cpu(void);
 
 /* Debug functions */
 void print_resource_tree(struct device * root, int debug_level,

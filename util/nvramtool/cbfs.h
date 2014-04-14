@@ -172,7 +172,6 @@ struct cbfs_optionrom {
 #define CBFS_NAME(_c) (((char *) (_c)) + sizeof(struct cbfs_file))
 #define CBFS_SUBHEADER(_p) ( (void *) ((((u8 *) (_p)) + ntohl((_p)->offset))) )
 
-void * cbfs_get_file(const char *name);
 struct cbfs_file *cbfs_find(const char *name);
 void *cbfs_find_file(const char *name, unsigned int type, unsigned int *len);
 

@@ -18,10 +18,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 #
 
-MICROCODE_VERSION=20100914
+MICROCODE_VERSION=20110428
 MICROCODE_ARCHIVE=microcode-$MICROCODE_VERSION.tgz
-MICROCODE_FILE=microcode-$MICROCODE_VERSION.dat
-INTEL_MICROCODE=http://downloadmirror.intel.com/19342/eng/$MICROCODE_ARCHIVE
+MICROCODE_FILE=microcode.dat
+INTEL_MICROCODE=http://downloadmirror.intel.com/20050/eng/$MICROCODE_ARCHIVE
 
 #
 # Getting Intel(R) Microcode

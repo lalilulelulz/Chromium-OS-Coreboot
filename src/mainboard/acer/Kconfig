@@ -1,0 +1,17 @@
+if VENDOR_ACER
+
+choice
+	prompt "Mainboard model"
+
+config BOARD_ACER_KIEV
+	bool "Kiev"
+
+endchoice
+
+source "src/mainboard/acer/kiev/Kconfig"
+
+config MAINBOARD_VENDOR
+	string
+	default "ACER"
+
+endif # VENDOR_ACER

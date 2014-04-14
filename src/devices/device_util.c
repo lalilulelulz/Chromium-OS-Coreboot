@@ -110,6 +110,26 @@ struct device *dev_find_slot_on_smbus(unsigned int bus, unsigned int addr)
 }
 
 /**
+ * Given a Local APIC ID, find the device structure.
+ *
+ * @param apic_id The Local APIC ID number.
+ * @return Pointer to the device structure (if found), 0 otherwise.
+ */
+device_t dev_find_lapic(unsigned apic_id)
+{
+	device_t dev, result = NULL;
+
+	for (dev = all_devices; dev; dev = dev->next) {
+		if (dev->path.type == DEVICE_PATH_APIC &&
+		    dev->path.apic.apic_id == apic_id) {
+			result = dev;
+			break;
+		}
+	}
+	return result;
+}
+
+/**
  * Find a device of a given vendor and type.
  *
  * @param vendor A PCI vendor ID (e.g. 0x8086 for Intel).
@@ -583,6 +603,8 @@ void search_bus_resources(struct bus *bus, unsigned long type_mask,
 					if (subbus->link_num
 					== IOINDEX_SUBTRACTIVE_LINK(res->index))
 						break;
+					if (!subbus) /* Why can subbus be NULL?  */
+						break;
 				search_bus_resources(subbus, type_mask, type,
 						     search, gp);
 				continue;
@@ -827,4 +849,22 @@ u32 find_pci_tolm(struct bus *bus)
 		tolm = min->base;
 
 	return tolm;
+}
+
+/* Count of enabled CPUs */
+int dev_count_cpu(void)
+{
+	device_t cpu;
+	int count = 0;
+
+	for (cpu = all_devices; cpu; cpu = cpu->next) {
+		if ((cpu->path.type != DEVICE_PATH_APIC) ||
+		    (cpu->bus->dev->path.type != DEVICE_PATH_APIC_CLUSTER))
+			continue;
+		if (!cpu->enabled)
+			continue;
+		count++;
+	}
+
+	return count;
 }

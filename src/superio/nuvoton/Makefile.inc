@@ -18,3 +18,4 @@
 ##
 
 subdirs-y += wpcm450
+subdirs-y += nct6776f

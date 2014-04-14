@@ -23,9 +23,14 @@
 
 static u32 uart_bar = 0;
 
-static void uartmem_init(void)
+void uartmem_init(void)
 {
 	uart_bar = uart_mem_init();
+}
+
+u32 uartmem_getbaseaddr(void)
+{
+	return uart_bar;
 }
 
 static void uartmem_tx_byte(unsigned char data)
