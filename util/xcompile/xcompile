@@ -44,7 +44,7 @@ touch $TMPFILE
 TARCH=('i386' 'x86_64')
 TWIDTH=32
 for search_for in "${TARCH[@]}"; do
-	TARCH_SEARCH=("${TARCH_SEARCH[@]}" ${XGCCPATH}${search_for}-elf- ${search_for}-elf-)
+	TARCH_SEARCH=("${TARCH_SEARCH[@]}" ${XGCCPATH}${search_for}-elf- ${search_for}-elf- ${CROSS_COMPILE})
 done
 echo '# TARCH_SEARCH='${TARCH_SEARCH[@]}
 
@@ -89,6 +89,8 @@ testcc "$CC" "$CFLAGS-Wl,--build-id=none " && CFLAGS="$CFLAGS-Wl,--build-id=none
 # now:
 testcc "$CC" "$CFLAGS-Wno-unused-but-set-variable " && \
 	       CFLAGS="$CFLAGS-Wno-unused-but-set-variable "
+# Use bfd linker instead of gold if available:
+testcc "$CC" "$CFLAGS-fuse-ld=bfd " && CFLAGS="$CFLAGS-fuse-ld=bfd " && LINKER_SUFFIX='.bfd'
 
 if which gcc 2>/dev/null >/dev/null; then
 	HOSTCC=gcc

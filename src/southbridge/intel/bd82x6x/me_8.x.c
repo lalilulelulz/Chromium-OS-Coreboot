@@ -35,6 +35,7 @@
 #include <device/pci_def.h>
 #include <string.h>
 #include <delay.h>
+#include <elog.h>
 
 #ifdef __SMM__
 # include <arch/romcc_io.h>
@@ -49,6 +50,7 @@
 
 #if CONFIG_CHROMEOS
 #include <vendorcode/google/chromeos/chromeos.h>
+#include <vendorcode/google/chromeos/gnvs.h>
 #endif
 
 #ifndef __SMM__
@@ -355,33 +357,6 @@ static inline int mei_sendrecv(struct mei_header *mei, struct mkhi_header *mkhi,
 	return 0;
 }
 
-/* Send END OF POST message to the ME */
-int mkhi_end_of_post(void)
-{
-	struct mkhi_header mkhi = {
-		.group_id	= MKHI_GROUP_ID_GEN,
-		.command	= MKHI_END_OF_POST,
-	};
-	struct mei_header mei = {
-		.is_complete	= 1,
-		.host_address	= MEI_HOST_ADDRESS,
-		.client_address	= MEI_ADDRESS_MKHI,
-		.length		= sizeof(mkhi),
-	};
-
-	u32 eop_ack;
-
-	/* Send request and wait for response */
-	printk(BIOS_NOTICE, "ME: %s\n", __FUNCTION__);
-	if (mei_sendrecv(&mei, &mkhi, NULL, &eop_ack, sizeof(eop_ack)) < 0) {
-		printk(BIOS_ERR, "ME: END OF POST message failed\n");
-		return -1;
-	}
-
-	printk(BIOS_INFO, "ME: END OF POST message successful (%d)\n", eop_ack);
-	return 0;
-}
-
 #if (CONFIG_DEFAULT_CONSOLE_LOGLEVEL >= BIOS_DEBUG) && !defined(__SMM__)
 static inline void print_cap(const char *name, int state)
 {
@@ -456,8 +431,9 @@ static void me_print_fwcaps(mbp_fw_caps *caps_section)
 }
 #endif
 
+#if CONFIG_CHROMEOS && 0 /* DISABLED */
 /* Tell ME to issue a global reset */
-int mkhi_global_reset(void)
+static int mkhi_global_reset(void)
 {
 	struct me_global_reset reset = {
 		.request_origin	= GLOBAL_RESET_BIOS_POST,
@@ -485,10 +461,38 @@ int mkhi_global_reset(void)
 	printk(BIOS_ERR, "ME: Global Reset failed\n");
 	return -1;
 }
+#endif
 
 #ifdef __SMM__
 
-void intel_me_finalize_smm(void)
+/* Send END OF POST message to the ME */
+static int mkhi_end_of_post(void)
+{
+	struct mkhi_header mkhi = {
+		.group_id	= MKHI_GROUP_ID_GEN,
+		.command	= MKHI_END_OF_POST,
+	};
+	struct mei_header mei = {
+		.is_complete	= 1,
+		.host_address	= MEI_HOST_ADDRESS,
+		.client_address	= MEI_ADDRESS_MKHI,
+		.length		= sizeof(mkhi),
+	};
+
+	u32 eop_ack;
+
+	/* Send request and wait for response */
+	printk(BIOS_NOTICE, "ME: %s\n", __FUNCTION__);
+	if (mei_sendrecv(&mei, &mkhi, NULL, &eop_ack, sizeof(eop_ack)) < 0) {
+		printk(BIOS_ERR, "ME: END OF POST message failed\n");
+		return -1;
+	}
+
+	printk(BIOS_INFO, "ME: END OF POST message successful (%d)\n", eop_ack);
+	return 0;
+}
+
+void intel_me8_finalize_smm(void)
 {
 	struct me_hfs hfs;
 	u32 reg32;
@@ -545,20 +549,10 @@ static me_bios_path intel_me_path(device_t dev)
 	/* Check and dump status */
 	intel_me_status(&hfs, &gmes);
 
-	/* Check for valid firmware */
-	if (hfs.fpt_bad)
-		return ME_ERROR_BIOS_PATH;
-
 	/* Check Current Working State */
 	switch (hfs.working_state) {
 	case ME_HFS_CWS_NORMAL:
 		path = ME_NORMAL_BIOS_PATH;
-		/* check if the MBP is ready */
-		if (!gmes.mbp_rdy) {
-			printk(BIOS_CRIT, "%s: mbp is not ready!\n",
-			       __FUNCTION__);
-			return ME_ERROR_BIOS_PATH;
-		}
 		break;
 	case ME_HFS_CWS_REC:
 		path = ME_RECOVERY_BIOS_PATH;
@@ -581,9 +575,33 @@ static me_bios_path intel_me_path(device_t dev)
 		break;
 	}
 
-	/* Check for any error code */
-	if (hfs.error_code)
+	/* Check for any error code and valid firmware and MBP */
+	if (hfs.error_code || hfs.fpt_bad)
 		path = ME_ERROR_BIOS_PATH;
+
+	/* Check if the MBP is ready */
+	if (!gmes.mbp_rdy) {
+		printk(BIOS_CRIT, "%s: mbp is not ready!\n",
+		       __FUNCTION__);
+		path = ME_ERROR_BIOS_PATH;
+	}
+
+#if CONFIG_ELOG
+	if (path != ME_NORMAL_BIOS_PATH) {
+		struct elog_event_data_me_extended data = {
+			.current_working_state = hfs.working_state,
+			.operation_state       = hfs.operation_state,
+			.operation_mode        = hfs.operation_mode,
+			.error_code            = hfs.error_code,
+			.progress_code         = gmes.progress_code,
+			.current_pmevent       = gmes.current_pmevent,
+			.current_state         = gmes.current_state,
+		};
+		elog_add_event_byte(ELOG_TYPE_MANAGEMENT_ENGINE, path);
+		elog_add_event_raw(ELOG_TYPE_MANAGEMENT_ENGINE_EXT,
+				   &data, sizeof(data));
+	}
+#endif
 
 	return path;
 }
@@ -622,7 +640,7 @@ static int intel_mei_setup(device_t dev)
 static int intel_me_extend_valid(device_t dev)
 {
 	struct me_heres status;
-	u32 extend;
+	u32 extend[8] = {0};
 	int i, count = 0;
 
 	pci_read_dword_ptr(dev, &status, PCI_ME_HERES);
@@ -651,15 +669,16 @@ static int intel_me_extend_valid(device_t dev)
 		return -1;
 	}
 
-	/*
-	 * TODO(dlaurie) Verify the hash against a saved good value.
-	 */
-
 	for (i = 0; i < count; ++i) {
-		extend = pci_read_config32(dev, PCI_ME_HER(i));
-		printk(BIOS_DEBUG, "%08x", extend);
+		extend[i] = pci_read_config32(dev, PCI_ME_HER(i));
+		printk(BIOS_DEBUG, "%08x", extend[i]);
 	}
 	printk(BIOS_DEBUG, "\n");
+
+#if CONFIG_CHROMEOS
+	/* Save hash in NVS for the OS to verify */
+	chromeos_set_me_hash(extend, count);
+#endif
 
 	return 0;
 }
@@ -715,19 +734,17 @@ static void intel_me_init(device_t dev)
 		me_print_fw_version(&mbp_data.fw_version_name);
 		me_print_fwcaps(&mbp_data.fw_caps_sku);
 #endif
-		/* Tell ME that BIOS is done */
-		mkhi_end_of_post();
-		/* Hide the virtual PCI device */
-		intel_me_hide(dev);
+
+		/*
+		 * Leave the ME unlocked in this path.
+		 * It will be locked via SMI command later.
+		 */
 		break;
 
 	case ME_ERROR_BIOS_PATH:
 	case ME_RECOVERY_BIOS_PATH:
 	case ME_DISABLE_BIOS_PATH:
 	case ME_FIRMWARE_UPDATE_BIOS_PATH:
-		/*
-		 * TODO(dlaurie) Force recovery mode if ME is unhappy?
-		 */
 		break;
 	}
 }

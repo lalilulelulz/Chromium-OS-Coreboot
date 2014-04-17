@@ -26,7 +26,6 @@
 #include <cpu/amd/mtrr.h>
 #include <device/pci_def.h>
 #include "SBPLATFORM.h"
-#include "chip.h"
 
 uint64_t uma_memory_base, uma_memory_size;
 
@@ -78,10 +77,6 @@ u8 is_dev3_present(void)
 *************************************************/
 static void eax_785e(device_t dev)
 {
-	/* Leave it for furture use. */
-	/* struct mainboard_config *mainboard =
-	   (struct mainboard_config *)dev->chip_info; */
-
 	printk(BIOS_INFO, "Mainboard " CONFIG_MAINBOARD_PART_NUMBER " Enable.\n");
 
 #if CONFIG_GFXUMA

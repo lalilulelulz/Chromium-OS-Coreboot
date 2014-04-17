@@ -24,6 +24,7 @@
 #include <arch/io.h>
 #include <arch/romcc_io.h>
 #include <device/pci_def.h>
+#include <elog.h>
 #include "sandybridge.h"
 #include "pcie_config.c"
 
@@ -64,6 +65,14 @@ static void sandybridge_setup_bars(void)
 	pci_write_config8(PCI_DEV(0, 0x00, 0), PAM6, 0x33);
 
 	printk(BIOS_DEBUG, " done.\n");
+
+#if CONFIG_ELOG_BOOT_COUNT
+	/* Increment Boot Counter except when resuming from S3 */
+	if ((inw(DEFAULT_PMBASE + PM1_STS) & WAK_STS) &&
+	    ((inl(DEFAULT_PMBASE + PM1_CNT) >> 10) & 7) == SLP_TYP_S3)
+		return;
+	boot_count_increment();
+#endif
 }
 
 static void sandybridge_setup_graphics(void)
@@ -108,8 +117,6 @@ static void sandybridge_setup_graphics(void)
 	pci_write_config8(PCI_DEV(0, 2, 0), MSAC, reg8);
 
 	/* Erratum workarounds */
-	MCHBAR8(0x5f10) = 0x20;
-
 	reg32 = MCHBAR32(0x5f00);
 	reg32 |= (1 << 9)|(1 << 10);
 	MCHBAR32(0x5f00) = reg32;
@@ -158,8 +165,3 @@ void sandybridge_early_initialization(int chipset_type)
 
 	sandybridge_setup_graphics();
 }
-
-void sandybridge_late_initialization(void)
-{
-}
-

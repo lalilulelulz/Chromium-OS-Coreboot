@@ -44,6 +44,10 @@
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
 
+/* SPI opcodes */
+#define SPI_OPCODE_WREN 0x06
+#define SPI_OPCODE_FAST_READ 0x0b
+
 /*-----------------------------------------------------------------------
  * Representation of a SPI slave, i.e. what we're communicating with.
  *
@@ -82,13 +86,6 @@ void spi_init(void);
  */
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode);
-
-/*-----------------------------------------------------------------------
- * Free any memory associated with a SPI slave.
- *
- *   slave:	The SPI slave
- */
-void spi_free_slave(struct spi_slave *slave);
 
 /*-----------------------------------------------------------------------
  * Claim the bus and prepare it for communication with a given slave.

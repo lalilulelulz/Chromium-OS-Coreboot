@@ -134,7 +134,8 @@ static void pch_pcie_pm_early(struct device *dev)
 
 static void pch_pcie_pm_late(struct device *dev)
 {
-	enum aspm_type apmc;
+	struct southbridge_intel_bd82x6x_config *config = dev->chip_info;
+	enum aspm_type apmc = 0;
 	u32 reg32;
 
 	/* Set 0x314 = 0x743a361b */
@@ -168,8 +169,42 @@ static void pch_pcie_pm_late(struct device *dev)
 	reg32 |= (1 << 1);
 	pci_write_config32(dev, 0xd4, reg32);
 
-	/* Get configured ASPM state */
-	apmc = pci_read_config32(dev, 0x50) & 3;
+	/* Check for a rootport ASPM override */
+	switch (PCI_FUNC(dev->path.pci.devfn)) {
+	case 0:
+		apmc = config->pcie_aspm_f0;
+		break;
+	case 1:
+		apmc = config->pcie_aspm_f1;
+		break;
+	case 2:
+		apmc = config->pcie_aspm_f2;
+		break;
+	case 3:
+		apmc = config->pcie_aspm_f3;
+		break;
+	case 4:
+		apmc = config->pcie_aspm_f4;
+		break;
+	case 5:
+		apmc = config->pcie_aspm_f5;
+		break;
+	case 6:
+		apmc = config->pcie_aspm_f6;
+		break;
+	case 7:
+		apmc = config->pcie_aspm_f7;
+		break;
+	}
+
+	/* Setup the override or get the real ASPM setting */
+	if (apmc) {
+		reg32 = pci_read_config32(dev, 0xd4);
+		reg32 |= (apmc << 2) | (1 << 4);
+		pci_write_config32(dev, 0xd4, reg32);
+	} else {
+		apmc = pci_read_config32(dev, 0x50) & 3;
+	}
 
 	/* If both L0s and L1 enabled then set root port 0xE8[1]=1 */
 	if (apmc == PCIE_ASPM_BOTH) {
@@ -220,15 +255,25 @@ static void pci_init(struct device *dev)
 	reg16 = pci_read_config16(dev, 0x1e);
 	//reg16 |= 0xf900;
 	pci_write_config16(dev, 0x1e, reg16);
-
-	/* Power Management init after enumeration */
-	pch_pcie_pm_late(dev);
 }
 
 static void pch_pcie_enable(device_t dev)
 {
 	/* Power Management init before enumeration */
 	pch_pcie_pm_early(dev);
+}
+
+static unsigned int pch_pciexp_scan_bridge(device_t dev, unsigned int max)
+{
+	unsigned int ret;
+
+	/* Normal PCIe Scan */
+	ret = pciexp_scan_bridge(dev, max);
+
+	/* Late Power Management init after bridge device enumeration */
+	pch_pcie_pm_late(dev);
+
+	return ret;
 }
 
 static void pcie_set_subsystem(device_t dev, unsigned vendor, unsigned device)
@@ -253,72 +298,18 @@ static struct device_operations device_ops = {
 	.enable_resources	= pci_bus_enable_resources,
 	.init			= pci_init,
 	.enable			= pch_pcie_enable,
-	.scan_bus		= pciexp_scan_bridge,
+	.scan_bus		= pch_pciexp_scan_bridge,
 	.ops_pci		= &pci_ops,
 };
 
-static const struct pci_driver pch_pcie_port1 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c10,	/* D28:F0 */
-};
+static const unsigned short pci_device_ids[] = { 0x1c10, 0x1c12, 0x1c14, 0x1c16,
+						 0x1c18, 0x1c1a, 0x1c1c, 0x1c1e,
+						 0x1e10, 0x1e12, 0x1e14, 0x1e16,
+						 0x1e18, 0x1e1a, 0x1e1c, 0x1e1e,
+						 0 };
 
-static const struct pci_driver pch_pcie_port1_a __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1e10,	/* D28:F0 */
-};
-
-static const struct pci_driver pch_pcie_port2 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c12,	/* D28:F1 */
-};
-
-static const struct pci_driver pch_pcie_port3 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c14,	/* D28:F2 */
-};
-
-static const struct pci_driver pch_pcie_port3_a __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1e14,	/* D28:F2 */
-};
-
-static const struct pci_driver pch_pcie_port4 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c16,	/* D28:F3 */
-};
-
-static const struct pci_driver pch_pcie_port4_a __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1e16,	/* D28:F3 */
-};
-
-static const struct pci_driver pch_pcie_port5 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c18,	/* D28:F4 */
-};
-
-static const struct pci_driver pch_pcie_port6 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c1a,	/* D28:F5 */
-};
-
-static const struct pci_driver pch_pcie_port7 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c1c,	/* D28:F6 */
-};
-
-static const struct pci_driver pch_pcie_port8 __pci_driver = {
-	.ops	= &device_ops,
-	.vendor	= PCI_VENDOR_ID_INTEL,
-	.device	= 0x1c1e,	/* D28:F7 */
+static const struct pci_driver pch_pcie __pci_driver = {
+	.ops	 = &device_ops,
+	.vendor	 = PCI_VENDOR_ID_INTEL,
+	.devices = pci_device_ids,
 };

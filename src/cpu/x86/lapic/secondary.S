@@ -41,6 +41,8 @@ _secondary_start:
 	/* Set the stack pointer, and flag that we are done */
 	xorl	%eax, %eax
 	movl	secondary_stack, %esp
+	movl	secondary_cpu_index, %edi
+	pushl	%edi
 	movl	%eax, secondary_stack
 
 	call	secondary_cpu_init

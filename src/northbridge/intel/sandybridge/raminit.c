@@ -50,9 +50,9 @@
 #define CMOS_OFFSET_MRC_SEED_S3  (CMOS_VSTART_mrc_scrambler_seed_s3 >> 3)
 #define CMOS_OFFSET_MRC_SEED_CHK (CMOS_VSTART_mrc_scrambler_seed_chk >> 3)
 #else
-#define CMOS_OFFSET_MRC_SEED     112
-#define CMOS_OFFSET_MRC_SEED_S3  116
-#define CMOS_OFFSET_MRC_SEED_CHK 120
+#define CMOS_OFFSET_MRC_SEED     152
+#define CMOS_OFFSET_MRC_SEED_S3  156
+#define CMOS_OFFSET_MRC_SEED_CHK 160
 #endif
 
 static void save_mrc_data(struct pei_data *pei_data)
@@ -205,6 +205,13 @@ static void report_memory_config(void)
 	}
 }
 
+static void post_system_agent_init(struct pei_data *pei_data)
+{
+	/* If PCIe init is skipped, set the PEG clock gating */
+	if (!pei_data->pcie_init)
+		MCHBAR32(0x7010) = MCHBAR32(0x7010) | 0x01;
+}
+
 /**
  * Find PEI executable in coreboot filesystem and execute it.
  *
@@ -241,6 +248,9 @@ void sdram_initialize(struct pei_data *pei_data)
 		hlt();
 	}
 
+	/* Pass console handler in pei_data */
+	pei_data->tx_byte = console_tx_byte;
+
 	/* Locate and call UEFI System Agent binary. */
 	entry = (unsigned long)cbfs_find_file("mrc.bin", 0xab);
 	if (entry) {
@@ -249,8 +259,17 @@ void sdram_initialize(struct pei_data *pei_data)
 			      "call *%%ecx\n\t"
 			      :"=a" (rv) : "c" (entry), "a" (pei_data));
 		if (rv) {
-			printk(BIOS_ERR, "MRC returned %x\n", rv);
-			die("Nonzero MRC return value\n");
+			switch (rv) {
+			case -1:
+				printk(BIOS_ERR, "PEI version mismatch.\n");
+				break;
+			case -2:
+				printk(BIOS_ERR, "Invalid memory frequency.\n");
+				break;
+			default:
+				printk(BIOS_ERR, "MRC returned %x.\n", rv);
+			}
+			die("Nonzero MRC return value.\n");
 		}
 	} else {
 		die("UEFI PEI System Agent not found.\n");
@@ -272,6 +291,7 @@ void sdram_initialize(struct pei_data *pei_data)
 	else
 		intel_early_me_status();
 
+	post_system_agent_init(pei_data);
 	report_memory_config();
 
 	/* S3 resume: don't save scrambler seed or MRC data */

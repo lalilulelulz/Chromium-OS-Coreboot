@@ -656,7 +656,10 @@ void pci_dev_set_subsystem(struct device *dev, unsigned vendor, unsigned device)
 			   ((device & 0xffff) << 16) | (vendor & 0xffff));
 }
 
-/** Default handler: only runs the relevant PCI BIOS. */
+
+int oprom_is_loaded;
+
+/* Default handler: only runs the relevant PCI BIOS. */
 void pci_dev_init(struct device *dev)
 {
 #if CONFIG_PCI_ROM_RUN == 1 || CONFIG_VGA_ROM_RUN == 1
@@ -675,8 +678,11 @@ void pci_dev_init(struct device *dev)
 	 * we don't run (VGA) option ROMs, unless we have to print
 	 * something on the screen before the kernel is loaded.
 	 */
-	if (!developer_mode_enabled() && !recovery_mode_enabled())
+	if (!developer_mode_enabled() && !recovery_mode_enabled() &&
+	    !vboot_wants_oprom()) {
+		printk(BIOS_DEBUG, "Not loading VGA Option ROM\n");
 		return;
+	}
 #endif
 
 	rom = pci_rom_probe(dev);
@@ -696,6 +702,8 @@ void pci_dev_init(struct device *dev)
 		return;
 #endif
 	run_bios(dev, (unsigned long)ram);
+	oprom_is_loaded = 1;
+	printk(BIOS_DEBUG, "VGA Option ROM has been loaded\n");
 #endif /* CONFIG_PCI_ROM_RUN || CONFIG_VGA_ROM_RUN */
 }
 

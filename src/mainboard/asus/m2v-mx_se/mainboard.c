@@ -22,7 +22,6 @@
 #include <device/pci_ids.h>
 #include <boot/tables.h>
 #include <southbridge/via/k8t890/k8t890.h>
-#include "chip.h"
 
 #if CONFIG_GFXUMA
 uint64_t uma_memory_base, uma_memory_size;

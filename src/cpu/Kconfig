@@ -23,6 +23,7 @@ config DCACHE_RAM_GLOBAL_VAR_SIZE
 # yet be dropped completely.
 config MAX_PHYSICAL_CPUS
 	int
+	depends on CPU_AMD_MODEL_10XXX || CPU_AMD_MODEL_FXX || CPU_AMD_AGESA
 	default 1
 
 config SMP
@@ -67,5 +68,11 @@ config VAR_MTRR_HOLE
 	help
 		Unset this if you don't want the MTRR code to use
 		subtractive MTRRs
+
+config MICROCODE_IN_CBFS
+	bool "Look for microcode in CBFS"
+	default n
+	help
+	  Send coreboot debug output to a memory mapped serial port console.
 
 endif # ARCH_X86

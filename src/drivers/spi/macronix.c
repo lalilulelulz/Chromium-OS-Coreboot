@@ -141,8 +141,11 @@ static int macronix_write(struct spi_flash *flash,
 		cmd[2] = (offset >> 8) & 0xff;
 		cmd[3] = offset & 0xff;
 
-		printk(BIOS_SPEW, "PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zd\n",
+#if CONFIG_DEBUG_SPI_FLASH
+		printk(BIOS_SPEW, "PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x }"
+		     " chunk_len = %zu\n",
 		     buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
+#endif
 
 		ret = spi_flash_cmd(flash->spi, CMD_MX25XX_WREN, NULL, 0);
 		if (ret < 0) {
@@ -165,8 +168,9 @@ static int macronix_write(struct spi_flash *flash,
 		byte_addr = 0;
 	}
 
-	printk(BIOS_INFO, "SF: Macronix: Successfully programmed %zu bytes @ 0x%lx\n",
-	      len, offset - len);
+	printk(BIOS_INFO, "SF: Macronix: Successfully programmed %zu bytes @"
+	      " 0x%x\n",
+	      len, (unsigned int)(offset - len));
 
 	spi_release_bus(flash->spi);
 	return ret;
@@ -207,7 +211,7 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 
 	mcx->flash.write = macronix_write;
 	mcx->flash.erase = macronix_erase;
-#ifdef CONFIG_SPI_FLASH_NO_FAST_READ
+#if CONFIG_SPI_FLASH_NO_FAST_READ
 	mcx->flash.read = spi_flash_cmd_read_slow;
 #else
 	mcx->flash.read = spi_flash_cmd_read_fast;

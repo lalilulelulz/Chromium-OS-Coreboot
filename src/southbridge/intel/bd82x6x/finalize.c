@@ -20,8 +20,10 @@
 
 #include <arch/io.h>
 #include <arch/romcc_io.h>
+#include <console/post_codes.h>
 #include <northbridge/intel/sandybridge/pcie_config.c>
 #include "pch.h"
+#include "spi.h"
 
 void intel_pch_finalize_smm(void)
 {
@@ -31,8 +33,14 @@ void intel_pch_finalize_smm(void)
 	RCBA32(0x3898) = SPI_OPMENU_LOWER;
 	RCBA32(0x389c) = SPI_OPMENU_UPPER;
 
+/* Need to fix SMI driver use of opcode menu */
+#if !CONFIG_ELOG_GSMI
 	/* Lock SPIBAR */
 	RCBA32_OR(0x3804, (1 << 15));
+#endif
+
+	/* Re-init SPI driver to handle locked BAR */
+	spi_init();
 
 	/* TCLOCKDN: TC Lockdown */
 	RCBA32_OR(0x0050, (1 << 31));
@@ -53,4 +61,7 @@ void intel_pch_finalize_smm(void)
 	RCBA32(0x21a4) = RCBA32(0x21a4);
 	pcie_write_config32(PCI_DEV(0, 27, 0), 0x74,
 		    pcie_read_config32(PCI_DEV(0, 27, 0), 0x74));
+
+	/* Indicate finalize step with post code */
+	outb(POST_OS_BOOT, 0x80);
 }
