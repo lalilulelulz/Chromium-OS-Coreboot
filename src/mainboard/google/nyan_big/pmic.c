@@ -112,4 +112,7 @@ void pmic_init(unsigned bus)
 	 */
 	pmic_write_reg(bus, 0x0c, 0x07, 0);
 	pmic_write_reg(bus, 0x20, 0x10, 1);
+
+	/* Enable backup battery charger. */
+	pmic_write_reg(bus, 0x57, 0xEB, 1);
 }
