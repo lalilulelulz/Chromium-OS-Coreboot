@@ -62,6 +62,8 @@ config BOARD_GOOGLE_STORM
 	bool "Storm"
 config BOARD_GOOGLE_STOUT
 	bool "Stout"
+config BOARD_GOOGLE_TRICKY
+	bool "Tricky"
 
 endchoice
 
@@ -83,6 +85,7 @@ source "src/mainboard/google/samus/Kconfig"
 source "src/mainboard/google/slippy/Kconfig"
 source "src/mainboard/google/storm/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
+source "src/mainboard/google/tricky/Kconfig"
 
 config MAINBOARD_VENDOR
 	string "Mainboard Vendor"
