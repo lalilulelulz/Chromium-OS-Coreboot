@@ -24,6 +24,7 @@ ramstage-$(CONFIG_ARCH_X86) += vbnv_cmos.c
 romstage-$(CONFIG_ARCH_ARM) += vbnv_ec.c
 ramstage-$(CONFIG_ARCH_ARM) += vbnv_ec.c
 romstage-$(CONFIG_ARCH_X86) += vboot.c
+ramstage-$(CONFIG_ELOG) += elog.c
 ramstage-y += gnvs.c
 romstage-y += fmap.c
 ramstage-y += fmap.c
