@@ -60,6 +60,7 @@ static struct video_console *console;
 
 static int cursorx;
 static int cursory;
+static unsigned int cursor_enabled = 1;
 
 void video_get_rows_cols(unsigned int *rows, unsigned int *cols)
 {
@@ -73,6 +74,9 @@ void video_get_rows_cols(unsigned int *rows, unsigned int *cols)
 
 static void video_console_fixup_cursor(void)
 {
+	if (!cursor_enabled)
+		return;
+
 	if (cursorx < 0)
 		cursorx = 0;
 
@@ -97,6 +101,11 @@ void video_console_cursor_enable(int state)
 {
 	if (console && console->enable_cursor)
 		console->enable_cursor(state);
+
+	cursor_enabled = state;
+
+	if (cursor_enabled)
+		video_console_fixup_cursor();
 }
 
 void video_console_clear(void)
@@ -187,7 +196,6 @@ static struct console_output_driver cons = {
 int video_init(void)
 {
 	int i;
-	unsigned int dummy_cursor_enabled;
 
 	for (i = 0; i < ARRAY_SIZE(console_list); i++) {
 		if (console_list[i]->init())
@@ -198,7 +206,7 @@ int video_init(void)
 		if (console->get_cursor)
 			console->get_cursor((unsigned int*)&cursorx,
 					    (unsigned int*)&cursory,
-					    &dummy_cursor_enabled);
+					    &cursor_enabled);
 
 		if (cursorx) {
 			cursorx = 0;

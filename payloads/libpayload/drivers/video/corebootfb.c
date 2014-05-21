@@ -244,6 +244,10 @@ static int corebootfb_init(void)
 
 	// clear boot splash screen if there is one.
 	corebootfb_clear();
+
+	corebootfb_set_cursor(0, 0);
+	corebootfb_enable_cursor(1);
+
 	return 0;
 }
 
