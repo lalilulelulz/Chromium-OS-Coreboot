@@ -46,6 +46,7 @@
 #include "southbridge/intel/lynxpoint/pch.h"
 #include "southbridge/intel/lynxpoint/me.h"
 
+#include <superio/ite/it8772f/it8772f.h>
 
 static inline void reset_system(void)
 {
