@@ -27,6 +27,7 @@
 #include <northbridge/intel/haswell/haswell.h>
 #include <cpu/intel/haswell/haswell.h>
 #include <elog.h>
+#include <superio/ite/it8772f/it8772f.h>
 
 /* GPIO46 controls the WLAN_DISABLE_L signal. */
 #define GPIO_WLAN_DISABLE_L 46
@@ -84,45 +85,20 @@ void mainboard_smi_sleep(u8 slp_typ)
 	/* Disable USB charging if required */
 	switch (slp_typ) {
 	case 3:
-		//if (smm_get_gnvs()->s3u0 == 0)
-		//	google_chromeec_set_usb_charge_mode(
-		//		0, USB_CHARGE_MODE_DISABLED);
-		//if (smm_get_gnvs()->s3u1 == 0)
-		//	google_chromeec_set_usb_charge_mode(
-		//		1, USB_CHARGE_MODE_DISABLED);
-
-		/* Prevent leak from standby rail to WLAN rail in S3. */
-		//set_gpio(GPIO_WLAN_DISABLE_L, 0);
-		/* Disable LTE */
-		//set_gpio(GPIO_LTE_DISABLE_L, 0);
-
-		/* Enable wake events */
-		//google_chromeec_set_wake_mask(MAINBOARD_EC_S3_WAKE_EVENTS);
+		it8772f_gpio_led(1 /* set */, 0x01 /* select */,
+			0x01 /* polarity */, 0x01 /* 1=pullup */,
+			0x01 /* output */, 0x00, /* 0=Alternate function */
+			SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
 		break;
 	case 5:
-		//if (smm_get_gnvs()->s5u0 == 0)
-		//	google_chromeec_set_usb_charge_mode(
-		//		0, USB_CHARGE_MODE_DISABLED);
-		//if (smm_get_gnvs()->s5u1 == 0)
-		//	google_chromeec_set_usb_charge_mode(
-		//		1, USB_CHARGE_MODE_DISABLED);
-
-		/* Prevent leak from standby rail to WLAN rail in S5. */
-		//set_gpio(GPIO_WLAN_DISABLE_L, 0);
-		/* Disable LTE */
-		//set_gpio(GPIO_LTE_DISABLE_L, 0);
-
-		/* Enable wake events */
-		//google_chromeec_set_wake_mask(MAINBOARD_EC_S5_WAKE_EVENTS);
+		it8772f_gpio_led(1 /* set */, 0x01 /* select */,
+			0x00 /* polarity: non-inverting */, 0x00 /* 0=pulldown */,
+			0x01 /* output */, 0x01 /* 1=Simple IO function */,
+			SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
+		break;
+	default:
 		break;
 	}
-
-	/* Disable SCI and SMI events */
-	//google_chromeec_set_smi_mask(0);
-	//google_chromeec_set_sci_mask(0);
-
-	/* Clear pending events that may trigger immediate wake */
-	//while (google_chromeec_get_event() != 0);
 }
 
 #define APMC_FINALIZE 0xcb

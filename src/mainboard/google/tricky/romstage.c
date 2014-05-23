@@ -29,8 +29,7 @@
 #include <southbridge/intel/lynxpoint/pch.h>
 #include <southbridge/intel/lynxpoint/lp_gpio.h>
 #include "gpio.h"
-#include "superio/ite/it8772f/it8772f.h"
-#include "superio/ite/it8772f/early_serial.c"
+#include <superio/ite/it8772f/it8772f.h>
 
 const struct rcba_config_instruction rcba_config[] = {
 
@@ -144,6 +143,12 @@ void mainboard_romstage_entry(unsigned long bist)
 	pch_enable_lpc();
 	it8772f_enable_serial(PNP_DEV(IT8772F_BASE, IT8772F_SP1),
 			      CONFIG_TTYS0_BASE);
+
+	/* Turn Off GPI10.LED */
+	it8772f_gpio_led(1 /* set */, 0x01 /* select */,
+		0x00 /* polarity: non-inverting */, 0x00 /* 0=pulldown */,
+		0x01 /* output */, 0x01 /* 1=Simple IO function */,
+		SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
 
 	/* Call into the real romstage main with this board's attributes. */
 	romstage_common(&romstage_params);
