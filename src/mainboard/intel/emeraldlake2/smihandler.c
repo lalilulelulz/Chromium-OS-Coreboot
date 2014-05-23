@@ -25,6 +25,7 @@
 #include <southbridge/intel/bd82x6x/me.h>
 #include <northbridge/intel/sandybridge/sandybridge.h>
 #include <cpu/intel/model_206ax/model_206ax.h>
+#include <superio/ite/it8772f/it8772f.h>
 
 int mainboard_io_trap_handler(int smif)
 {
@@ -52,7 +53,6 @@ int mainboard_io_trap_handler(int smif)
  * The IO address is hardcoded as we don't have device path in SMM.
  */
 #define SIO_GPIO_BASE_SET4	(0x730 + 3)
-#define SIO_GPIO_BLINK_GPIO45	0x25
 void mainboard_smi_sleep(u8 slp_typ)
 {
 	u8 reg8;
