@@ -23,6 +23,7 @@
 
 #define IT8772F_BASE 0x2e
 
+
 #define IT8772F_FDC  0x00 /* Floppy disk controller */
 #define IT8772F_SP1  0x01 /* Com1 */
 #define IT8772F_EC   0x04 /* Environment controller */
@@ -99,6 +100,7 @@
 #define IT8772F_GPIO_LED_BLINK1_PINMAP		0xf8
 
 #define SIO_GPIO_BLINK_GPIO10 0x08
+#define SIO_GPIO_BLINK_GPIO22 0x12
 #define SIO_GPIO_BLINK_GPIO45 0x25
 
 #define IT8772F_GPIO_LED_BLINK1_CONTROL		0xf9

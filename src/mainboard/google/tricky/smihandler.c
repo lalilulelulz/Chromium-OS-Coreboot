@@ -85,16 +85,16 @@ void mainboard_smi_sleep(u8 slp_typ)
 	/* Disable USB charging if required */
 	switch (slp_typ) {
 	case 3:
-		it8772f_gpio_led(1 /* set */, 0x01 /* select */,
-			0x01 /* polarity */, 0x01 /* 1=pullup */,
-			0x01 /* output */, 0x00, /* 0=Alternate function */
-			SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
+			it8772f_gpio_led(2 /* set */, 0xF7 /* select */,
+			0x04 /* polarity: inverting */, 0x04 /* 1=pullup */,
+			0x04 /* output */, 0x00, /* 0=Alternate function */
+			SIO_GPIO_BLINK_GPIO22, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
 		break;
 	case 5:
-		it8772f_gpio_led(1 /* set */, 0x01 /* select */,
-			0x00 /* polarity: non-inverting */, 0x00 /* 0=pulldown */,
-			0x01 /* output */, 0x01 /* 1=Simple IO function */,
-			SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
+			it8772f_gpio_led(2 /* set */, 0xF7 /* select */,
+			0x04 /* polarity: inverting */, 0x00 /* 0=pulldown */,
+			0x04 /* output */, 0x04 /* 1=Simple IO function */,
+			SIO_GPIO_BLINK_GPIO22, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
 		break;
 	default:
 		break;

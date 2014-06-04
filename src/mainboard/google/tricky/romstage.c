@@ -144,11 +144,11 @@ void mainboard_romstage_entry(unsigned long bist)
 	it8772f_enable_serial(PNP_DEV(IT8772F_BASE, IT8772F_SP1),
 			      CONFIG_TTYS0_BASE);
 
-	/* Turn Off GPI10.LED */
-	it8772f_gpio_led(1 /* set */, 0x01 /* select */,
-		0x00 /* polarity: non-inverting */, 0x00 /* 0=pulldown */,
-		0x01 /* output */, 0x01 /* 1=Simple IO function */,
-		SIO_GPIO_BLINK_GPIO10, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
+	/* Turn on Power LED GP22 */
+	it8772f_gpio_led(2 /* set */, 0xF7 /* select */,
+		0x04 /* polarity: inverting */, 0x00 /* 0=pulldown */,
+		0x04 /* output */, 0x04 /* 1=Simple IO function */,
+		SIO_GPIO_BLINK_GPIO22, IT8772F_GPIO_BLINK_FREQUENCY_1_HZ);
 
 	/* Call into the real romstage main with this board's attributes. */
 	romstage_common(&romstage_params);
