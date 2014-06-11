@@ -81,6 +81,14 @@ int recovery_mode_enabled(void)
 		vboot_enable_recovery();
 }
 
+#ifndef __PRE_RAM__
+int cros_need_display(void)
+{
+	return developer_mode_enabled() || recovery_mode_enabled() ||
+		get_need_display();
+}
+#endif
+
 #ifdef __PRE_RAM__
 void __attribute__((weak)) save_chromeos_gpios(void)
 {

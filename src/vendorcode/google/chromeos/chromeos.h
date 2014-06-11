@@ -28,6 +28,8 @@ int get_recovery_mode_switch(void);
 int get_write_protect_state(void);
 #ifdef __PRE_RAM__
 void __attribute__((weak)) save_chromeos_gpios(void);
+#else
+int get_need_display(void);
 #endif
 
 /* functions implemented in vbnv.c: */
@@ -41,6 +43,9 @@ void save_vbnv(const uint8_t *vbnv_copy);
 /* functions implemented in chromeos.c: */
 int developer_mode_enabled(void);
 int recovery_mode_enabled(void);
+#ifndef __PRE_RAM__
+int cros_need_display(void);
+#endif
 
 /* functions implemented in vboot.c */
 void init_chromeos(int bootmode);

@@ -682,8 +682,7 @@ void pci_dev_init(struct device *dev)
 	 * we don't run (VGA) option ROMs, unless we have to print
 	 * something on the screen before the kernel is loaded.
 	 */
-	if (!developer_mode_enabled() && !recovery_mode_enabled() &&
-	    !vboot_wants_oprom()) {
+	if (!cros_need_display() && !vboot_wants_oprom()) {
 		printk(BIOS_DEBUG, "Not loading VGA Option ROM\n");
 		return;
 	}

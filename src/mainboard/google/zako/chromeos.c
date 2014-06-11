@@ -26,6 +26,7 @@
 
 #define GPIO_SPI_WP	58
 #define GPIO_REC_MODE	12
+#define GPIO_ADP_ID	48
 
 #define FLAG_SPI_WP	0
 #define FLAG_REC_MODE	1
@@ -96,6 +97,21 @@ int get_recovery_mode_switch(void)
 #endif
 	return (pci_read_config32(dev, SATA_SP) >> FLAG_REC_MODE) & 1;
 }
+
+#ifndef __PRE_RAM__
+int get_need_display(void)
+{
+	/**
+	 * Issue chrome-os-partner:29391, we need to detect ADP type only in
+	 * RAM stage and display something when it is not zero.
+	 */
+	static int adp_id = -1;
+
+	if (adp_id < 0)
+		adp_id = get_gpio(GPIO_ADP_ID);
+	return adp_id;
+}
+#endif
 
 #ifdef __PRE_RAM__
 void save_chromeos_gpios(void)

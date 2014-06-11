@@ -459,7 +459,7 @@ static void gma_func0_init(struct device *dev)
 	dp.panel_power_cycle_delay = conf->gpu_panel_power_cycle_delay;
 
 #ifdef CONFIG_CHROMEOS
-	init_fb = developer_mode_enabled() || recovery_mode_enabled();
+	init_fb = cros_need_display();
 #endif
 	lightup_ok = panel_lightup(&dp, init_fb);
 #endif
