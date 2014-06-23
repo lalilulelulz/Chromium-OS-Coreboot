@@ -74,6 +74,8 @@ config BOARD_GOOGLE_STOUT
 	bool "Stout"
 config BOARD_GOOGLE_SWANKY
 	bool "Swanky"
+config BOARD_GOOGLE_WINKY
+	bool "Winky"
 
 endchoice
 
@@ -101,6 +103,7 @@ source "src/mainboard/google/snow/Kconfig"
 source "src/mainboard/google/squawks/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
 source "src/mainboard/google/swanky/Kconfig"
+source "src/mainboard/google/winky/Kconfig"
 
 config MAINBOARD_VENDOR
 	string "Mainboard Vendor"
