@@ -73,6 +73,11 @@ static void fatal_error(void)
 	hard_reset();
 }
 
+static void reset(void)
+{
+	hard_reset();
+}
+
 static void vboot_invoke_wrapper(struct vboot_handoff *vboot_handoff)
 {
 	VbCommonParams cparams;
@@ -137,6 +142,7 @@ static void vboot_invoke_wrapper(struct vboot_handoff *vboot_handoff)
 	context.tis_sendrecv = &tis_sendrecv;
 	context.log_msg = &log_msg;
 	context.fatal_error = &fatal_error;
+	context.reset = &reset;
 
 	vboot_run_stub(&context);
 }

@@ -43,6 +43,7 @@ struct vboot_context {
 	                    size_t *recv_len);
 	void (*log_msg)(const char *fmt, va_list args);
 	void (*fatal_error)(void);
+	void (*reset)(void);
 };
 
 #endif /* VBOOT_CONTEXT_H */
