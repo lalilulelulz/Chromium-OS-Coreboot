@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <assert.h>
 #include <arch/exception.h>
 #include <arch/hlt.h>
 #include <bootblock_common.h>
@@ -70,13 +71,13 @@ void main(void)
 			  PINMUX_PWR_INT_N_FUNC_PMICINTR |
 			  PINMUX_INPUT_ENABLE);
 
-	power_enable_cpu_rail();
-	power_ungate_cpu();
-
 	entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA, "fallback/romstage");
 
-	if (entry)
-		clock_cpu0_config_and_reset(entry);
+	ASSERT(entry);
+	clock_cpu0_config(entry);
+
+	power_enable_and_ungate_cpu();
+	clock_cpu0_remove_reset();
 
 	clock_halt_avp();
 }
