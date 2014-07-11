@@ -37,6 +37,8 @@
 #include "hda_verb.h"
 #include "onboard.h"
 #include <southbridge/intel/lynxpoint/pch.h>
+#include <spi-generic.h>
+#include <spi_flash.h>
 
 void mainboard_suspend_resume(void)
 {
@@ -146,8 +148,35 @@ static void verb_setup(void)
 
 }
 
+/* Detect the case where the descriptor is writable but shouldn't be because
+ * we're awaiting a cold reboot. Do a cold reboot in this case. */
+static void verify_descriptor_lock_consistency(void)
+{
+	u8 write_perms = RCBA16(0x3800+0x50) >> 8;
+	struct spi_flash *spi = NULL;
+	u32 spi_data = 0;
+
+	/* Check if descriptor region is writable. */
+	if (write_perms & 0x01) {
+		/* It IS writable, so check the FLMSTR register on the SPI. */
+		spi_init();
+		spi = spi_flash_probe(0, 0, 0, 0);
+		if (!spi)
+			return;
+
+		spi->read(spi, 0x60, 4, &spi_data);
+		if (spi_data == 0x0a0b0000) {
+			/* SPI shows it should be protected! Do a cold reset
+			 * so we re-read the SPI. */
+			printk(BIOS_INFO, "Triggering cold reboot.\n");
+			outb(0xe, 0xcf9);
+		}
+	}
+}
+
 static void mainboard_init(device_t dev)
 {
+	verify_descriptor_lock_consistency();
 	lan_init();
 }
 
