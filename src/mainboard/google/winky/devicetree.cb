@@ -14,6 +14,7 @@ chip soc/intel/baytrail
 
 	# USB PHY settings
 	# TODO: These values are from Baytrail and need tuned for Winky board
+	register "usb2_comp_bg"        = "0x4680"
 	register "usb2_per_port_lane0" = "0x00049a09"
 	register "usb2_per_port_rcomp_hs_pullup0" = "0x0300401d"
 	register "usb2_per_port_lane1" = "0x00049a09"
