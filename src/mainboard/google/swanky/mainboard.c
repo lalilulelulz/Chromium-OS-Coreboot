@@ -37,7 +37,6 @@
 #include "ec.h"
 #include "onboard.h"
 #include <baytrail/gpio.h>
-#include <baytrail/pcie.h>
 #include <bootstate.h>
 
 void mainboard_suspend_resume(void)
@@ -130,22 +129,9 @@ static int int15_handler(void)
 }
 #endif
 
-/*
- * Disabling L0 & L1 has been shown to help with Wifi disconnects.
- */
-static void disable_wifi_aspm(void)
-{
-	/* WiFi is Bus 1 device 0 */
-	device_t dev = dev_find_slot(1, PCI_DEVFN(0,0));
-
-	/* 0x41: L1 disable, 0x40: L0 and L1 disable */
-	pci_write_config8(dev, LCTL, 0x40);
-}
-
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
-	disable_wifi_aspm();
 }
 
 static int mainboard_smbios_data(device_t dev, int *handle,
