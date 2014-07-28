@@ -34,6 +34,8 @@ config BOARD_GOOGLE_BUTTERFLY
 	bool "Butterfly"
 config BOARD_GOOGLE_CLAPPER
 	bool "Clapper"
+config BOARD_GOOGLE_CRANKY
+	bool "Cranky"
 config BOARD_GOOGLE_ENGUARDE
 	bool "Enguarde"
 config BOARD_GOOGLE_EXPRESSO
@@ -83,6 +85,7 @@ source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
 source "src/mainboard/google/clapper/Kconfig"
+source "src/mainboard/google/cranky/Kconfig"
 source "src/mainboard/google/enguarde/Kconfig"
 source "src/mainboard/google/expresso/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
