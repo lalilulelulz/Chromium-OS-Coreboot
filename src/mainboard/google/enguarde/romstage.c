@@ -32,12 +32,12 @@
  * 0b010 - 2GiB total - 2 x 1GiB Micron MT41K128M16JT-125:K 1600MHz
  * 0b011 - 2GiB total - 2 x 1GiB Hynix  H5TC2G63FFR-PBA 1600MHz
  * 0b100 - 2GiB total - 1 x 2GiB Micron MT41K256M16HA-125:E 1600MHz
- * 0b101 - 2GiB total - 1 x 2GiB Hynix  H5TC4G63AFR-PBA 1600MHz
+ * 0b101 - 2GiB total - 2 x 1GiB Samsung K4B2G1646Q-BYK0 1600MHz
  * 0b110 - 4GiB total - 2 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
  * 0b111 - 2GiB total - 1 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
  */
 static const uint32_t dual_channel_config =
-	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6);
+	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 5) | (1 << 6);
 
 #define SPD_SIZE 256
 #define GPIO_SSUS_37_PAD 57
