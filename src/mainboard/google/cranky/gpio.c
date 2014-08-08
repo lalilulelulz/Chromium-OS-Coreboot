@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,10 +59,10 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_ACPI_SCI,	/* S0_SC000 - SOC_KBC_SCI - INT */
 	GPIO_FUNC2,	/* S0_SC001 - SATA_DEVSLP_C */
 	GPIO_NC,	/* S0-SC002 - SATA_LED_R_N (NC/PU) */
-	GPIO_FUNC1,	/* S0-SC003 - PCIE_CLKREQ_IMAGE# */
-	GPIO_FUNC1,	/* S0-SC004 - PCIE_CLKREQ_WLAN# */
-	GPIO_NC,	/* S0-SC005 - PCIE_CLKREQ_LAN# (NC) */
-	GPIO_NC,	/* S0-SC006 - PCIE_CLKREQ3# (NC) */
+	GPIO_FUNC1,	/* S0-SC003 - PCIE_CLKREQ_WLAN# */
+	GPIO_FUNC1,	/* S0-SC004 - PCIE_CLKREQ_LAN# */
+	GPIO_FUNC1,	/* S0-SC005 - PCIE_CLKREQ_IMAGE2# */
+	GPIO_FUNC1,	/* S0-SC006 - PCIE_CLKREQ_IMAGE3# */
 	GPIO_FUNC(2, PULL_DISABLE, 10K), /* S0-SC007 - SD3_WP external pull */
 	GPIO_NC,	/* S0-SC008 - ACZ_RST# (NC) */
 	GPIO_NC,	/* S0-SC009 - ACZ_SYNC (NC) */
@@ -126,7 +126,7 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_FUNC1,	/* S0-SC067 - SIO_SPI_MISO */
 	GPIO_FUNC1,	/* S0-SC068 - SIO_SPI_MOSI */
 	GPIO_FUNC1,	/* S0-SC069 - SIO_SPI_CLK */
-	GPIO_DIRQ,	/* S0-SC070 - ALS_INT_L - INT */
+	GPIO_NC,	/* S0-SC070 - NC */
 	GPIO_NC,	/* S0-SC071 - NC */
 	GPIO_DIRQ,	/* S0-SC072 - TOUCH_INT_L_DX */
 	GPIO_NC,	/* S0-SC073 - NC */
@@ -134,16 +134,16 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_NC,	/* S0-SC075 - SIO_UART2_TXD (NC) */
 	GPIO_INPUT,	/* S0-SC076 - BIOS_STRAP - STRAP */
 	GPIO_INPUT,	/* S0-SC077 - SOC_OVERRIDE - STRAP */
-	GPIO_FUNC1,	/* S0-SC078 - I2C_0_SDA */
-	GPIO_FUNC1,	/* S0-SC079 - I2C_0_SCL */
+	GPIO_NC,	/* S0-SC078 - I2C_0_SDA (NC) */
+	GPIO_NC,	/* S0-SC079 - I2C_0_SCL (NC) */
 	GPIO_FUNC1,	/* S0-SC080 - I2C_1_SDA */
 	GPIO_FUNC1,	/* S0-SC081 - I2C_1_SCL */
 	GPIO_NC,	/* S0-SC082 - NC */
 	GPIO_NC,	/* S0-SC083 - NC */
 	GPIO_NC,	/* S0-SC084 - NC */
 	GPIO_NC,	/* S0-SC085 - NC */
-	GPIO_FUNC1,	/* S0-SC086 - I2C_4_SDA */
-	GPIO_FUNC1,	/* S0-SC087 - I2C_4_SCL */
+	GPIO_NC,	/* S0-SC086 - I2C_4_SDA (NC) */
+	GPIO_NC,	/* S0-SC087 - I2C_4_SCL (NC) */
 	GPIO_FUNC1,	/* S0-SC088 - I2C_5_SDA */
 	GPIO_FUNC1,	/* S0-SC089 - I2C_5_SCL */
 	GPIO_NC,	/* S0-SC090 - NC */
@@ -211,10 +211,8 @@ static const struct soc_gpio_map gpssus_gpio_map[] = {
 };
 
 static const u8 core_dedicated_irq[GPIO_MAX_DIRQS] = {
-	[TPAD_IRQ_OFFSET] = TPAD_IRQ_GPIO,
 	[TOUCH_IRQ_OFFSET] = TOUCH_IRQ_GPIO,
 	[I8042_IRQ_OFFSET] = I8042_IRQ_GPIO,
-	[ALS_IRQ_OFFSET] = ALS_IRQ_GPIO,
 };
 
 static const u8 sus_dedicated_irq[GPIO_MAX_DIRQS] = {

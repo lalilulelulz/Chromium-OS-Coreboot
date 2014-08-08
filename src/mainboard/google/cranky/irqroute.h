@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,15 +48,11 @@
 	PIRQ_PIC(H, DISABLE)
 
 /* CORE bank DIRQs - up to 16 supported */
-#define TPAD_IRQ_OFFSET		0
 #define TOUCH_IRQ_OFFSET	1
 #define I8042_IRQ_OFFSET	2
-#define ALS_IRQ_OFFSET		3
 /* Corresponding SCORE GPIO pins */
-#define TPAD_IRQ_GPIO		55
 #define TOUCH_IRQ_GPIO		72
 #define I8042_IRQ_GPIO		101
-#define ALS_IRQ_GPIO		70
 
 /* SUS bank DIRQs - up to 16 supported */
 #define CODEC_IRQ_OFFSET	0
