@@ -182,14 +182,14 @@ static int spansion_write(struct spi_flash *flash,
 #endif
 
 		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Enabling Write failed\n");
 			break;
 		}
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 					  buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: SPANSION Page Program failed\n");
 			break;
 		}
@@ -203,8 +203,9 @@ static int spansion_write(struct spi_flash *flash,
 	}
 
 #if CONFIG_DEBUG_SPI_FLASH
-	printk(BIOS_SPEW, "SF: SPANSION: Successfully programmed %zu bytes @ 0x%x\n",
-	      len, offset);
+	if (!ret)
+		printk(BIOS_SPEW, "SF: SPANSION: Successfully programmed %zu bytes @ 0x%x\n",
+			len, offset);
 #endif
 
 	return ret;

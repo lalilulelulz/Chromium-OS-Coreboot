@@ -149,14 +149,14 @@ static int winbond_write(struct spi_flash *flash,
 #endif
 
 		ret = spi_flash_cmd(flash->spi, CMD_W25_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Enabling Write failed\n");
 			goto out;
 		}
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 				buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Winbond Page Program failed\n");
 			goto out;
 		}

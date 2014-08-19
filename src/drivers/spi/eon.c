@@ -84,7 +84,7 @@ static int eon_write(struct spi_flash *flash,
 	for (actual = 0; actual < len; actual += chunk_len) {
 		chunk_len = min(len - actual, page_size - byte_addr);
 		ret = spi_flash_cmd(flash->spi, CMD_EN25_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Enabling Write failed\n");
 			goto out;
 		}
@@ -102,7 +102,7 @@ static int eon_write(struct spi_flash *flash,
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 					  buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: EON Page Program failed\n");
 			goto out;
 		}

@@ -41,6 +41,12 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
  * FIXME: This really should be abstracted better, but that will
  * require overhauling the entire SPI infrastructure.
  */
+
+/*
+ * Send a command to the SPI flash device and read the response
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 static int do_spi_flash_cmd(struct spi_slave *spi, const void *dout,
 		unsigned int bytes_out, void *din, unsigned int bytes_in)
 {
@@ -50,16 +56,16 @@ static int do_spi_flash_cmd(struct spi_slave *spi, const void *dout,
 		return ret;
 
 #if CONFIG_SPI_ATOMIC_SEQUENCING == 1
-	if (spi_xfer(spi, dout, bytes_out, din, bytes_in) < 0)
+	if (spi_xfer(spi, dout, bytes_out, din, bytes_in))
 		goto done;
 #else
 	if (dout && bytes_out) {
-		if (spi_xfer(spi, dout, bytes_out, NULL, 0) < 0)
+		if (spi_xfer(spi, dout, bytes_out, NULL, 0))
 			goto done;
 	}
 
 	if (din && bytes_in) {
-		if (spi_xfer(spi, NULL, 0, din, bytes_in) < 0)
+		if (spi_xfer(spi, NULL, 0, din, bytes_in))
 			goto done;
 	}
 #endif
@@ -70,6 +76,11 @@ done:
 	return ret;
 }
 
+/*
+ * Send a single-byte command to the device and read the response
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len)
 {
 	int ret = do_spi_flash_cmd(spi, &cmd, sizeof(cmd), response, len);
@@ -79,6 +90,12 @@ int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len)
 	return ret;
 }
 
+/*
+ * Send a multi-byte command to the device and read the response. Used
+ * for flash array reads, etc.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
 {
@@ -91,6 +108,12 @@ int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
 	return ret;
 }
 
+/*
+ * Send a multi-byte command to the device followed by (optional)
+ * data. Used for programming the flash array, etc.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 		const void *data, size_t data_len)
 {
@@ -108,6 +131,12 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 	return ret;
 }
 
+/*
+ * Same as spi_flash_cmd_read() except it also claims/releases the SPI
+ * bus. Used as common part of the ->read() operation.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
 {
@@ -120,6 +149,12 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
+/*
+ * Send a multi-byte command to the device and read the response. Used
+ * for flash array reads, etc.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
@@ -133,6 +168,12 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	return spi_flash_cmd_read(spi, cmd, sizeof(cmd), data, len);
 }
 
+/*
+ * Send a multi-byte command to the device and read the response. Used
+ * for flash array reads, etc.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_read_slow(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
@@ -145,6 +186,11 @@ int spi_flash_cmd_read_slow(struct spi_flash *flash, u32 offset,
 	return spi_flash_cmd_read(spi, cmd, sizeof(cmd), data, len);
 }
 
+/*
+ * Send a command to the device and wait for some bit to clear itself.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 			   u8 cmd, u8 poll_bit)
 {
@@ -173,12 +219,23 @@ int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 	return -1;
 }
 
+/*
+ * Send the read status command to the device and wait for the wip
+ * (write-in-progress) bit to clear itself.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
 	return spi_flash_cmd_poll_bit(flash, timeout,
 		CMD_READ_STATUS, STATUS_WIP);
 }
 
+/*
+ * Erase sectors.
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
 int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
 			u32 offset, size_t len)
 {
@@ -283,6 +340,13 @@ static struct {
 };
 #define IDCODE_LEN (IDCODE_CONT_LEN + IDCODE_PART_LEN)
 
+/*-----------------------------------------------------------------------
+ * spi_flash_probe() interface:
+ *   bus:	ID of the bus that the slave is attached to.
+ *   cs:	ID of the chip select connected to the slave.
+ *
+ *   Returns: Address of spi_flash structure on success, NULL on failure
+ */
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs)
 {
 	struct spi_slave *spi;

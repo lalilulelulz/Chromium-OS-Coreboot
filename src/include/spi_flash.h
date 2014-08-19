@@ -66,20 +66,53 @@ struct spi_flash {
 				size_t len);
 };
 
+/*-----------------------------------------------------------------------
+ * spi_flash_probe() interface:
+ *   bus:	ID of the bus that the slave is attached to.
+ *   cs:	ID of the chip select connected to the slave.
+ *
+ *   Returns: Address of spi_flash structure on success, NULL on failure
+ */
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs);
 
+/*-----------------------------------------------------------------------
+ * spi_flash_read() interface:
+ *   slave:	The SPI slave which will be sending the data.
+ *   offset:	Starting offset into the flash device.
+ *   len:	How many bytes to read.
+ *   buf:	Pointer to a string of bytes that will be filled in.
+ *
+ *   Returns: 0 on success, not 0 on failure
+ */
 static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
 		size_t len, void *buf)
 {
 	return flash->read(flash, offset, len, buf);
 }
 
+/*-----------------------------------------------------------------------
+ * spi_flash_write() interface:
+ *   slave:	The SPI slave which will be receiving the data.
+ *   offset:	Starting offset into the flash device.
+ *   len:	How many bytes to write.
+ *   buf:	Pointer to a string of bytes to be written.
+ *
+ *   Returns: 0 on success, not 0 on failure
+ */
 static inline int spi_flash_write(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
 	return flash->write(flash, offset, len, buf);
 }
 
+/*-----------------------------------------------------------------------
+ * spi_flash_erase() interface:
+ *   slave:	The SPI slave which will be erasing the data.
+ *   offset:	Starting offset into the flash device.
+ *   len:	How many bytes to write.
+ *
+ *   Returns: 0 on success, not 0 on failure
+ */
 static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 		size_t len)
 {

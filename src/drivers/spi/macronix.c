@@ -151,14 +151,14 @@ static int macronix_write(struct spi_flash *flash,
 #endif
 
 		ret = spi_flash_cmd(flash->spi, CMD_MX25XX_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Enabling Write failed\n");
 			break;
 		}
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 					  buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Macronix Page Program failed\n");
 			break;
 		}
@@ -172,8 +172,10 @@ static int macronix_write(struct spi_flash *flash,
 	}
 
 #if CONFIG_DEBUG_SPI_FLASH
-	printk(BIOS_SPEW, "SF: Macronix: Successfully programmed %zu bytes @"
-	      " 0x%lx\n", len, (unsigned long)(offset - len));
+	if (!ret)
+		printk(BIOS_SPEW,
+			"SF: Macronix: Successfully programmed %zu bytes @ 0x%lx\n",
+			len, (unsigned long)(offset - len));
 #endif
 
 	return ret;

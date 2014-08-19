@@ -165,14 +165,14 @@ static int stmicro_write(struct spi_flash *flash,
 #endif
 
 		ret = spi_flash_cmd(flash->spi, CMD_M25PXX_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: Enabling Write failed\n");
 			break;
 		}
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 					  buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING, "SF: STMicro Page Program failed\n");
 			break;
 		}
@@ -186,8 +186,9 @@ static int stmicro_write(struct spi_flash *flash,
 	}
 
 #if CONFIG_DEBUG_SPI_FLASH
-	printk(BIOS_SPEW, "SF: STMicro: Successfully programmed %zu bytes @ 0x%x\n",
-	      len, offset);
+	if (!ret)
+		printk(BIOS_SPEW, "SF: STMicro: Successfully programmed %zu bytes @ 0x%x\n",
+			len, offset);
 #endif
 
 	return ret;

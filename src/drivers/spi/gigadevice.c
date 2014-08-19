@@ -137,7 +137,7 @@ static int gigadevice_write(struct spi_flash *flash, u32 offset,
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		ret = spi_flash_cmd(flash->spi, CMD_GD25_WREN, NULL, 0);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING,
 			       "SF gigadevice.c: Enabling Write failed\n");
 			goto out;
@@ -156,7 +156,7 @@ static int gigadevice_write(struct spi_flash *flash, u32 offset,
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
 					  buf + actual, chunk_len);
-		if (ret < 0) {
+		if (ret) {
 			printk(BIOS_WARNING,
 			       "SF gigadevice.c: Page Program failed\n");
 			goto out;
