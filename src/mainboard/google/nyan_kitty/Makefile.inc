@@ -27,6 +27,7 @@ $(obj)/generated/bct.cfg:
 
 subdirs-y += bct
 
+bootblock-y += boardid.c
 bootblock-y += bootblock.c
 bootblock-y += pmic.c
 bootblock-y += reset.c
@@ -35,5 +36,4 @@ romstage-y += reset.c
 romstage-y += romstage.c
 romstage-y += sdram_configs.c
 
-ramstage-y += boardid.c
 ramstage-y += mainboard.c
