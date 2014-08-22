@@ -20,6 +20,14 @@
 #ifndef _BROADWELL_RESET_H_
 #define _BROADWELL_RESET_H_
 
+/* I/O ports */
+#define RST_CNT			0xcf9
+#	define FULL_RST		(1 << 3)
+#	define RST_CPU		(1 << 2)
+#	define SYS_RST		(1 << 1)
+
 void reset_system(void);
+void cold_reset(void);
+void warm_reset(void);
 
 #endif

@@ -32,14 +32,26 @@
  * with ETR[20] set.
  */
 
+void cold_reset(void)
+{
+	/* S0->S5->S0 trip. */
+	outb(RST_CPU | SYS_RST | FULL_RST, RST_CNT);
+}
+
+void warm_reset(void)
+{
+	/* PMC_PLTRST# asserted. */
+	outb(RST_CPU | SYS_RST, RST_CNT);
+}
+
 void soft_reset(void)
 {
-        outb(0x04, 0xcf9);
+        outb(RST_CPU, RST_CNT);
 }
 
 void hard_reset(void)
 {
-        outb(0x06, 0xcf9);
+        warm_reset();
 }
 
 void reset_system(void)
