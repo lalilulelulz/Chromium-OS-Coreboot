@@ -28,23 +28,37 @@
 int google_chromeec_i2c_xfer(uint8_t chip, uint8_t addr, int alen,
 			     uint8_t *buffer, int len, int is_read);
 u32 google_chromeec_get_wake_mask(void);
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
 int google_chromeec_set_sci_mask(u32 mask);
 int google_chromeec_set_smi_mask(u32 mask);
 int google_chromeec_set_wake_mask(u32 mask);
 u8 google_chromeec_get_event(void);
+#else
+static __inline__ int google_chromeec_set_sci_mask(u32 mask) { return 0; }
+static __inline__ int google_chromeec_set_smi_mask(u32 mask) { return 0; }
+static __inline__ int google_chromeec_set_wake_mask(u32 mask) { return 0; }
+static __inline__ u8 google_chromeec_get_event(void) { return 0; }
+#endif
 int google_ec_running_ro(void);
 void google_chromeec_init(void);
 #endif
 
-/* If recovery mode is enabled and EC is not running RO firmware reboot. */
-void google_chromeec_early_init(void);
 /* Reboot if EC firmware is not expected type. */
 void google_chromeec_check_ec_image(int expected_type);
 uint8_t google_chromeec_calc_checksum(const uint8_t *data, int size);
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
+/* If recovery mode is enabled and EC is not running RO firmware reboot. */
 u16 google_chromeec_get_board_version(void);
+void google_chromeec_early_init(void);
 u32 google_chromeec_get_events_b(void);
-int google_chromeec_clear_events_b(u32 mask);
 int google_chromeec_kbbacklight(int percent);
+#else
+/* If recovery mode is enabled and EC is not running RO firmware reboot. */
+static __inline__ void google_chromeec_early_init(void) {}
+static __inline__ u32 google_chromeec_get_events_b(void) { return 0; }
+static __inline__ int google_chromeec_kbbacklight(int percent) { return 0; }
+#endif
+int google_chromeec_clear_events_b(u32 mask);
 void google_chromeec_post(u8 postcode);
 void google_chromeec_log_events(u32 mask);
 int google_chromeec_vbnv_context(int is_read, uint8_t *data, int len);
@@ -56,7 +70,13 @@ enum usb_charge_mode {
 	USB_CHARGE_MODE_DOWNSTREAM_500MA,
 	USB_CHARGE_MODE_DOWNSTREAM_1500MA,
 };
-int google_chromeec_set_usb_charge_mode(u8 port_id, enum usb_charge_mode mode);
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
+int google_chromeec_set_usb_charge_mode(u8 port_id,
+					enum usb_charge_mode mode);
+#else
+static __inline__ int google_chromeec_set_usb_charge_mode(
+	u8 port_id, enum usb_charge_mode mode) { return 0; }
+#endif
 
 /* internal structure to send a command to the EC and wait for response. */
 struct chromeec_command {

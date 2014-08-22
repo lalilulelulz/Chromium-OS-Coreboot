@@ -28,6 +28,7 @@
 #include <broadwell/pei_wrapper.h>
 #include <broadwell/pm.h>
 #include <broadwell/romstage.h>
+#include <mainboard/google/samus/ec.h>
 #include <mainboard/google/samus/spd/spd.h>
 #include <mainboard/google/samus/gpio.h>
 

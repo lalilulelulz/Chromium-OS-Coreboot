@@ -62,7 +62,15 @@
 	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_SHUTDOWN))
 
 #ifndef __ACPI__
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
 extern void mainboard_ec_init(void);
+#else
+static __inline__ void mainboard_ec_init(void) {}
+static __inline__ u16 google_chromeec_get_board_version(void)
+{
+	return SAMUS_EC_BOARD_PROTO2_B;
+}
 #endif
+#endif	/* __ACPI__ */
 
 #endif
