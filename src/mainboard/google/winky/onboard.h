@@ -33,7 +33,6 @@
 
 #define BOARD_TOUCHSCREEN_NAME          "touchscreen"
 #define BOARD_TOUCHSCREEN_IRQ           GPIO_S0_DED_IRQ(TOUCH_IRQ_OFFSET)
-#define BOARD_TOUCHSCREEN_WAKE_GPIO     ACPI_ENABLE_WAKE_SUS_GPIO(2)
 #define BOARD_TOUCHSCREEN_I2C_BUS       5
 #define BOARD_TOUCHSCREEN_I2C_ADDR      0x4a    /* TODO(shawnn): Check this */
 
