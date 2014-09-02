@@ -63,30 +63,6 @@ Scope (\_SB)
 			}
 		}
 	}
-
-	/* Wake device for touchscreen */
-	Device (TSCR)
-	{
-		Name (_HID, EisaId ("PNP0C0E"))
-		Name (_UID, 2)
-		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
-
-		Name (RBUF, ResourceTemplate()
-		{
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_CRS)
-		{
-			/* Only return interrupt if I2C6 is PCI mode */
-			If (LEqual (\S6EN, 0)) {
-				Return (^RBUF)
-			}
-		}
-	}
 }
 
 Scope (\_SB.I2C1)
