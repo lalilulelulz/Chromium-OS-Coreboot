@@ -1,7 +1,7 @@
 ##
 ## This file is part of the coreboot project.
 ##
-## Copyright (C) 2013 Google Inc.
+## Copyright (C) 2014 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -25,5 +25,6 @@ ramstage-$(CONFIG_CHROMEOS) += gpio.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC) += ec.c
 ramstage-y += irqroute.c
 ramstage-y += w25q64.c
+ramstage-y += lan.c
 
 smm-$(CONFIG_HAVE_SMI_HANDLER) += mainboard_smi.c
