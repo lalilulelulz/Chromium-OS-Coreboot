@@ -163,7 +163,7 @@ static void check_device_present(device_t dev)
 	/* All PCIe ports disappear if port1 is disabled.
 	 * Keep PCIe port1 enabled even if no PCIe device present. */
 	if (!(pci_read_config32(dev, SLCTL_SLSTS) & PDS) &&
-			(is_first_port() == false)) {
+			(is_first_port(dev) == 0)) {
 		/* No device present. */
 		printk(BIOS_DEBUG, "No PCIe device present.\n");
 		reg_script_run_on_dev(dev, no_dev_behind_port);
