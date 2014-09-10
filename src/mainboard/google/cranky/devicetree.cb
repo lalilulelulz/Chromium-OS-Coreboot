@@ -68,7 +68,7 @@ chip soc/intel/baytrail
 		device pci 15.0 on  end # LPE
 		device pci 17.0 on  end # MMC
 		device pci 18.0 on  end # SIO_DMA1
-		device pci 18.1 off end # I2C1
+		device pci 18.1 on  end # I2C1
 		device pci 18.2 on  end # I2C2
 		device pci 18.3 off end # I2C3
 		device pci 18.4 off end # I2C4
