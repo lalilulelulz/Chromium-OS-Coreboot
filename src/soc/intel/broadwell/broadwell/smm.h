@@ -57,6 +57,7 @@ static inline int smm_region_size(void)
         return CONFIG_SMM_TSEG_SIZE;
 }
 
+#if IS_ENABLED(CONFIG_HAVE_SMI_HANDLER)
 int smm_initialize(void);
 void smm_relocate(void);
 
@@ -69,5 +70,13 @@ void southbridge_clear_smi_status(void);
  * SMIs. They are split so that other work between the 2 actions. */
 void southbridge_smm_clear_state(void);
 void southbridge_smm_enable_smi(void);
+#else	/* CONFIG_HAVE_SMI_HANDLER */
+static inline int smm_initialize(void) { return 0; };
+static inline void smm_relocate(void) {}
+static inline void southbridge_trigger_smi(void) {}
+static inline void southbridge_clear_smi_status(void) {}
+static inline void southbridge_smm_clear_state(void) {}
+static inline void southbridge_smm_enable_smi(void) {}
+#endif	/* CONFIG_HAVE_SMI_HANDLER */
 
 #endif

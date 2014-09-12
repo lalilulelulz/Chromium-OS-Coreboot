@@ -13,7 +13,11 @@ void asmlinkage secondary_cpu_init(unsigned int cpu_index);
 void smm_init(void);
 void smm_lock(void);
 void smm_setup_structures(void *gnvs, void *tcg, void *smi1);
-#endif
+#else	/* CONFIG_HAVE_SMI_HANDLER */
+static inline void smm_init(void) {}
+static inline void smm_lock(void) {}
+static inline void smm_setup_structures(void *gnvs, void *tcg, void *smi1) {}
+#endif	/* CONFIG_HAVE_SMI_HANDLER */
 
 #define __cpu_driver __attribute__ ((used,__section__(".rodata.cpu_driver")))
 /** start of compile time generated pci driver array */
