@@ -279,52 +279,17 @@ Scope (\_SB.I2C5)
 
 Scope (\_SB.I2C6)
 {
-	Device (ATSB)
+	Device (ETSA)
 	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
-		Name (_UID, 4)
+		Name (_HID, "ELAN0001")
+		Name (_DDN, "ELAN Touchscreen")
+		Name (_UID, 1)
 		Name (ISTP, 0) /* TouchScreen */
 
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x26,                     // SlaveAddress
-				ControllerInitiated,      // SlaveMode
-				400000,                   // ConnectionSpeed
-				AddressingMode7Bit,       // AddressingMode
-				"\\_SB.I2C6",             // ResourceSource
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_STA)
-		{
-			If (LEqual (\S6EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Name (_CRS, ResourceTemplate()
-		{
-			I2cSerialBus (
-				0x4a,                     // SlaveAddress
+				0x10,                     // SlaveAddress
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
