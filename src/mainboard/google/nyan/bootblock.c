@@ -21,6 +21,7 @@
 #include <bootblock_common.h>
 #include <console/console.h>
 #include <device/i2c.h>
+#include <gpio.h>
 #include <soc/addressmap.h>
 #include <soc/clock.h>
 #include <soc/nvidia/tegra/i2c.h>
