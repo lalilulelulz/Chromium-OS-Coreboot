@@ -22,6 +22,7 @@ ramstage-y += chip.c
 ramstage-y += gfx.c
 ramstage-y += iosf.c
 romstage-y += iosf.c
+smm-y += iosf.c
 ramstage-y += northcluster.c
 ramstage-y += ramstage.c
 ramstage-y += gpio.c
