@@ -124,7 +124,13 @@ void console_init(void)
 		"\n\ncoreboot-"
 		COREBOOT_VERSION
 		COREBOOT_EXTRA_VERSION
-		" "
+#if defined(__BOOT_BLOCK__)
+		" bootblock "
+#elif defined(__VER_STAGE__)
+		" verstage "
+#else
+		" romstage "
+#endif
 		COREBOOT_BUILD
 		" starting...\n";
 	print_info(console_test);
