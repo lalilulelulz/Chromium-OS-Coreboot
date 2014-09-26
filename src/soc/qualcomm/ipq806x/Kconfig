@@ -1,10 +1,9 @@
 config SOC_QC_IPQ806X
-	depends on ARCH_ARM
 	bool
 	default n
-	select ARM_BOOTBLOCK_ARMV4
-	select ARM_ROMSTAGE_ARMV7
+	select ARM_BOOTBLOCK_ARMV7
 	select ARM_RAMSTAGE_ARMV7
+	select ARM_ROMSTAGE_ARMV7
 	select ARM_LPAE
 
 if SOC_QC_IPQ806X
