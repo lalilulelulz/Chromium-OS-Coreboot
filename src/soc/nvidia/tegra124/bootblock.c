@@ -25,9 +25,12 @@
 #include <console/console.h>
 #include <soc/clock.h>
 #include <soc/nvidia/tegra/apbmisc.h>
-
 #include "pinmux.h"
 #include "power.h"
+
+#if CONFIG_VBOOT2_VERIFY_FIRMWARE
+#include "verstage.h"
+#endif
 
 void main(void)
 {
@@ -71,7 +74,11 @@ void main(void)
 			  PINMUX_PWR_INT_N_FUNC_PMICINTR |
 			  PINMUX_INPUT_ENABLE);
 
+#if CONFIG_VBOOT2_VERIFY_FIRMWARE
+	entry = (void *)verstage_vboot_main;
+#else
 	entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA, "fallback/romstage");
+#endif
 
 	ASSERT(entry);
 	clock_cpu0_config(entry);
