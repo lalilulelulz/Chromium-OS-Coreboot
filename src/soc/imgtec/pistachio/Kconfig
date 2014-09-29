@@ -19,18 +19,18 @@
 # MA 02110-1301 USA
 #
 
-config CPU_IMGTEC_DANUBE
+config CPU_IMGTEC_PISTACHIO
 	select CPU_MIPS
 	select DYNAMIC_CBMEM
 	select HAVE_UART_MEMORY_MAPPED
 	select HAVE_UART_SPECIAL
 	bool
 
-if CPU_IMGTEC_DANUBE
+if CPU_IMGTEC_PISTACHIO
 
 config BOOTBLOCK_CPU_INIT
 	string
-	default "soc/imgtec/danube/bootblock.c"
+	default "soc/imgtec/pistachio/bootblock.c"
 
 config CBFS_ROM_OFFSET
 	# Effectively the maximum size of the bootblock
