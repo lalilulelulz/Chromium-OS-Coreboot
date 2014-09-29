@@ -34,7 +34,6 @@
 		}							\
 	} while (0)
 
-
 uint32_t tpm_extend_pcr(struct vb2_context *ctx, int pcr,
 			enum vb2_pcr_digest which_digest)
 {
@@ -101,30 +100,36 @@ static uint32_t read_space_firmware(struct vb2_context *ctx)
 	return TPM_E_CORRUPTED_STATE;
 }
 
-static uint32_t write_space_firmware(struct vb2_context *ctx)
+static uint32_t write_secdata(uint32_t index,
+			      const uint8_t *secdata,
+			      uint32_t len)
 {
-	uint8_t secdata[VB2_SECDATA_SIZE];
-	uint32_t r;
+	uint8_t sd[32];
+	uint32_t rv;
 	int attempts = 3;
 
-	memcpy(secdata, ctx->secdata, VB2_SECDATA_SIZE);
+	if (len > sizeof(sd)) {
+		VBDEBUG("TPM: %s() - data is too large\n", __func__);
+		return TPM_E_WRITE_FAILURE;
+	}
+
 	while (attempts--) {
-		r = safe_write(FIRMWARE_NV_INDEX, secdata, VB2_SECDATA_SIZE);
+		rv = safe_write(index, secdata, len);
 		/* Can't write, not gonna try again */
-		if (r != TPM_SUCCESS)
-			return r;
+		if (rv != TPM_SUCCESS)
+			return rv;
 
 		/* Read it back to be sure it got the right values. */
-		r = read_space_firmware(ctx);
-		if (r == TPM_SUCCESS && memcmp(secdata, ctx->secdata,
-		                               VB2_SECDATA_SIZE) == 0)
-			return r;
+		rv = tlcl_read(index, sd, len);
+		if (rv == TPM_SUCCESS && memcmp(secdata, sd, len) == 0)
+			return rv;
 
-		VBDEBUG("TPM: %s() failed\n", __func__);
+		VBDEBUG("TPM: %s() failed. trying again\n", __func__);
 		/* Try writing it again. Maybe it was garbled on the way out. */
 	}
 
 	VBDEBUG("TPM: %s() - too many failures, giving up\n", __func__);
+
 	return TPM_E_CORRUPTED_STATE;
 }
 
@@ -132,6 +137,15 @@ uint32_t factory_initialize_tpm(struct vb2_context *ctx)
 {
 	TPM_PERMANENT_FLAGS pflags;
 	uint32_t result;
+	/* this is derived from rollback_index.h of vboot_reference. see struct
+	 * RollbackSpaceKernel for details. */
+	static const uint8_t secdata_kernel[] = {
+			0x02,
+			0x4C, 0x57, 0x52, 0x47,
+			0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00,
+			0xE8,
+	};
 
 	VBDEBUG("TPM: factory initialization\n");
 
@@ -177,13 +191,31 @@ uint32_t factory_initialize_tpm(struct vb2_context *ctx)
 	VBDEBUG("TPM: Clearing owner\n");
 	RETURN_ON_FAILURE(tpm_clear_and_reenable());
 
+	/* Define the backup space. No need to initialize it, though. */
+	RETURN_ON_FAILURE(safe_define_space(BACKUP_NV_INDEX,
+					    TPM_NV_PER_PPWRITE,
+					    VB2_NVDATA_SIZE));
+
+	/* Define and initialize the kernel space */
+	RETURN_ON_FAILURE(safe_define_space(KERNEL_NV_INDEX,
+					    TPM_NV_PER_PPWRITE,
+					    sizeof(secdata_kernel)));
+	RETURN_ON_FAILURE(write_secdata(KERNEL_NV_INDEX,
+					secdata_kernel,
+					sizeof(secdata_kernel)));
+	VBDEBUG("TPM: Kernel space initialized\n");
+
 	/* Defines and sets vb2 secdata space */
 	vb2api_secdata_create(ctx);
 	RETURN_ON_FAILURE(safe_define_space(FIRMWARE_NV_INDEX,
-	                                    TPM_NV_PER_GLOBALLOCK |
-	                                    TPM_NV_PER_PPWRITE,
-	                                    VB2_SECDATA_SIZE));
-	RETURN_ON_FAILURE(write_space_firmware(ctx));
+					    TPM_NV_PER_GLOBALLOCK |
+					    TPM_NV_PER_PPWRITE,
+					    VB2_SECDATA_SIZE));
+	RETURN_ON_FAILURE(write_secdata(FIRMWARE_NV_INDEX,
+					ctx->secdata,
+					VB2_SECDATA_SIZE));
+
+	VBDEBUG("TPM: Firmware space initialized\n");
 
 	return TPM_SUCCESS;
 }
@@ -294,6 +326,7 @@ uint32_t antirollback_read_space_firmware(struct vb2_context *ctx)
 		 */
 		VBDEBUG("TPM: Not initialized yet.\n");
 		RETURN_ON_FAILURE(factory_initialize_tpm(ctx));
+		VBDEBUG("TPM: factory initialization successful\n");
 	} else if (rv != TPM_SUCCESS) {
 		VBDEBUG("TPM: Firmware space in a bad state; giving up.\n");
 		//RETURN_ON_FAILURE(factory_initialize_tpm(ctx));
@@ -305,7 +338,7 @@ uint32_t antirollback_read_space_firmware(struct vb2_context *ctx)
 
 uint32_t antirollback_write_space_firmware(struct vb2_context *ctx)
 {
-	return write_space_firmware(ctx);
+	return write_secdata(FIRMWARE_NV_INDEX, ctx->secdata, VB2_SECDATA_SIZE);
 }
 
 uint32_t antirollback_lock_space_firmware()
