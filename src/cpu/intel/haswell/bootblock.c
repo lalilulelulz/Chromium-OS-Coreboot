@@ -64,6 +64,17 @@ static void enable_rom_caching(void)
 	wrmsr(MTRRdefType_MSR, msr);
 }
 
+static void bootblock_mdelay(int ms)
+{
+	u32 target = ms * 24 * 1000;
+	msr_t current;
+	msr_t start = rdmsr(MSR_COUNTER_24_MHz);
+
+	do {
+		current = rdmsr(MSR_COUNTER_24_MHz);
+	} while ((current.lo - start.lo) < target);
+}
+
 static void set_flex_ratio_to_tdp_nominal(void)
 {
 	msr_t flex_ratio, msr;
@@ -100,6 +111,9 @@ static void set_flex_ratio_to_tdp_nominal(void)
 	soft_reset &= ~(0x3f << 6);
 	soft_reset |= (nominal_ratio & 0x3f) << 6;
 	RCBA32(SOFT_RESET_DATA) = soft_reset;
+
+	/* Delay before reset to avoid potential TPM lockout */
+	bootblock_mdelay(30);
 
 	/* Set soft reset control to use register value */
 	RCBA32_OR(SOFT_RESET_CTRL, 1);
