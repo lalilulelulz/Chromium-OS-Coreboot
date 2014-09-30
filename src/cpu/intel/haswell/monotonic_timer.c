@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include <cpu/x86/msr.h>
 #include <timer.h>
+#include "haswell.h"
 
-#define MSR_COUNTER_24_MHz 0x637
 static struct monotonic_counter {
 	int initialized;
 	struct mono_time time;
