@@ -76,6 +76,7 @@
 #define CBMEM_ID_RAM_OOPS	0x05430095
 #define CBMEM_ID_SMM_SAVE_SPACE	0x07e9acee
 #define CBMEM_ID_NONE		0x00000000
+#define CBMEM_ID_HOB_POINTER	0x484f4221
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
