@@ -26,7 +26,7 @@
 
 #include "boardid.h"
 #include "pmic.h"
-#include "reset.h"
+#include <reset.h>
 
 enum {
 	AS3722_I2C_ADDR = 0x40
@@ -65,7 +65,7 @@ static void pmic_write_reg(unsigned bus, uint8_t reg, uint8_t val, int delay)
 		printk(BIOS_ERR, "%s: reg = 0x%02X, value = 0x%02X failed!\n",
 			__func__, reg, val);
 		/* Reset the SoC on any PMIC write error */
-		cpu_reset();
+		hard_reset();
 	} else {
 		if (delay)
 			udelay(500);
@@ -94,7 +94,7 @@ void pmic_init(unsigned bus)
 	pmic_slam_defaults(bus);
 
 	/* First set VDD_CPU to 1.2V, then enable the VDD_CPU regulator. */
-		pmic_write_reg(bus, 0x00, 0x50, 1);
+	pmic_write_reg(bus, 0x00, 0x50, 1);
 
 	/* First set VDD_GPU to 1.0V, then enable the VDD_GPU regulator. */
 	pmic_write_reg(bus, 0x06, 0x28, 1);
