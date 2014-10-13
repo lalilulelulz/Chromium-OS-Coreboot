@@ -58,6 +58,8 @@ config BOARD_GOOGLE_PANTHER
 	bool "Panther"
 config BOARD_GOOGLE_PARROT
 	bool "Parrot"
+config BOARD_GOOGLE_PARRY
+	bool "Parry"
 config BOARD_GOOGLE_PEPPY
 	bool "Peppy"
 config BOARD_GOOGLE_PIT
@@ -99,6 +101,7 @@ source "src/mainboard/google/link/Kconfig"
 source "src/mainboard/google/nyan/Kconfig"
 source "src/mainboard/google/panther/Kconfig"
 source "src/mainboard/google/parrot/Kconfig"
+source "src/mainboard/google/parry/Kconfig"
 source "src/mainboard/google/peppy/Kconfig"
 source "src/mainboard/google/pit/Kconfig"
 source "src/mainboard/google/quawks/Kconfig"
