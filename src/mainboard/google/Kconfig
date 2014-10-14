@@ -197,6 +197,7 @@ config BOARD_GOOGLE_VEYRON_PINKY
 endchoice
 
 source "src/mainboard/google/auron/Kconfig"
+source "src/mainboard/google/auron_yuna/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
