@@ -33,6 +33,13 @@ config BOARD_GOOGLE_AURON
 	  Enable this config to select the Google Auron mainboard.
 	  Auron is a Chrome OS mainboard.
 	  Auron is based on the Intel Broadwell platform.
+config BOARD_GOOGLE_AURON_PAINE
+        bool "Auron_Paine"
+        help
+          Google Auron_paine mainboard.
+          Enable this config to select the Google Auron_paine mainboard.
+          Auron_paine is a Chrome OS mainboard.
+          Auron_paine is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_AURON_YUNA
 	bool "Auron_Yuna"
 	help
@@ -197,6 +204,7 @@ config BOARD_GOOGLE_VEYRON_PINKY
 endchoice
 
 source "src/mainboard/google/auron/Kconfig"
+source "src/mainboard/google/auron_paine/Kconfig"
 source "src/mainboard/google/auron_yuna/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
