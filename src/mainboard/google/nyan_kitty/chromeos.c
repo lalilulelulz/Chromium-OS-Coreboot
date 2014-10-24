@@ -86,8 +86,19 @@ int get_developer_mode_switch(void)
 
 int get_recovery_mode_switch(void)
 {
-	/* RECMODE_GPIO. It is active low. */
-	return !gpio_get_in_value(GPIO(Q7));
+	uint32_t ec_events;
+
+	/* The GPIO is active low. */
+	if (!gpio_get_in_value(GPIO(Q7))) // RECMODE_GPIO
+		return 1;
+
+#if CONFIG_EC_GOOGLE_CHROMEEC
+	ec_events = google_chromeec_get_events_b();
+	return !!(ec_events &
+		  EC_HOST_EVENT_MASK(EC_HOST_EVENT_KEYBOARD_RECOVERY));
+#else
+	return 0;
+#endif
 }
 
 int get_write_protect_state(void)
