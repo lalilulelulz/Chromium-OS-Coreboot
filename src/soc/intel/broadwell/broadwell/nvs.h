@@ -54,7 +54,9 @@ typedef struct {
 	u32	cbmc; /* 0x1d - 0x20 - Coreboot Memory Console */
 	u32	pm1i; /* 0x21 - 0x24 - PM1 wake status bit */
 	u32	gpei; /* 0x25 - 0x28 - GPE wake status bit */
-	u8	rsvd3[215];
+	u8	tid1; /* 0x26 - Touch Pad ID 1. 0 - all, 1,2,3... - for each */
+	u8	tid2; /* 0x27 - Touch Pad ID 2. 0 - all, 1,2,3... - for each */
+	u8	rsvd3[213];
 
 	/* ChromeOS specific (0x100 - 0xfff) */
 	chromeos_acpi_t chromeos;

@@ -62,6 +62,8 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	CBMC,	32,	// 0x1d - 0x20 - Coreboot Memory Console
 	PM1I,	32,	// 0x21 - 0x24 - PM1 wake status bit
 	GPEI,	32,	// 0x25 - 0x28 - GPE wake status bit
+	TID1,	8,	// 0x26 - Touch Pad ID1(0 - All, 1,2,3... - for each)
+	TID2,	8,	// 0x27 - Touch Pad ID2(0 - All, 1,2,3... - for each)
 
 	/* ChromeOS specific */
 	Offset (0x100),

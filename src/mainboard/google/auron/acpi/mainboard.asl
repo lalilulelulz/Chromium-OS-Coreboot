@@ -71,7 +71,14 @@ Scope (\_SB.PCI0.I2C0)
 		Method (_STA)
 		{
 			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
+				If (LEqual (\TID1, 0)) {
+					Return (0xF)
+				} Else {
+					If(LEqual (\TID1, 1)) {
+						Return (0xF)
+					}
+					Return (0x0)
+				}
 			} Else {
 				Return (0x0)
 			}
@@ -117,7 +124,14 @@ Scope (\_SB.PCI0.I2C0)
 		Method (_STA)
 		{
 			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
+				If (LEqual (\TID1, 0)) {
+					Return (0xF)
+				} Else {
+					If(LEqual (\TID1, 2)) {
+						Return (0xF)
+					}
+					Return (0x0)
+				}
 			} Else {
 				Return (0x0)
 			}
@@ -177,7 +191,14 @@ Scope (\_SB.PCI0.I2C1)
 		Method (_STA)
 		{
 			If (LEqual (\S2EN, 1)) {
-				Return (0xF)
+				If (LEqual (\TID2, 0)) {
+					Return (0xF)
+				} Else {
+					If(LEqual (\TID2, 1)) {
+						Return (0xF)
+					}
+					Return (0x0)
+				}
 			} Else {
 				Return (0x0)
 			}
@@ -218,7 +239,14 @@ Scope (\_SB.PCI0.I2C1)
                 Method (_STA)
                 {
                         If (LEqual (\S2EN, 1)) {
-                                Return (0xF)
+				If (LEqual (\TID2, 0)) {
+					Return (0xF)
+				} Else {
+					If(LEqual (\TID2, 2)) {
+						Return (0xF)
+					}
+					Return (0x0)
+				}
                         } Else {
                                 Return (0x0)
                         }
