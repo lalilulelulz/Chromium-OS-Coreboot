@@ -17,22 +17,21 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <console/console.h>
-#include <soc/nvidia/tegra124/gpio.h>
-#include <stdlib.h>
-
 #include <boardid.h>
+#include <console/console.h>
+#include <gpio.h>
+#include <stdlib.h>
 
 uint8_t board_id(void)
 {
 	static int id = -1;
+	gpio_t gpio[] = {[3] = GPIO(X4), [2] = GPIO(X1),	/* X4 is MSB */
+			 [1] = GPIO(T1), [0] = GPIO(Q3),};	/* Q3 is LSB */
 
 	if (id < 0) {
-		gpio_t gpio[] = {GPIO(Q3), GPIO(T1), GPIO(X1), GPIO(X4)};
+		id = gpio_base3_value(gpio, ARRAY_SIZE(gpio));
 
-		id = gpio_get_in_tristate_values(gpio, ARRAY_SIZE(gpio), 0);
-
-		printk(BIOS_SPEW, "Board TRISTATE ID: %#x.\n", id);
+		printk(BIOS_SPEW, "Board TRISTATE ID: %d.\n", id);
 	}
 
 	return id;
