@@ -58,8 +58,10 @@ endif # CONFIG_HAVE_OPTION_TABLE
 ################################################################################
 
 ifeq ($(CONFIG_ARCH_ROMSTAGE_X86_32),y)
-CBFSTOOL_PRE1_OPTS = -m x86 -o $$(( $(CONFIG_ROM_SIZE) - $(CONFIG_CBFS_SIZE) ))
-CBFSTOOL_PRE_OPTS  = -b $(shell cat $(objcbfs)/base_xip.txt)
+CBFSTOOL_PRE1_OPTS = -m x86 -s $(CONFIG_ROM_SIZE) \
+		     -o $$(( $(CONFIG_ROM_SIZE) - $(CONFIG_CBFS_SIZE) ))
+# Make sure that segment for .car.data is ignored while adding romstage.
+CBFSTOOL_PRE_OPTS  = -b $(shell cat $(objcbfs)/base_xip.txt) -S ".car.data"
 endif
 
 LIBGCC_WRAP_LDFLAGS := --wrap __divdi3 --wrap __udivdi3 --wrap __moddi3 --wrap __umoddi3
@@ -210,9 +212,10 @@ endif # CONFIG_ROMCC
 $(objcbfs)/romstage_null.debug: $$(romstage-objs) $(LIBGCC_FILE_NAME_romstage) $(objgenerated)/romstage_null.ld
 	@printf "    LINK       $(subst $(obj)/,,$(@))\n"
 	$(call link,romstage,$(filter %.o %.a,$(^)),-o $(@) -L$(obj) -T $(objgenerated)/romstage_null.ld,$(LIBGCC_WRAP_LDFLAGS))
-	$(NM_romstage) $@ | grep -q " [DdBb] "; if [ $$? -eq 0 ]; then \
+	$(OBJCOPY_romstage) --only-section .illegal_globals $(@) $(objcbfs)/romstage_null.offenders && \
+		$(NM_romstage) $(objcbfs)/romstage_null.offenders | grep -q ""; if [ $$? -eq 0 ]; then \
 		echo "Forbidden global variables in romstage:"; \
-		$(NM_romstage) $@ | grep " [DdBb] "; test "$(CONFIG_CPU_AMD_AGESA)" = y; \
+		$(NM_romstage) $(objcbfs)/romstage_null.offenders; test "$(CONFIG_CPU_AMD_AGESA)" = y; \
 		else true; fi
 
 $(objcbfs)/romstage_xip.debug: $$(romstage-objs) $(LIBGCC_FILE_NAME_romstage) $(objgenerated)/romstage_xip.ld

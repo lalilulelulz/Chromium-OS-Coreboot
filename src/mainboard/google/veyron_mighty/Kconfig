@@ -1,7 +1,7 @@
 ##
 ## This file is part of the coreboot project.
 ##
-## Copyright 2014 Google Inc.
+## Copyright 2014 Rockchip Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 ##
 
-if BOARD_GOOGLE_RUSH
+if BOARD_GOOGLE_VEYRON_MIGHTY
 
 config BOARD_SPECIFIC_OPTIONS # dummy
-        def_bool y
+	def_bool y
 	select BOARD_ID_SUPPORT
 	select BOARD_ROMSIZE_KB_4096
 	select CHROMEOS
@@ -28,72 +28,57 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select EC_GOOGLE_CHROMEEC
 	select EC_GOOGLE_CHROMEEC_SPI
 	select EC_SOFTWARE_SYNC
-	select SPI_FLASH
-	select SOC_NVIDIA_TEGRA132
+	select RAM_CODE_SUPPORT
+	select SOC_ROCKCHIP_RK3288
+	select MAINBOARD_DO_NATIVE_VGA_INIT
 	select MAINBOARD_HAS_BOOTBLOCK_INIT
+	select HAVE_HARD_RESET
+	select RETURN_FROM_VERSTAGE
 	select VIRTUAL_DEV_SWITCH
-	select ARCH_SPINTABLE
 
 config MAINBOARD_DIR
-        string
-        default google/rush
+	string
+	default google/veyron_mighty
 
 config MAINBOARD_PART_NUMBER
-        string
-        default "Rush"
+	string
+	default "Veyron_Mighty"
 
-config DRAM_SIZE_MB
-        int
-        default 2048
+config MAINBOARD_VENDOR
+	string
+	default "Google"
 
-choice
-	prompt "BCT boot media"
-	default RUSH_BCT_CFG_SPI
-	help
-	  Which boot media to configure the BCT for.
-
-config RUSH_BCT_CFG_SPI
-	bool "SPI"
-	help
-	  Configure the BCT for booting from SPI.
-
-config RUSH_BCT_CFG_EMMC
-	bool "eMMC"
-	help
-	  Configure the BCT for booting from eMMC.
-
-endchoice
-
-config BOOT_MEDIA_SPI_BUS
-	int "SPI bus with boot media ROM"
-	range 1 6
-	depends on RUSH_BCT_CFG_SPI
-	default 4
-	help
-	  Which SPI bus the boot media is connected to.
-
-config BOOT_MEDIA_SPI_CHIP_SELECT
-	int "Chip select for SPI boot media"
-	range 0 3
-	depends on RUSH_BCT_CFG_SPI
+config EC_GOOGLE_CHROMEEC_SPI_BUS
+	hex
 	default 0
-	help
-	  Which chip select to use for boot media.
+
+config EC_GOOGLE_CHROMEEC_SPI_WAKEUP_DELAY_US
+	int
+	default 100
 
 config VBOOT_RAMSTAGE_INDEX
 	hex
-	default 0x2
+	default 0x3
+
+config BOOT_MEDIA_SPI_BUS
+        hex
+        default 2
+
+config DRAM_SIZE_MB
+	int
+	default 2048
 
 config DRIVER_TPM_I2C_BUS
 	hex
-	default 0x2
+	default 0x1
 
 config DRIVER_TPM_I2C_ADDR
 	hex
 	default 0x20
 
-config EC_GOOGLE_CHROMEEC_SPI_BUS
+config CONSOLE_SERIAL_UART_ADDRESS
 	hex
-	default 1
+	depends on CONSOLE_SERIAL_UART
+	default 0xFF690000
 
-endif # BOARD_GOOGLE_RUSH
+endif #  BOARD_GOOGLE_VEYRON_MIGHTY
