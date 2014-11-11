@@ -21,7 +21,7 @@ static const u32 mainboard_cim_verb_data[] = {
 	/* coreboot specific header */
 	0x10ec0283,	// Codec Vendor / Device ID: Realtek ALC283
 	0x10ec0283,	// Subsystem ID
-	0x00000011,	// Number of jacks (NID entries)
+	0x00000012,	// Number of jacks (NID entries)
 
 	0x0017ff00,	// Function Reset
 	0x0017ff00,	// Double Function Reset
@@ -127,6 +127,12 @@ static const u32 mainboard_cim_verb_data[] = {
 	0x0204A614,
 	0x02050043,
 	0x0204A614,
+	/* pc beep */
+	0x02050010,
+	0x02040c20,
+	0x0205001b,
+	0x0204081b,
+
 };
 
 static const u32 mainboard_pc_beep_verbs[] = {
