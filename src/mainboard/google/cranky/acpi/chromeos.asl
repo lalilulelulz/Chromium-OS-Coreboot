@@ -30,7 +30,6 @@
  */
 
 Name(OIPG, Package() {
-	// No physical recovery button
-	Package () { 0x0001, 0, 0xFFFFFFFF, "BayTrail" },
-	Package () { 0x0003, 1, 0x2006, "BayTrail" },
+	Package () { 0x0001, 0, 0x2023, "BayTrail" }, // recovery
+	Package () { 0x0003, 1, 0x2006, "BayTrail" }, // firmware write protect
 })
