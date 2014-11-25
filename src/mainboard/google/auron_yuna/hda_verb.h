@@ -67,7 +67,7 @@ static const u32 mainboard_cim_verb_data[] = {
 
 	/* Pin Complex (NID 0x19)  MIC2 - 3.5mm Jack */
 	0x01971c20, // group2, cap 0
-	0x01971d90, // black, jack detect
+	0x01971d10, // black, jack detect
 	0x01971ea1, // Mic in, 3.5mm Jack
 	0x01971f03, // connector, External left panel
 
