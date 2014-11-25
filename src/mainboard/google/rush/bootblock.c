@@ -18,16 +18,16 @@
  */
 
 #include <arch/io.h>
+#include <bootblock_common.h>
 #include <console/console.h>
 #include <device/i2c.h>
 #include <soc/addressmap.h>
-#include <soc/bootblock.h>
+#include <soc/clk_rst.h>
 #include <soc/clock.h>
-#include <soc/padconfig.h>
 #include <soc/funitcfg.h>
 #include <soc/nvidia/tegra/i2c.h>
-#include <soc/nvidia/tegra132/clk_rst.h>
-#include <soc/nvidia/tegra132/spi.h>	/* FIXME: move back to soc code? */
+#include <soc/padconfig.h>
+#include <soc/spi.h>	/* FIXME: move back to soc code? */
 
 #include "pmic.h"
 

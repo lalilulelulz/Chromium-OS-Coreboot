@@ -19,29 +19,52 @@
 
 #include <arch/exception.h>
 #include <arch/hlt.h>
+#include <arch/stages.h>
+#include <bootblock_common.h>
 #include <cbfs.h>
 #include <console/console.h>
 #include <soc/addressmap.h>
-#include <soc/bootblock.h>
 #include <soc/clock.h>
 #include <soc/nvidia/tegra/apbmisc.h>
-#include <arch/stages.h>
+#include <soc/pmc.h>
+#include <soc/power.h>
+#include <timestamp.h>
+#include <vendorcode/google/chromeos/chromeos.h>
 
-#include "power.h"
+#define BCT_OFFSET_IN_BIT	0x50
+#define ODMDATA_OFFSET_IN_BCT	0x6A8
+#define TEGRA_SRAM_MAX		(TEGRA_SRAM_BASE + TEGRA_SRAM_SIZE)
+
+static void save_odmdata(void)
+{
+	struct tegra_pmc_regs *pmc = (struct tegra_pmc_regs*)TEGRA_PMC_BASE;
+	uintptr_t bct_offset;
+	u32 odmdata;
+
+	// pmc.odmdata: [18:19]: console type, [15:17]: UART id.
+	// TODO(twarren) ODMDATA is stored in the BCT, from bct/odmdata.cfg.
+	// I use the BCT offset in the BIT in SRAM to locate the BCT, and
+	// pick up the ODMDATA word at BCT offset 0x6A8. I could use a BCT
+	// struct header from cbootimage, but it seems like overkill for this.
+
+	bct_offset = read32((void *)(TEGRA_SRAM_BASE + BCT_OFFSET_IN_BIT));
+	if (bct_offset > TEGRA_SRAM_BASE && bct_offset < TEGRA_SRAM_MAX) {
+		odmdata = read32((void *)(bct_offset + ODMDATA_OFFSET_IN_BCT));
+		write32(odmdata, &pmc->odmdata);
+	}
+}
 
 void __attribute__((weak)) bootblock_mainboard_early_init(void)
 {
 	/* Empty default implementation. */
 }
 
-static struct clk_rst_ctlr *clk_rst = (void *)TEGRA_CLK_RST_BASE;
-
 void main(void)
 {
-	void *entry;
+	void *entry = NULL;
 
-	// enable pinmux clamp inputs
-	clamp_tristate_inputs();
+	timestamp_early_init(0);
+	timestamp_add_now(TS_START_BOOTBLOCK);
 
 	// enable JTAG at the earliest stage
 	enable_jtag();
@@ -56,6 +79,9 @@ void main(void)
 				 CLK_H_APBDMA,
 				 0, CLK_V_MSELECT, 0, 0);
 
+	/* Find ODMDATA in IRAM and save it to scratch reg */
+	save_odmdata();
+
 	bootblock_mainboard_early_init();
 
 	if (CONFIG_BOOTBLOCK_CONSOLE) {
@@ -68,19 +94,28 @@ void main(void)
 
 	printk(BIOS_INFO, "T132 bootblock: Clock init done\n");
 
+	pmc_print_rst_status();
+
 	bootblock_mainboard_init();
 
 	printk(BIOS_INFO, "T132 bootblock: Mainboard bootblock init done\n");
 
-	entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
-				CONFIG_CBFS_PREFIX "/romstage");
-
-	if (entry) {
-		printk(BIOS_INFO, "T132 bootblock: jumping to romstage\n");
-		stage_exit(entry);
+	if (IS_ENABLED(CONFIG_VBOOT2_VERIFY_FIRMWARE)) {
+		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
+					CONFIG_CBFS_PREFIX "/verstage");
+		printk(BIOS_DEBUG, "T132 bootblock: jumping to verstage\n");
 	} else {
-		printk(BIOS_INFO, "T132 bootblock: fallback/romstage not found\n");
+		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
+					CONFIG_CBFS_PREFIX "/romstage");
+		printk(BIOS_INFO, "T132 bootblock: jumping to romstage\n");
 	}
+
+	timestamp_add_now(TS_END_BOOTBLOCK);
+
+	if (entry != CBFS_LOAD_ERROR)
+		stage_exit(entry);
+	else
+		printk(BIOS_INFO, "T132 bootblock: stage not found\n");
 
 	hlt();
 }
