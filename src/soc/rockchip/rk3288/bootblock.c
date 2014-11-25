@@ -27,7 +27,7 @@
 #include "spi.h"
 #include <vendorcode/google/chromeos/chromeos.h>
 
-void bootblock_cpu_init(void)
+void bootblock_soc_init(void)
 {
 	writel(IOMUX_UART2, &rk3288_grf->iomux_uart2);
 	writel(IOMUX_SPI2_CSCLK, &rk3288_grf->iomux_spi2csclk);
