@@ -93,10 +93,6 @@ static void __attribute__((noinline)) romstage(void)
 
 	early_mainboard_init();
 
-#if CONFIG_CONSOLE_CBMEM
-	cbmemc_reinit();
-#endif
-
 	vboot_verify_firmware(romstage_handoff_find_or_add());
 
 	timestamp_add(TS_START_COPYRAM, timestamp_get());

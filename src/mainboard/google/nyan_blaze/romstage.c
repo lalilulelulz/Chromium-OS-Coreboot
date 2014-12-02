@@ -28,27 +28,27 @@
 #include <console/console.h>
 #include <reset.h>
 #include <romstage_handoff.h>
-#include <vendorcode/google/chromeos/chromeos.h>
-#include "sdram_configs.h"
-#include <soc/nvidia/tegra/i2c.h>
-#include <soc/nvidia/tegra124/cache.h>
-#include <soc/nvidia/tegra124/chip.h>
-#include <soc/nvidia/tegra124/clk_rst.h>
-#include <soc/nvidia/tegra124/early_configs.h>
-#include <soc/nvidia/tegra124/power.h>
-#include <soc/nvidia/tegra124/sdram.h>
 #include <soc/addressmap.h>
+#include <soc/cache.h>
+#include <soc/clk_rst.h>
 #include <soc/clock.h>
 #include <soc/display.h>
+#include <soc/early_configs.h>
+#include <soc/nvidia/tegra/i2c.h>
+#include <soc/nvidia/tegra124/chip.h>
+#include <soc/power.h>
+#include <soc/sdram.h>
 #include <symbols.h>
 #include <timestamp.h>
+#include <vendorcode/google/chromeos/chromeos.h>
+
+#include "sdram_configs.h"
 
 static void __attribute__((noinline)) romstage(void)
 {
 	void *entry = NULL;
-#if CONFIG_COLLECT_TIMESTAMPS
-	uint64_t romstage_start_time = timestamp_get();
-#endif
+
+	timestamp_add_now(TS_START_ROMSTAGE);
 
 	console_init();
 	exception_init();
@@ -92,13 +92,6 @@ static void __attribute__((noinline)) romstage(void)
 
 	cbmem_initialize_empty();
 
-	timestamp_init(0);
-	timestamp_add(TS_START_ROMSTAGE, romstage_start_time);
-
-#if CONFIG_CONSOLE_CBMEM
-	cbmemc_reinit();
-#endif
-
 #if CONFIG_VBOOT2_VERIFY_FIRMWARE
 	entry = vboot2_load_ramstage();
 #else
@@ -107,10 +100,10 @@ static void __attribute__((noinline)) romstage(void)
 #endif
 
 	if (entry == NULL) {
-		timestamp_add(TS_START_COPYRAM, timestamp_get());
+		timestamp_add_now(TS_START_COPYRAM);
 		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
 					CONFIG_CBFS_PREFIX "/ramstage");
-		timestamp_add(TS_END_COPYRAM, timestamp_get());
+		timestamp_add_now(TS_END_COPYRAM);
 		if (entry == (void *)-1)
 			die("failed to load ramstage\n");
 	}
