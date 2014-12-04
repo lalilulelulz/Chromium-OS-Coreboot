@@ -111,9 +111,6 @@ void mainboard_fill_spd_data(struct pei_data *pei_data)
 		die("SPD data not found.");
 	spd_file_len = ntohl(spd_file->len);
 
-	if (spd_index > 3)
-		pei_data->dimm_channel1_disabled = 3;
-
 	if (spd_file_len < ((spd_index + 1) * SPD_LEN)) {
 		printk(BIOS_ERR, "SPD index override to 0 - old hardware?\n");
 		spd_index = 0;
