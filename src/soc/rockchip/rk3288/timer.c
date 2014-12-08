@@ -23,7 +23,7 @@
 #include <arch/io.h>
 #include "timer.h"
 
-void rk3288_init_timer(void)
+void init_timer(void)
 {
 	write32(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count0);
 	write32(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count1);

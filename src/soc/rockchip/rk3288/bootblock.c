@@ -17,29 +17,27 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <console/console.h>
 #include <arch/cache.h>
-#include <bootblock_common.h>
 #include <arch/io.h>
-#include "timer.h"
-#include "clock.h"
-#include "grf.h"
-#include "spi.h"
-#include <vendorcode/google/chromeos/chromeos.h>
+#include <bootblock_common.h>
+#include <console/console.h>
+#include <soc/addressmap.h>
+#include <soc/clock.h>
+#include <soc/grf.h>
+#include <soc/timer.h>
+#include <symbols.h>
+#include <timestamp.h>
 
 void bootblock_soc_init(void)
 {
-	writel(IOMUX_UART2, &rk3288_grf->iomux_uart2);
-	writel(IOMUX_SPI2_CSCLK, &rk3288_grf->iomux_spi2csclk);
-	writel(IOMUX_SPI2_TXRX, &rk3288_grf->iomux_spi2txrx);
-	/*i2c1 for tpm*/
-	writel(IOMUX_I2C1, &rk3288_grf->iomux_i2c1);
-	/* spi0 for chrome ec */
-	writel(IOMUX_SPI0, &rk3288_grf->iomux_spi0);
-	rk3288_init_timer();
-	console_init();
 	rkclk_init();
-	rockchip_spi_init(CONFIG_BOOT_MEDIA_SPI_BUS);
-	rockchip_spi_init(CONFIG_EC_GOOGLE_CHROMEEC_SPI_BUS);
-	setup_chromeos_gpios();
+
+	mmu_init();
+	/* Start with a clean slate. */
+	mmu_config_range(0, 4096, DCACHE_OFF);
+	/* SRAM is tightly wedged between registers, need to use subtables. Map
+	 * write-through as equivalent for non-cacheable without XN on A17. */
+	mmu_config_range_kb((uintptr_t)_sram/KiB,
+			    _sram_size/KiB, DCACHE_WRITETHROUGH);
+	dcache_mmu_enable();
 }
