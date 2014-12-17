@@ -1,7 +1,7 @@
 ##
 ## This file is part of the coreboot project.
 ##
-## Copyright 2014 Rockchip Inc.
+## Copyright 2014 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,28 +17,26 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 ##
 
-config SOC_ROCKCHIP_RK3288
+config SOC_MARVELL_BG4CD
 	bool
 	default n
-	select CPU_HAS_BOOTBLOCK_INIT
-	select HAVE_MONOTONIC_TIMER
-	select GENERIC_UDELAY
-	select HAVE_UART_SPECIAL
-	select EARLY_CONSOLE
-	select DYNAMIC_CBMEM
-	select ARCH_BOOTBLOCK_ARM_V7
-	select ARCH_VERSTAGE_ARM_V7
-	select ARCH_ROMSTAGE_ARM_V7
+	select ARCH_BOOTBLOCK_ARM_V7_M
 	select ARCH_RAMSTAGE_ARM_V7
-	select HAVE_UART_MEMORY_MAPPED
+	select ARCH_ROMSTAGE_ARM_V7
+	select ARCH_VERSTAGE_ARM_V7_M
 	select BOOTBLOCK_CONSOLE
-	select COLLECT_TIMESTAMPS
-	select HAS_PRECBMEM_TIMESTAMP_REGION
+	select CPU_HAS_BOOTBLOCK_INIT
+	select DYNAMIC_CBMEM
+	select EARLY_CONSOLE
+	select GENERIC_UDELAY
+	select HAVE_MONOTONIC_TIMER
+	select HAVE_UART_MEMORY_MAPPED
+	select HAVE_UART_SPECIAL
 
-if SOC_ROCKCHIP_RK3288
+if SOC_MARVELL_BG4CD
 
 config BOOTBLOCK_CPU_INIT
 	string
-	default "soc/rockchip/rk3288/bootblock.c"
+	default "soc/marvell/bg4cd/bootblock.c"
 
 endif

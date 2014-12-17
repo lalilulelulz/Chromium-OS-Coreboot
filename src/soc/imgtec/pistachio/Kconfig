@@ -22,8 +22,13 @@
 config CPU_IMGTEC_PISTACHIO
 	select CPU_MIPS
 	select DYNAMIC_CBMEM
+	select GENERIC_UDELAY
+	select HAVE_MONOTONIC_TIMER
+	select CONSOLE_SERIAL
+	select EARLY_CONSOLE
 	select HAVE_UART_MEMORY_MAPPED
 	select HAVE_UART_SPECIAL
+	select SPI_ATOMIC_SEQUENCING
 	bool
 
 if CPU_IMGTEC_PISTACHIO
@@ -31,10 +36,5 @@ if CPU_IMGTEC_PISTACHIO
 config BOOTBLOCK_CPU_INIT
 	string
 	default "soc/imgtec/pistachio/bootblock.c"
-
-config CBFS_ROM_OFFSET
-	# Effectively the maximum size of the bootblock
-	hex
-	default 0x4000
 
 endif
