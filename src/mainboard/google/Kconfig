@@ -225,6 +225,14 @@ config BOARD_GOOGLE_VEYRON_JERRY
 	  Veyron_Jerry is a Chrome OS mainboard.
 	  Veyron_Jerry is based on the Rockchip RK3288 platform.
 
+config BOARD_GOOGLE_VEYRON_MINNIE
+	bool "Veyron_Minnie"
+	help
+	  Google Veyron_Minnie mainboard.
+	  Enable this config to select the Google Veyron_Minnie mainboard.
+	  Veyron_Minnie is a Chrome OS mainboard.
+	  Veyron_Minnie is based on the Rockchip RK3288 platform.
+
 config BOARD_GOOGLE_VEYRON_MIGHTY
 	bool "Veyron_Mighty"
 	help
