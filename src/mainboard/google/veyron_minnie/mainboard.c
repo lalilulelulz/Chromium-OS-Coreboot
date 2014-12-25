@@ -91,8 +91,9 @@ static void configure_vop(void)
 	/* lcdc(vop) iodomain select 1.8V */
 	writel(RK_SETBITS(1 << 0), &rk3288_grf->io_vsel);
 
-	rk808_configure_switch(PMIC_BUS, 2, 1);	/* VCC18_LCD */
+	gpio_output(GPIO(2, B, 5), 1);	/* AVDD_1V8_DISP_EN */
 	rk808_configure_ldo(PMIC_BUS, 7, 2500);	/* VCC10_LCD_PWREN_H */
+	gpio_output(GPIO(7, B, 6), 1);	/* LCD_EN */
 	rk808_configure_switch(PMIC_BUS, 1, 1);	/* VCC33_LCD */
 }
 
@@ -129,7 +130,8 @@ void lb_board(struct lb_header *header)
 
 void mainboard_power_on_backlight(void)
 {
-	gpio_output(GPIO(7, A, 0), 0);	/* BL_EN */
+	gpio_output(GPIO(2, B, 4), 1);	/* BL_PWR_EN */
+	mdelay(10);
 	gpio_output(GPIO(7, A, 2), 1);	/* LCD_BL */
 	mdelay(10);
 	gpio_output(GPIO(7, A, 0), 1);	/* BL_EN */
