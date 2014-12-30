@@ -23,15 +23,15 @@
 const char *samus_board_version(void)
 {
 	switch (google_chromeec_get_board_version()) {
-	case SAMUS_EC_BOARD_VERSION_EVT1:
-		return "EVT1";
-	case SAMUS_EC_BOARD_VERSION_EVT2:
-		return "EVT2";
 	case SAMUS_EC_BOARD_VERSION_EVT3:
 		return "EVT3";
 	case SAMUS_EC_BOARD_VERSION_EVT4:
 		return "EVT4";
+	case SAMUS_EC_BOARD_VERSION_DVT:
+		return "DVT";
+	case SAMUS_EC_BOARD_VERSION_PVT:
+		return "PVT";
 	default:
-		return "Unknown";
+		return "MP";
 	}
 }
