@@ -111,11 +111,12 @@ static const u32 mainboard_cim_verb_data[] = {
 
 static const u32 mainboard_pc_beep_verbs[] = {
 	0x00170500,	/* power up everything (codec, dac, adc, mixers)  */
+	0x01470c00,	/* set speaker EAPD pin to low */
 	0x01470740,	/* enable speaker out */
-	0x01470c02,	/* set speaker EAPD pin */
 	0x0143b01f,	/* unmute speaker */
 	0x00c37100,	/* unmute mixer nid 0xc input 1 */
 	0x00b37410,	/* unmute mixer nid 0xb beep input and set volume */
+	0x01470c02,	/* set speaker EAPD pin to high */
 };
 
 static const u32 mainboard_pc_beep_verbs_size =
