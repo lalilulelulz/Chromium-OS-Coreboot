@@ -19,38 +19,15 @@
 
 #include <types.h>
 #include <string.h>
+#include <cbmem.h>
 #include <console/console.h>
 #include <pc80/mc146818rtc.h>
 #include <arch/early_variables.h>
 #include "chromeos.h"
-
-#define VBNV_BLOCK_SIZE 16	/* Size of NV storage block in bytes */
-
-/* Constants for NV storage.  We use this rather than structs and
- * bitfields so the data format is consistent across platforms and
- * compilers.
- */
-#define HEADER_OFFSET                0
-#define HEADER_MASK                     0xC0
-#define HEADER_SIGNATURE                0x40
-#define HEADER_FIRMWARE_SETTINGS_RESET  0x20
-#define HEADER_KERNEL_SETTINGS_RESET    0x10
-
-#define BOOT_OFFSET                  1
-#define BOOT_DEBUG_RESET_MODE           0x80
-#define BOOT_DISABLE_DEV_REQUEST        0x40
-#define BOOT_OPROM_NEEDED               0x20
-#define BOOT_TRY_B_COUNT_MASK           0x0F
-
-#define RECOVERY_OFFSET              2
-#define LOCALIZATION_OFFSET          3
-
-#define DEV_FLAGS_OFFSET             4
-#define DEV_BOOT_USB_MASK               0x01
-#define DEV_BOOT_SIGNED_ONLY_MASK       0x02
-
-#define KERNEL_FIELD_OFFSET         11
-#define CRC_OFFSET                  15
+#if IS_ENABLED(CONFIG_VBOOT_VERIFY_FIRMWARE)
+#include "vboot_handoff.h"
+#endif
+#include "vbnv_layout.h"
 
 static int vbnv_initialized CAR_GLOBAL;
 static uint8_t vbnv[CONFIG_VBNV_SIZE] CAR_GLOBAL;
@@ -140,6 +117,15 @@ int get_recovery_mode_from_vbnv(void)
 
 int vboot_wants_oprom(void)
 {
+#if IS_ENABLED(CONFIG_VBOOT_VERIFY_FIRMWARE)
+	struct vboot_handoff *vbho;
+
+	/* First check if handoff structure flag exists and is set. */
+	vbho = cbmem_find(CBMEM_ID_VBOOT_HANDOFF);
+	if (vbho && vbho->init_params.flags & VB_INIT_FLAG_OPROM_LOADED)
+		return 1;
+#endif
+
 	if (!is_vbnv_initialized())
 		vbnv_setup();
 
