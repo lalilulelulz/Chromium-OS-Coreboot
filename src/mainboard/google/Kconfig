@@ -187,6 +187,13 @@ config BOARD_GOOGLE_STOUT
 	  Enable this config to select the Google Stout mainboard.
 	  Stout is a Chrome OS mainboard.
 	  Stout is based on the Intel Ivy Bridge platform.
+config BOARD_GOOGLE_TIDUS
+	bool "Tidus"
+	help
+	  Google Tidus mainboard.
+	  Enable this config to select the Google Tidus mainboard.
+	  Tidus is a Chrome OS mainboard.
+	  Tidus is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_URARA
 	bool "Urara"
 	help
@@ -226,6 +233,7 @@ source "src/mainboard/google/samus/Kconfig"
 source "src/mainboard/google/slippy/Kconfig"
 source "src/mainboard/google/storm/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
+source "src/mainboard/google/tidus/Kconfig"
 source "src/mainboard/google/urara/Kconfig"
 source "src/mainboard/google/veyron_pinky/Kconfig"
 
