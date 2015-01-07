@@ -1,7 +1,7 @@
 ##
 ## This file is part of the coreboot project.
 ##
-## Copyright (C) 2012 The ChromiumOS Authors
+## Copyright (C) 2012-2015 The ChromiumOS Authors
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -68,6 +68,13 @@ config BOARD_GOOGLE_BUTTERFLY
 	  Enable this config to select the Google Butterfly mainboard.
 	  Butterfly is a Chrome OS mainboard.
 	  Butterfly is based on the Intel Sandy Bridge platform.
+config BOARD_GOOGLE_CID
+	bool "Cid"
+	help
+	  Google Cid mainboard.
+	  Enable this config to select the Google Cid mainboard.
+	  Cid is a Chrome OS mainboard.
+	  Cid is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_DAISY
 	bool "Daisy"
 	help
@@ -224,6 +231,7 @@ source "src/mainboard/google/auron_yuna/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
+source "src/mainboard/google/cid/Kconfig"
 source "src/mainboard/google/daisy/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/jecht/Kconfig"
