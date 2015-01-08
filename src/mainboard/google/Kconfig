@@ -217,6 +217,22 @@ config BOARD_GOOGLE_URARA
 	  Urara is an embedded device running on MIPS platorm
 	  based on the Pistachio SOC.
 
+config BOARD_GOOGLE_VEYRON_GUS
+	bool "Veyron_Gus"
+	help
+	  Google Veyron_Gus mainboard.
+	  Enable this config to select the Google Veyron_Gus mainboard.
+	  Veyron_Gus is a Chrome OS mainboard.
+	  Veyron_Gus is based on the Rockchip RK3288 platform.
+
+config BOARD_GOOGLE_VEYRON_JAQ
+	bool "Veyron_Jaq"
+	help
+	  Google Veyron_Jaq mainboard.
+	  Enable this config to select the Google Veyron_Jaq mainboard.
+	  Veyron_Jaq is a Chrome OS mainboard.
+	  Veyron_Jaq is based on the Rockchip RK3288 platform.
+
 config BOARD_GOOGLE_VEYRON_JERRY
 	bool "Veyron_Jerry"
 	help
@@ -282,6 +298,8 @@ source "src/mainboard/google/slippy/Kconfig"
 source "src/mainboard/google/storm/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
 source "src/mainboard/google/urara/Kconfig"
+source "src/mainboard/google/veyron_gus/Kconfig"
+source "src/mainboard/google/veyron_jaq/Kconfig"
 source "src/mainboard/google/veyron_jerry/Kconfig"
 source "src/mainboard/google/veyron_mighty/Kconfig"
 source "src/mainboard/google/veyron_pinky/Kconfig"
