@@ -22,10 +22,10 @@
 #include <console/console.h>
 #include <string.h>
 #include <ec/google/chromeec/ec.h>
-#include <soc/gpio.h>
-#include <soc/pei_data.h>
-#include <soc/pei_wrapper.h>
-#include <soc/romstage.h>
+#include <broadwell/gpio.h>
+#include <broadwell/pei_data.h>
+#include <broadwell/pei_wrapper.h>
+#include <broadwell/romstage.h>
 #include <mainboard/google/tidus/spd/spd.h>
 #include "gpio.h"
 #include "superio/ite/it8772f/it8772f.h"

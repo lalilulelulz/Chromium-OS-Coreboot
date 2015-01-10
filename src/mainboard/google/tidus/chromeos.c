@@ -24,8 +24,8 @@
 #include <console/console.h>
 #include <vendorcode/google/chromeos/chromeos.h>
 #include <ec/google/chromeec/ec.h>
-#include <soc/gpio.h>
-#include <soc/sata.h>
+#include <broadwell/gpio.h>
+#include <broadwell/sata.h>
 
 #define GPIO_SPI_WP	58
 #define GPIO_REC_MODE	12

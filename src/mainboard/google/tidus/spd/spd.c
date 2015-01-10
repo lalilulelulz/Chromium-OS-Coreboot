@@ -21,9 +21,9 @@
 #include <cbfs.h>
 #include <console/console.h>
 #include <string.h>
-#include <soc/gpio.h>
-#include <soc/pei_data.h>
-#include <soc/romstage.h>
+#include <broadwell/gpio.h>
+#include <broadwell/pei_data.h>
+#include <broadwell/romstage.h>
 #include <mainboard/google/tidus/spd/spd.h>
 
 /* Copy SPD data for on-board memory */
