@@ -30,6 +30,7 @@
 #include <broadwell/pch.h>
 #include <broadwell/ramstage.h>
 #include <broadwell/rcba.h>
+#include <bootstate.h>
 
 const u32 * cim_verb_data = NULL;
 u32 cim_verb_data_size = 0;
@@ -47,6 +48,24 @@ static void codecs_init(u32 base, u32 codec_mask)
 				       cim_verb_data_size,
 				       cim_verb_data);
 	}
+}
+
+/*
+ * Call back structure for the beep_init function
+ * that is setup in azalia_init().
+ */
+static struct boot_state_callback beepcb;
+
+static void beep_init(struct device *dev)
+{
+	struct resource *res;
+	u32 base;
+
+	res = find_resource(dev, PCI_BASE_ADDRESS_0);
+	if (!res)
+		return;
+
+	base = (u32)res->base;
 
 	if (pc_beep_verbs_size && pc_beep_verbs)
 		hda_codec_write(base, pc_beep_verbs_size, pc_beep_verbs);
@@ -128,6 +147,14 @@ static void hda_init(struct device *dev)
 	if (codec_mask) {
 		printk(BIOS_DEBUG, "HDA: codec_mask = %02x\n", codec_mask);
 		codecs_init(base, codec_mask);
+
+		/*
+		 * Give codecs some time between codecs_init and the signal
+		 * unmute and EAPD setup to prevent clicks and pops during boot.
+		 */
+		struct boot_state_callback *pbeepcb = &beepcb;
+		INIT_BOOT_STATE_CALLBACK(pbeepcb, (void *) &beep_init, dev);
+		boot_state_sched_on_exit(pbeepcb, BS_WRITE_TABLES);
 	}
 }
 
