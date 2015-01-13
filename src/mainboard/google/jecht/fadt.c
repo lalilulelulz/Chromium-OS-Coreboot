@@ -20,10 +20,10 @@
 
 #include <string.h>
 #include <device/pci.h>
-#include <soc/acpi.h>
+#include <broadwell/acpi.h>
 #include <cpu/x86/smm.h>
-#include <soc/pch.h>
-#include <soc/iomap.h>
+#include <broadwell/pch.h>
+#include <broadwell/iomap.h>
 
 void acpi_create_fadt(acpi_fadt_t *fadt, acpi_facs_t *facs, void *dsdt)
 {

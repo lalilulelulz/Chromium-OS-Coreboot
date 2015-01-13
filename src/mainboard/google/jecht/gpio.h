@@ -20,7 +20,7 @@
 #ifndef JECHT_GPIO_H
 #define JECHT_GPIO_H
 
-#include <soc/gpio.h>
+#include <broadwell/gpio.h>
 
 static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_UNUSED,        /* 0: UNUSED */

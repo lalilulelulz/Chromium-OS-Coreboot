@@ -29,8 +29,8 @@
 #include <device/pci.h>
 #include <device/pci_ids.h>
 #include <cpu/cpu.h>
-#include <soc/acpi.h>
-#include <soc/nvs.h>
+#include <broadwell/acpi.h>
+#include <broadwell/nvs.h>
 #include "thermal.h"
 
 extern const unsigned char AmlCode[];
@@ -44,6 +44,9 @@ static void acpi_create_gnvs(global_nvs_t *gnvs)
 
 	/* Disable USB ports in S5 */
 	gnvs->s5u0 = 0;
+
+	/* TPM Present */
+	gnvs->tpmp = 1;
 
 	gnvs->tmps = TEMPERATURE_SENSOR_ID;
 	gnvs->tcrt = CRITICAL_TEMPERATURE;
