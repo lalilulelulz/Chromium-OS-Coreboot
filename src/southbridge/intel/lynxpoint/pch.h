@@ -182,6 +182,7 @@ unsigned get_gpios(const int *gpio_num_array);
 void set_gpio(int gpio_num, int value);
 /* Return non-zero if gpio is set to native function. 0 otherwise. */
 int gpio_is_native(int gpio_num);
+int pch_spi_prr_write_protect(int prr, u32 enable, u32 start, u32 size);
 
 #if !defined(__PRE_RAM__) && !defined(__SMM__)
 #include <device/device.h>
@@ -792,6 +793,13 @@ int early_pch_init(const void *gpio_map,
 #define SSFC 0x91
 #define FDOC 0xb0
 #define FDOD 0xb4
+
+#define SPI_PRR(x)		(0x74 + ((x) * 4))
+#define SPI_PRR_SHIFT		12
+#define SPI_PRR_MASK		0x1fff
+#define SPI_PRR_BASE_SHIFT	0
+#define SPI_PRR_LIMIT_SHIFT	16
+#define SPI_PRR_WPE		(1 << 31)
 
 #define SPI_OPMENU_0 0x01 /* WRSR: Write Status Register */
 #define SPI_OPTYPE_0 0x01 /* Write, no address */

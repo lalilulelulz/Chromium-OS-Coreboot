@@ -28,6 +28,7 @@
 #include <arch/io.h>
 #include <console/console.h>
 #include <device/pci_ids.h>
+#include "pch.h"
 
 #include <spi-generic.h>
 
@@ -653,5 +654,30 @@ int spi_xfer(struct spi_slave *slave, const void *dout,
 	/* Clear atomic preop now that xfer is done */
 	writew_(0, cntlr.preop);
 
+	return 0;
+}
+
+/* Set Protected Range Register to cover region of flash */
+int pch_spi_prr_write_protect(int prr, u32 start, u32 size)
+{
+	u32 end = start + size - 1;
+	u32 reg;
+
+	reg = SPIBAR32(SPI_PRR(prr));
+	if (reg != 0)
+		return -1;
+
+	reg = ((end >> SPI_PRR_SHIFT) & SPI_PRR_MASK);
+	reg <<= SPI_PRR_LIMIT_SHIFT;
+	reg |= ((start >> SPI_PRR_SHIFT) & SPI_PRR_MASK);
+	reg |= SPI_PRR_WPE;
+	SPIBAR32(SPI_PRR(prr)) = reg;
+
+	reg = SPIBAR32(SPI_PRR(prr));
+	if (!(reg & SPI_PRR_WPE))
+		return -1;
+
+	printk(BIOS_INFO, "%s: PRR %d is enabled for range 0x%08x-0x%08x\n",
+	       __func__, prr, start, end);
 	return 0;
 }
