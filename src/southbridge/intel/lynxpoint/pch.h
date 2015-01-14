@@ -801,6 +801,8 @@ int early_pch_init(const void *gpio_map,
 #define SPI_PRR_LIMIT_SHIFT	16
 #define SPI_PRR_WPE		(1 << 31)
 
+#define SPI_RDSR_SRP0 0x80 /* RDSR Protect Enabled */
+
 #define SPI_OPMENU_0 0x01 /* WRSR: Write Status Register */
 #define SPI_OPTYPE_0 0x01 /* Write, no address */
 

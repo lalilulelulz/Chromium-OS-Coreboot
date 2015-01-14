@@ -29,7 +29,9 @@
 #include "haswell.h"
 #include <spi-generic.h>
 #include <spi_flash.h>
+#include <southbridge/intel/lynxpoint/pch.h>
 #if CONFIG_CHROMEOS
+#include <vendorcode/google/chromeos/chromeos.h>
 #include <vendorcode/google/chromeos/fmap.h>
 #endif
 
@@ -154,6 +156,45 @@ static struct mrc_data_container *find_next_mrc_cache
 	return mrc_cache;
 }
 
+/* Protect RW_MRC_CACHE region with a Protected Range Register */
+static int protect_mrc_cache(struct mrc_data_container *cache_base,
+			     u32 cache_size, struct spi_flash *flash)
+{
+	uint8_t sr1;
+	int wp_gpio = 0;
+	int wp_spi;
+
+#if IS_ENABLED(CONFIG_CHROMEOS)
+	/* Read WP GPIO from VBOOT flags */
+	wp_gpio = get_write_protect_state();
+#endif
+
+	/* Read Status Register 1 */
+	if (spi_flash_status(flash, &sr1) < 0) {
+		printk(BIOS_ERR, "Failed to read SPI status register 1\n");
+		return -1;
+	}
+	wp_spi = !!(sr1 & SPI_RDSR_SRP0);
+
+	printk(BIOS_DEBUG, "SPI flash protection: WPSW=%d SRP0=%d\n",
+	       wp_gpio, wp_spi);
+
+	/* Do not apply PRR if flash is not write protected */
+	if (!wp_gpio || !wp_spi) {
+		printk(BIOS_INFO, "NOT enabling PRR for RW_MRC_CACHE region\n");
+		return 1;
+	}
+
+	if (pch_spi_prr_write_protect(0, to_flash_offset(cache_base),
+				      cache_size) < 0) {
+		printk(BIOS_ERR, "ERROR setting PRR for RW_MRC_CACHE region\n");
+		return -1;
+	}
+	printk(BIOS_INFO, "Enabled Protected Range on RW_MRC_CACHE region\n");
+
+	return 0;
+}
+
 static void update_mrc_cache(void *unused)
 {
 	printk(BIOS_DEBUG, "Updating MRC cache data.\n");
@@ -180,21 +221,23 @@ static void update_mrc_cache(void *unused)
 	/*
 	 * we need to:
 	 */
-	//  0. compare MRC data to last mrc-cache block (exit if same)
+	//  0. use spi_flash_probe() to find the flash, then
+	spi_init();
+	struct spi_flash *flash = spi_flash_probe(0, 0, 1000000, SPI_MODE_3);
+	if (!flash) {
+		printk(BIOS_DEBUG, "Could not find SPI device\n");
+		return;
+	}
+
+	//  1. compare MRC data to last mrc-cache block (exit if same)
 	cache = find_current_mrc_cache_local(cache_base, cache_size);
 
 	if (cache && (cache->mrc_data_size == current->mrc_data_size) &&
 			(memcmp(cache, current, cache->mrc_data_size) == 0)) {
 		printk(BIOS_DEBUG,
 			"MRC data in flash is up to date. No update.\n");
-		return;
-	}
-
-	//  1. use spi_flash_probe() to find the flash, then
-	spi_init();
-	struct spi_flash *flash = spi_flash_probe(0, 0, 1000000, SPI_MODE_3);
-	if (!flash) {
-		printk(BIOS_DEBUG, "Could not find SPI device\n");
+		//  5. protect RW_MRC_CACHE region
+		protect_mrc_cache(cache_base, cache_size, flash);
 		return;
 	}
 
@@ -222,6 +265,9 @@ static void update_mrc_cache(void *unused)
 	       cache);
 	flash->write(flash, to_flash_offset(cache),
 		     current->mrc_data_size + sizeof(*current), current);
+
+	//  5. protect RW_MRC_CACHE region
+	protect_mrc_cache(cache_base, cache_size, flash);
 }
 
 BOOT_STATE_INIT_ENTRIES(mrc_cache_update) = {
