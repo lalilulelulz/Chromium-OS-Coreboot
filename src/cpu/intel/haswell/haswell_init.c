@@ -304,6 +304,60 @@ static u32 pcode_mailbox_read(u32 command)
 	return MCHBAR32(BIOS_MAILBOX_DATA);
 }
 
+static int pcode_mailbox_write(u32 command, u32 data)
+{
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on wait ready.\n");
+		return -1;
+	}
+
+	MCHBAR32(BIOS_MAILBOX_DATA) = data;
+
+	/* Send command and start transaction */
+	MCHBAR32(BIOS_MAILBOX_INTERFACE) = command | MAILBOX_RUN_BUSY;
+
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on completion.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static void enable_2x_refresh(void)
+{
+	u32 read_command, write_command;
+	u32 value;
+
+	read_command = MAILBOX_BIOS_CMD_READ_DDR_FORCE_2X_REFRESH;
+	write_command = MAILBOX_BIOS_CMD_WRITE_DDR_FORCE_2X_REFRESH;
+
+	/* Read 2x Refresh register to see if it needs to be set */
+	value = pcode_mailbox_read(read_command);
+
+	if (value & FORCE_2X_REFRESH_ENABLE) {
+		printk(BIOS_INFO, "2x Refresh already enabled\n");
+		return;
+	} else if (value & FORCE_2X_REFRESH_LOCK) {
+		printk(BIOS_INFO, "2x Refresh register already locked\n");
+		return;
+	}
+
+	/* Enable 2x Refresh and lock */
+	value |= FORCE_2X_REFRESH_ENABLE | FORCE_2X_REFRESH_LOCK;
+	if (pcode_mailbox_write(write_command, value) < 0)
+		printk(BIOS_ERR, "Error writing 2x Refresh register");
+
+	/* Read back 2x Refresh and check if enabled */
+	value = pcode_mailbox_read(read_command);
+
+	if (value & FORCE_2X_REFRESH_ENABLE)
+		printk(BIOS_INFO, "2x Refresh Enabled: 0x%08x\n", value);
+	else
+		printk(BIOS_ERR, "ERROR: 2x Refresh NOT enabled: 0x%08x\n",
+		       value);
+}
+
 static void initialize_vr_config(void)
 {
 	msr_t msr;
@@ -728,6 +782,8 @@ static void bsp_init_before_ap_bringup(struct bus *cpu_bus)
 		calibrate_24mhz_bclk();
 		configure_pch_power_sharing();
 	}
+
+	enable_2x_refresh();
 
 	/* Call through the cpu driver's initialization. */
 	cpu_initialize(0);
