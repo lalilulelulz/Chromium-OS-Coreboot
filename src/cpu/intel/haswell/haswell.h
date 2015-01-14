@@ -136,6 +136,12 @@
 /* Data is passed through bits 31:0 of the data register. */
 #define BIOS_MAILBOX_DATA			0x5da0
 
+#define MAILBOX_BIOS_CMD_READ_DDR_FORCE_2X_REFRESH	0x17
+#define MAILBOX_BIOS_CMD_WRITE_DDR_FORCE_2X_REFRESH	0x18
+
+#define FORCE_2X_REFRESH_LOCK			(1 << 31)
+#define FORCE_2X_REFRESH_ENABLE			(1 << 0)
+
 /* Region of SMM space is reserved for multipurpose use. It falls below
  * the IED region and above the SMM handler. */
 #define RESERVED_SMM_SIZE CONFIG_SMM_RESERVED_SIZE
