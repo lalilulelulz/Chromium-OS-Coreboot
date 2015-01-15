@@ -32,7 +32,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_NATIVE,        /* 5: NATIVE: I2C0_SCL_GPIO5 */
 	PCH_GPIO_NATIVE,        /* 6: NATIVE: I2C1_SDA_GPIO6 */
 	PCH_GPIO_NATIVE,        /* 7: NATIVE: I2C1_SCL_GPIO7 */
-	PCH_GPIO_UNUSED,        /* 8: UNUSED */
+	PCH_GPIO_INPUT,         /* 8: RAM_ID4 */
 	PCH_GPIO_INPUT,         /* 9: RAM_ID1 */
 	PCH_GPIO_ACPI_SCI,      /* 10: WLAN_WAKE_L_Q */
 	PCH_GPIO_UNUSED,        /* 11: UNUSED */

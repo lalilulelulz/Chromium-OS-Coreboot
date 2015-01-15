@@ -2,6 +2,7 @@
  * This file is part of the coreboot project.
  *
  * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Sage Electronic Engineering
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,12 +85,13 @@ static void mainboard_print_spd_info(uint8_t spd[])
 /* Copy SPD data for on-board memory */
 void mainboard_fill_spd_data(struct pei_data *pei_data)
 {
-	int spd_bits[3] = {
+	int spd_bits[4] = {
 		SPD_GPIO_BIT0,
 		SPD_GPIO_BIT1,
-		SPD_GPIO_BIT2
+		SPD_GPIO_BIT2,
+		SPD_GPIO_BIT3
 	};
-	int spd_gpio[3];
+	int spd_gpio[4];
 	int spd_index;
 	int spd_file_len;
 	struct cbfs_file *spd_file;
@@ -97,11 +99,14 @@ void mainboard_fill_spd_data(struct pei_data *pei_data)
 	spd_gpio[0] = get_gpio(SPD_GPIO_BIT0);
 	spd_gpio[1] = get_gpio(SPD_GPIO_BIT1);
 	spd_gpio[2] = get_gpio(SPD_GPIO_BIT2);
+	spd_gpio[3] = get_gpio(SPD_GPIO_BIT3);
 
-	spd_index = spd_gpio[2] << 2 | spd_gpio[1] << 1 | spd_gpio[0];
+	spd_index = (spd_gpio[3] << 3) | (spd_gpio[2] << 2) |
+		(spd_gpio[1] << 1) | spd_gpio[0];
 
-	printk(BIOS_DEBUG, "SPD: index %d (GPIO%d=%d GPIO%d=%d GPIO%d=%d)\n",
+	printk(BIOS_DEBUG, "SPD: index %d (GPIO%d=%d GPIO%d=%d GPIO%d=%d GPIO%d=%d)\n",
 	       spd_index,
+	       spd_bits[3], spd_gpio[3],
 	       spd_bits[2], spd_gpio[2],
 	       spd_bits[1], spd_gpio[1],
 	       spd_bits[0], spd_gpio[0]);
@@ -120,14 +125,18 @@ void mainboard_fill_spd_data(struct pei_data *pei_data)
 		die("Missing SPD data.");
 
 
-	/* All configs are CH0 and CH1. */
+	/* CH0 */
 	memcpy(pei_data->spd_data[0][0],
 		((char *)CBFS_SUBHEADER(spd_file)) +
 		(spd_index * SPD_LEN), SPD_LEN);
 
-	memcpy(pei_data->spd_data[1][0],
-		((char *)CBFS_SUBHEADER(spd_file)) +
-		(spd_index * SPD_LEN), SPD_LEN);
+	/* CH1 not used in 2GB configurations */
+	if (!(spd_index == 0b0000) || (spd_index == 0b0011) ||
+	     (spd_index == 0b1010)) {
+		memcpy(pei_data->spd_data[1][0],
+			((char *)CBFS_SUBHEADER(spd_file)) +
+			(spd_index * SPD_LEN), SPD_LEN);
+	}
 
 	/* Make sure a valid SPD was found */
 	if (pei_data->spd_data[0][0][0] == 0)

@@ -2,6 +2,7 @@
  * This file is part of the coreboot project.
  *
  * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Sage Electronic Engineering
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +37,7 @@
 #define SPD_GPIO_BIT0		13
 #define SPD_GPIO_BIT1		9
 #define SPD_GPIO_BIT2		47
+#define SPD_GPIO_BIT3		8
 
 struct pei_data;
 void mainboard_fill_spd_data(struct pei_data *pei_data);

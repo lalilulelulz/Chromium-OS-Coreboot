@@ -2,6 +2,7 @@
 ## This file is part of the coreboot project.
 ##
 ## Copyright (C) 2014 Google Inc.
+## Copyright (C) 2015 Sage Electronic Engineering
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -21,15 +22,23 @@ romstage-y += spd.c
 
 SPD_BIN = $(obj)/spd.bin
 
-# { GPIO47, GPIO9, GPIO13 }
-SPD_SOURCES  = micron_2GiB_dimm_MT41K256M16HA-125   # 0b000
-SPD_SOURCES += hynix_2GiB_dimm_H5TC4G63AFR-PBA      # 0b001
-SPD_SOURCES += samsung_2GiB_dimm_K4B4G1646Q-HYK0    # 0b010
-SPD_SOURCES += empty                                # 0b011
-SPD_SOURCES += empty                                # 0b100
-SPD_SOURCES += empty                                # 0b101
-SPD_SOURCES += empty                                # 0b110
-SPD_SOURCES += empty                                # 0b111
+# { GPIO47, GPIO9, GPIO13, GPIO8}
+SPD_SOURCES  = micron_2GiB_dimm_MT41K256M16HA-125   # 0b0000 2GB
+SPD_SOURCES += empty                                # 0b0001
+SPD_SOURCES += empty                                # 0b0010
+SPD_SOURCES += samsung_2GiB_dimm_K4B4G1646Q-HYK0    # 0b0011 2GB
+SPD_SOURCES += empty                                # 0b0100
+SPD_SOURCES += empty                                # 0b0101
+SPD_SOURCES += empty                                # 0b0110
+SPD_SOURCES += empty                                # 0b0111
+SPD_SOURCES  = micron_2GiB_dimm_MT41K256M16HA-125   # 0b1000 4GB
+SPD_SOURCES += empty                                # 0b1001
+SPD_SOURCES += hynix_2GiB_dimm_H5TC4G63AFR-PBA      # 0b1010 2GB
+SPD_SOURCES += hynix_2GiB_dimm_H5TC4G63AFR-PBA      # 0b1011 4GB
+SPD_SOURCES += empty                                # 0b1100
+SPD_SOURCES += samsung_2GiB_dimm_K4B4G1646Q-HYK0    # 0b1101 4GB
+SPD_SOURCES += empty                                # 0b1110
+SPD_SOURCES += empty                                # 0b1111
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 
