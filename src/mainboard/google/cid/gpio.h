@@ -75,7 +75,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_UNUSED,        /* 48: UNUSED */
 	PCH_GPIO_UNUSED,        /* 49: UNUSED */
 	PCH_GPIO_UNUSED,        /* 50: UNUSED */
-	PCH_GPIO_INPUT,         /* 51: ALS_INT_L */
+	PCH_GPIO_UNUSED,        /* 51: UNUSED */
 	PCH_GPIO_UNUSED,        /* 52: UNUSED */
 	PCH_GPIO_PIRQ,          /* 53: TRACKPAD_INT_DX */
 	PCH_GPIO_PIRQ,          /* 54: TOUCH_INT_L_DX */
