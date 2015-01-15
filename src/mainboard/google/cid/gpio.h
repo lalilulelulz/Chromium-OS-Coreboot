@@ -2,6 +2,7 @@
  * This file is part of the coreboot project.
  *
  * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Sage Electronic Engineering
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +32,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_NATIVE,        /* 5: NATIVE: I2C0_SCL_GPIO5 */
 	PCH_GPIO_NATIVE,        /* 6: NATIVE: I2C1_SDA_GPIO6 */
 	PCH_GPIO_NATIVE,        /* 7: NATIVE: I2C1_SCL_GPIO7 */
-	PCH_GPIO_ACPI_SCI,      /* 8: LTE_WAKE_L_Q */
+	PCH_GPIO_UNUSED,        /* 8: UNUSED */
 	PCH_GPIO_INPUT,         /* 9: RAM_ID1 */
 	PCH_GPIO_ACPI_SCI,      /* 10: WLAN_WAKE_L_Q */
 	PCH_GPIO_UNUSED,        /* 11: UNUSED */
@@ -75,14 +76,14 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_UNUSED,        /* 49: UNUSED */
 	PCH_GPIO_UNUSED,        /* 50: UNUSED */
 	PCH_GPIO_INPUT,         /* 51: ALS_INT_L */
-	PCH_GPIO_INPUT,         /* 52: SIM_DET */
+	PCH_GPIO_UNUSED,        /* 52: UNUSED */
 	PCH_GPIO_PIRQ,          /* 53: TRACKPAD_INT_DX */
 	PCH_GPIO_PIRQ,          /* 54: TOUCH_INT_L_DX */
 	PCH_GPIO_UNUSED,        /* 55: UNUSED */
 	PCH_GPIO_UNUSED,        /* 56: UNUSED */
 	PCH_GPIO_OUT_HIGH,      /* 57: PP3300_CCD_EN */
 	PCH_GPIO_INPUT,         /* 58: PCH_SPI_WP_D */
-	PCH_GPIO_OUT_HIGH,      /* 59: LTE_DISABLE_L */
+	PCH_GPIO_UNUSED,        /* 59: UNUSED */
 	PCH_GPIO_NATIVE,        /* 60: NATIVE: SML0ALERT */
 	PCH_GPIO_UNUSED,        /* 61: UNUSED */
 	PCH_GPIO_UNUSED,        /* 62: UNUSED */
