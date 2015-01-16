@@ -182,7 +182,7 @@ unsigned get_gpios(const int *gpio_num_array);
 void set_gpio(int gpio_num, int value);
 /* Return non-zero if gpio is set to native function. 0 otherwise. */
 int gpio_is_native(int gpio_num);
-int pch_spi_prr_write_protect(int prr, u32 enable, u32 start, u32 size);
+int pch_spi_prr_write_protect(int prr, u32 start, u32 size);
 
 #if !defined(__PRE_RAM__) && !defined(__SMM__)
 #include <device/device.h>
