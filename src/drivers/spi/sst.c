@@ -267,9 +267,11 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 
 	stm->flash.write = sst_write;
 	stm->flash.erase = sst_erase;
+	stm->flash.status = spi_flash_cmd_status;
 	stm->flash.read = spi_flash_cmd_read_fast;
 	stm->flash.sector_size = SST_SECTOR_SIZE;
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
+	stm->flash.status_cmd = CMD_SST_RDSR;
 
 	/* Flash powers up read-only, so clear BP# bits */
 	sst_unlock(&stm->flash);
