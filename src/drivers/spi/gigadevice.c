@@ -231,6 +231,7 @@ struct spi_flash *spi_flash_probe_gigadevice(struct spi_slave *spi, u8 *idcode)
 
 	stm->flash.write = gigadevice_write;
 	stm->flash.erase = gigadevice_erase;
+	stm->flash.status = spi_flash_cmd_status;
 #if CONFIG_SPI_FLASH_NO_FAST_READ
 	stm->flash.read = spi_flash_cmd_read_slow;
 #else
@@ -241,6 +242,7 @@ struct spi_flash *spi_flash_probe_gigadevice(struct spi_slave *spi, u8 *idcode)
 	stm->flash.size = page_size * params->pages_per_sector
 				* params->sectors_per_block
 				* params->nr_blocks;
+	stm->flash.status_cmd = CMD_GD25_RDSR;
 
 	return &stm->flash;
 }
