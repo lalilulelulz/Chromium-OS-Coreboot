@@ -37,6 +37,7 @@
 #include <baytrail/pattrs.h>
 #include <baytrail/pci_devs.h>
 #include <baytrail/ramstage.h>
+#include <baytrail/iosf.h>
 
 /* Global PATTRS */
 DEFINE_PATTRS;
@@ -150,11 +151,23 @@ static void s3_resume_prepare(void)
 	set_acpi_sleep_type(3);
 }
 
+static void baytrail_enable_2x_refresh_rate(void)
+{
+	u32 reg;
+	reg = iosf_dunit_read(0x8);
+	reg = reg & ~0x7000;
+	reg = reg | 0x2000;
+	iosf_dunit_write(0x8, reg);
+}
+
 void baytrail_init_pre_device(struct soc_intel_baytrail_config *config)
 {
 	struct soc_gpio_config *gpio_config;
 
 	fill_in_pattrs();
+
+	if (!config->disable_ddr_2x_refresh_rate)
+		baytrail_enable_2x_refresh_rate();
 
 	/* Allow for SSE instructions to be executed. */
 	write_cr4(read_cr4() | CR4_OSFXSR | CR4_OSXMMEXCPT);
