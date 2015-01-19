@@ -29,8 +29,7 @@
 #include <southbridge/intel/lynxpoint/pch.h>
 #include <southbridge/intel/lynxpoint/lp_gpio.h>
 #include "gpio.h"
-#include "superio/ite/it8772f/it8772f.h"
-#include "superio/ite/it8772f/early_serial.c"
+#include <superio/ite/it8772f/it8772f.h>
 
 const struct rcba_config_instruction rcba_config[] = {
 

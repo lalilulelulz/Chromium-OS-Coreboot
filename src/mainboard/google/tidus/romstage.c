@@ -28,8 +28,7 @@
 #include <broadwell/romstage.h>
 #include <mainboard/google/tidus/spd/spd.h>
 #include "gpio.h"
-#include "superio/ite/it8772f/it8772f.h"
-#include "superio/ite/it8772f/early_serial.c"
+#include <superio/ite/it8772f/it8772f.h>
 
 void mainboard_romstage_entry(struct romstage_params *rp)
 {

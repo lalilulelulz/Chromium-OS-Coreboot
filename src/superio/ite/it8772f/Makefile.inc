@@ -19,3 +19,5 @@
 ##
 
 ramstage-$(CONFIG_SUPERIO_ITE_IT8772F) += superio.c
+romstage-$(CONFIG_SUPERIO_ITE_IT8772F) += early_serial.c
+smm-$(CONFIG_SUPERIO_ITE_IT8772F) += early_serial.c

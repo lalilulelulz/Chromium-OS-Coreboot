@@ -129,3 +129,22 @@ void it8772f_gpio_setup(int set, u8 select, u8 polarity, u8 pullup,
 	it8772f_sio_write(GPIO_REG_PULLUP(set), pullup);
 	it8772f_exit_conf();
 }
+
+/* Configure LED GPIOs */
+void it8772f_gpio_led(int set, u8 select, u8 polarity, u8 pullup,
+			u8 output, u8 enable, u8 led_pin_map, u8 led_freq)
+{
+	set--; /* Set 1 is offset 0 */
+	it8772f_enter_conf();
+	it8772f_sio_write(IT8772F_CONFIG_REG_LDN, IT8772F_GPIO);
+	if (set < 5) {
+		it8772f_sio_write(IT8772F_GPIO_LED_BLINK1_PINMAP, led_pin_map);
+		it8772f_sio_write(IT8772F_GPIO_LED_BLINK1_CONTROL, led_freq);
+		it8772f_sio_write(GPIO_REG_SELECT(set), select);
+		it8772f_sio_write(GPIO_REG_ENABLE(set), enable);
+		it8772f_sio_write(GPIO_REG_POLARITY(set), polarity);
+	}
+	it8772f_sio_write(GPIO_REG_OUTPUT(set), output);
+	it8772f_sio_write(GPIO_REG_PULLUP(set), pullup);
+	it8772f_exit_conf();
+}
