@@ -32,12 +32,12 @@ SPD_SOURCES += empty                                # 0b0101
 SPD_SOURCES += empty                                # 0b0110
 SPD_SOURCES += empty                                # 0b0111
 SPD_SOURCES  = micron_2GiB_dimm_MT41K256M16HA-125   # 0b1000 4GB
-SPD_SOURCES += empty                                # 0b1001
+SPD_SOURCES += micron_4GiB_dimm_MT41K512M16TNA-125  # 0b1001 8GB
 SPD_SOURCES += hynix_2GiB_dimm_H5TC4G63AFR-PBA      # 0b1010 2GB
 SPD_SOURCES += hynix_2GiB_dimm_H5TC4G63AFR-PBA      # 0b1011 4GB
-SPD_SOURCES += empty                                # 0b1100
+SPD_SOURCES += hynix_4GiB_dimm_H5TC8G63CMR-PBA      # 0b1100 8GB
 SPD_SOURCES += samsung_2GiB_dimm_K4B4G1646Q-HYK0    # 0b1101 4GB
-SPD_SOURCES += empty                                # 0b1110
+SPD_SOURCES += samsung_4GiB_dimm_K4B8G1646Q-MYK0    # 0b1110 8GB
 SPD_SOURCES += empty                                # 0b1111
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
