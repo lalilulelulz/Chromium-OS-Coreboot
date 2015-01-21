@@ -139,5 +139,5 @@ void mainboard_power_on_backlight(void)
 	mdelay(10);
 	gpio_output(GPIO(7, A, 2), 1);	/* LCD_BL */
 	mdelay(10);
-	gpio_output(GPIO(7, A, 0), 1);	/* BL_EN */
+	gpio_output(GPIO_BACKLIGHT, 1);	/* BL_EN */
 }
