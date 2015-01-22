@@ -167,6 +167,13 @@ config BOARD_GOOGLE_RAMBI
 	  Enable this config to select the Google Rambi mainboard.
 	  Rambi is a Chrome OS mainboard.
 	  Rambi is based on the Intel Baytrail platform.
+config BOARD_GOOGLE_RIKKU
+        bool "Rikku"
+        help
+          Google Rikku mainboard.
+          Enable this config to select the Google Rikku mainboard.
+          Rikku is a Chrome OS mainboard.
+          Rikku is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_RUSH
 	bool "Rush"
 	help
@@ -252,6 +259,7 @@ source "src/mainboard/google/parrot/Kconfig"
 source "src/mainboard/google/peach_pit/Kconfig"
 source "src/mainboard/google/peppy/Kconfig"
 source "src/mainboard/google/rambi/Kconfig"
+source "src/mainboard/google/rikku/Kconfig"
 source "src/mainboard/google/rush/Kconfig"
 source "src/mainboard/google/rush_ryu/Kconfig"
 source "src/mainboard/google/samus/Kconfig"
