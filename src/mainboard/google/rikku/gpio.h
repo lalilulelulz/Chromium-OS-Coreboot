@@ -72,7 +72,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_OUT_HIGH,      /* 46: BT_DISABLE_L */
 	PCH_GPIO_OUT_HIGH,      /* 47: USB1_PWR_EN */
 	PCH_GPIO_UNUSED,        /* 48: UNUSED */
-	PCH_GPIO_UNUSED,        /* 49: UNUSED */
+	PCH_GPIO_OUT_HIGH,      /* 49: POWER_LED */
 	PCH_GPIO_OUT_HIGH,      /* 50: VP8_DISABLE_L */
 	PCH_GPIO_UNUSED,        /* 51: UNUSED */
 	PCH_GPIO_UNUSED,        /* 52: UNUSED */
