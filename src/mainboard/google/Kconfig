@@ -111,6 +111,13 @@ config BOARD_GOOGLE_LINK
 	  Enable this config to select the Google Link mainboard.
 	  Link is a Chrome OS mainboard.
 	  Link is based on the Intel Ivy Bridge platform.
+config BOARD_GOOGLE_LULU
+	bool "Lulu"
+	help
+	  Google Lulu mainboard.
+	  Enable this config to select the Google Lulu mainboard.
+	  Lulu is a Chrome OS mainboard.
+	  Lulu is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_NYAN
 	bool "Nyan"
 	help
@@ -251,6 +258,7 @@ source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/guado/Kconfig"
 source "src/mainboard/google/jecht/Kconfig"
 source "src/mainboard/google/link/Kconfig"
+source "src/mainboard/google/lulu/Kconfig"
 source "src/mainboard/google/nyan/Kconfig"
 source "src/mainboard/google/nyan_big/Kconfig"
 source "src/mainboard/google/nyan_blaze/Kconfig"
