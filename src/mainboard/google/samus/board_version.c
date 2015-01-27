@@ -17,21 +17,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <stdlib.h>
 #include <ec/google/chromeec/ec.h>
 #include "board_version.h"
 
 const char *samus_board_version(void)
 {
-	switch (google_chromeec_get_board_version()) {
-	case SAMUS_EC_BOARD_VERSION_EVT3:
-		return "EVT3";
-	case SAMUS_EC_BOARD_VERSION_EVT4:
-		return "EVT4";
-	case SAMUS_EC_BOARD_VERSION_DVT:
-		return "DVT";
-	case SAMUS_EC_BOARD_VERSION_PVT:
-		return "PVT";
-	default:
-		return "MP";
-	}
+	const char *version_string[] = { "EVT", "DVT", "PVT", "MP.A",
+					 "MP.B", "MP.C", "MP.D", "MP.E" };
+	u8 board_version = google_chromeec_get_board_version();
+
+	if (board_version >= ARRAY_SIZE(version_string))
+		return "Unknown";
+
+	return version_string[board_version];
 }

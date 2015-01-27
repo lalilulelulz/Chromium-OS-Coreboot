@@ -20,11 +20,6 @@
 #ifndef SAMUS_BOARD_VERSION_H
 #define SAMUS_BOARD_VERSION_H
 
-#define SAMUS_EC_BOARD_VERSION_EVT3	5
-#define SAMUS_EC_BOARD_VERSION_EVT4	0
-#define SAMUS_EC_BOARD_VERSION_DVT	1
-#define SAMUS_EC_BOARD_VERSION_PVT	2
-
 const char *samus_board_version(void);
 
 #endif
