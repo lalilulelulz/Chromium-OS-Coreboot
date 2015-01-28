@@ -46,6 +46,100 @@ Scope (\_SB)
 
 Scope (\_SB.PCI0.I2C0)
 {
+	Device (STPA)
+	{
+		Name (_HID, "SYNA0000")
+		Name (_CID, "PNP0C50")
+		Name (_DDN, "Synaptics Touchpad")
+		Name (_UID, 1)
+		Name (ISTP, 1) /* Touchpad */
+
+		Method(_CRS, 0x0, NotSerialized)
+		{
+			Name (RBUF, ResourceTemplate()
+			{
+				I2cSerialBus (
+					0x2C,                     // SlaveAddress
+					ControllerInitiated,      // SlaveMode
+					400000,                   // ConnectionSpeed
+					AddressingMode7Bit,       // AddressingMode
+					"\\_SB.PCI0.I2C0",        // ResourceSource
+				)
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_TRACKPAD_IRQ
+				}
+			})
+			Return(RBUF)
+		}
+
+		Method(_DSM, 0x4, NotSerialized)
+		{
+			switch(ToBuffer(Arg0))
+			{
+				case(ToUUID("3CDFF6F7-4267-4555-AD05-B30A3D8938DE")) /* I2C-HID UUID */
+				{
+					switch(ToInteger(Arg2)) /* DSM Function */
+					{
+						case(0) /* Function 0: Query function, return based on revision */
+						{
+							switch(ToInteger(Arg1)) /* Arg1 DSM Revision */
+							{
+								case(1) /* Revision 1: Function 1 supported */
+								{
+									Return(Buffer(One) { 0x03 })
+								}
+								default /* Revision 2+: no functions supported */
+								{
+									Return(Buffer(One) { 0x00 })
+								}
+							}
+						}
+						case(1) /* Function 1 : HID Function */
+						{
+							Return(0x0020) /* HID Descriptor Address */
+						}
+						default {} /* Functions 2+: not supported */
+					}
+				}
+				default
+				{
+					Return(Buffer(One) { 0x00 }) /* No other GUIDs supported */
+				}
+			}
+		}
+
+		Method (_STA)
+		{
+			If (LEqual (\S1EN, 1)) {
+				If (LEqual (\TID1, 0)) {
+					Return (0xF)
+				} Else {
+					If(LEqual (\TID1, 1)) {
+						Return (0xF)
+					}
+					Return (0x0)
+				}
+			} Else {
+				Return (0x0)
+			}
+		}
+
+		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
+
+		Method (_DSW, 3, NotSerialized)
+		{
+			Store (BOARD_TRACKPAD_WAKE_GPIO, Local0)
+			If (LEqual (Arg0, 1)) {
+				// Enable GPIO as wake source
+				\_SB.PCI0.LPCB.GPIO.GWAK (Local0)
+			}
+		}
+
+		/* Allow device to power off in S0 */
+		Name (_S0W, 4)
+	}
+
 	Device (ETPA)
 	{
 		Name (_HID, "ELAN0000")
