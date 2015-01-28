@@ -33,5 +33,8 @@ uint8_t board_id(void)
 		id = gpio_base3_value(gpio, ARRAY_SIZE(gpio));
 	}
 
+	if (id > 2)
+		id = 2;
+
 	return id;
 }
