@@ -78,7 +78,7 @@ static void fill_vboot_handoff(struct vboot_handoff *vboot_handoff,
 	vb_sd->struct_size = sizeof(VbSharedDataHeader);
 	vb_sd->data_size = VB_SHARED_DATA_MIN_SIZE;
 	vb_sd->data_used = sizeof(VbSharedDataHeader);
-	vb_sd->fw_version_tpm = vb2_sd->fw_version;
+	vb_sd->fw_version_tpm = vb2_sd->fw_version_secdata;
 
 	if (vb2_sd->recovery_reason) {
 		vb_sd->firmware_index = 0xFF;
