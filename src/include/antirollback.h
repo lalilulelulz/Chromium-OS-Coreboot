@@ -13,6 +13,8 @@
 #include <2api.h>
 #include "tpm_lite/tss_constants.h"
 
+enum vb2_pcr_digest;
+
 /* TPM NVRAM location indices. */
 #define FIRMWARE_NV_INDEX               0x1007
 
@@ -46,6 +48,12 @@ uint32_t antirollback_lock_space_firmware(void);
  * The following functions are internal apis, listed here for use by unit tests
  * only.
  */
+
+/**
+ * Ask vboot for a digest and extend a TPM PCR with it.
+ */
+uint32_t tpm_extend_pcr(struct vb2_context *ctx, int pcr,
+			enum vb2_pcr_digest which_digest);
 
 /**
  * Issue a TPM_Clear and reenable/reactivate the TPM.
