@@ -425,6 +425,9 @@ static void gma_pm_init_post_vbios(struct device *dev)
 
 static void gma_func0_init(struct device *dev)
 {
+	/* Default set to 1 since it might be required for
+	   stuff like seabios */
+	unsigned int init_fb = 1;
 	int lightup_ok = 0;
 	u32 reg32;
 	u32 graphics_base; //, graphics_size;
@@ -445,13 +448,9 @@ static void gma_func0_init(struct device *dev)
 
 	/* Post VBIOS init */
 	gma_setup_panel(dev);
-
 #if CONFIG_MAINBOARD_DO_NATIVE_VGA_INIT
 	printk(BIOS_SPEW, "NATIVE graphics, run native enable\n");
 	u32 mmiobase, physbase;
-	/* Default set to 1 since it might be required for
-	   stuff like seabios */
-	unsigned int init_fb = 1;
 	mmiobase = dev->resource_list[0].base;
 	physbase = pci_read_config32(dev, 0x5c) & ~0xf;
 #ifdef CONFIG_CHROMEOS
@@ -461,7 +460,8 @@ static void gma_func0_init(struct device *dev)
 #endif
 	if (! lightup_ok) {
 		printk(BIOS_SPEW, "FUI did not run; using VBIOS\n");
-		mdelay(CONFIG_PRE_GRAPHICS_DELAY);
+		if (acpi_slp_type != 3 && init_fb)
+			mdelay(CONFIG_PRE_GRAPHICS_DELAY);
 		pci_dev_init(dev);
 	}
 
