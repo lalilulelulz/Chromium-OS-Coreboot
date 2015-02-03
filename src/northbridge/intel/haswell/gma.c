@@ -442,11 +442,11 @@ static void gma_func0_init(struct device *dev)
 	/* Post VBIOS init */
 	gma_setup_panel(dev);
 
+#if CONFIG_MAINBOARD_DO_NATIVE_VGA_INIT
+	printk(BIOS_SPEW, "NATIVE graphics, run native enable\n");
 	/* Default set to 1 since it might be required for
 	   stuff like seabios */
 	unsigned int init_fb = 1;
-#if CONFIG_MAINBOARD_DO_NATIVE_VGA_INIT
-	printk(BIOS_SPEW, "NATIVE graphics, run native enable\n");
 
 	/* the BAR for graphics space is a well known number for
 	 * sandy and ivy. And the resource code renumbers it.
@@ -465,14 +465,7 @@ static void gma_func0_init(struct device *dev)
 #endif
 	if (! lightup_ok) {
 		printk(BIOS_SPEW, "FUI did not run; using VBIOS\n");
-		if (acpi_slp_type != 3) {
-#ifdef CONFIG_CHROMEOS
-			if(init_fb)
-#endif
-			{
-				mdelay(CONFIG_PRE_GRAPHICS_DELAY);
-			}
-		}
+		mdelay(CONFIG_PRE_GRAPHICS_DELAY);
 		pci_dev_init(dev);
 	}
 
