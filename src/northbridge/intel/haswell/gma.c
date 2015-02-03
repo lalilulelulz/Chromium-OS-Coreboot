@@ -429,6 +429,9 @@ static void gma_func0_init(struct device *dev)
 	struct northbridge_intel_haswell_config *conf = dev->chip_info;
 	struct intel_dp dp;
 #endif
+	/* Default set to 1 since it might be required for
+	   stuff like seabios */
+	unsigned int init_fb = 1;
 	int lightup_ok = 0;
 	u32 reg32;
 	/* IGD needs to be Bus Master */
@@ -444,9 +447,6 @@ static void gma_func0_init(struct device *dev)
 
 #if CONFIG_MAINBOARD_DO_NATIVE_VGA_INIT
 	printk(BIOS_SPEW, "NATIVE graphics, run native enable\n");
-	/* Default set to 1 since it might be required for
-	   stuff like seabios */
-	unsigned int init_fb = 1;
 
 	/* the BAR for graphics space is a well known number for
 	 * sandy and ivy. And the resource code renumbers it.
@@ -465,7 +465,8 @@ static void gma_func0_init(struct device *dev)
 #endif
 	if (! lightup_ok) {
 		printk(BIOS_SPEW, "FUI did not run; using VBIOS\n");
-		mdelay(CONFIG_PRE_GRAPHICS_DELAY);
+		if (acpi_slp_type != 3 && init_fb)
+			mdelay(CONFIG_PRE_GRAPHICS_DELAY);
 		pci_dev_init(dev);
 	}
 
