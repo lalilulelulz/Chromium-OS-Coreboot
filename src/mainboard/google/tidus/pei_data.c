@@ -28,36 +28,36 @@ void mainboard_fill_pei_data(struct pei_data *pei_data)
 	pei_data->ec_present = 0;
 
 	/* P0: VP8 */
-	pei_data_usb2_port(pei_data, 0, 0x0064, 1, 0,
+	pei_data_usb2_port(pei_data, 0, 0x0064, 1, USB_OC_PIN_SKIP,
 			   USB_PORT_MINI_PCIE);
-	/* P1: Port A, CN22 */
+	/* P1: Port 3, USB3 */
 	pei_data_usb2_port(pei_data, 1, 0x0040, 1, 0,
 			   USB_PORT_INTERNAL);
-	/* P2: Port B, CN23 */
+	/* P2: Port 4, USB4 */
 	pei_data_usb2_port(pei_data, 2, 0x0040, 1, 1,
 			   USB_PORT_INTERNAL);
-	/* P3: WLAN */
+	/* P3: Mini Card */
 	pei_data_usb2_port(pei_data, 3, 0x0040, 1, USB_OC_PIN_SKIP,
 			   USB_PORT_MINI_PCIE);
-	/* P4: Port C, CN25 */
+	/* P4: Port 1, USB1 */
 	pei_data_usb2_port(pei_data, 4, 0x0040, 1, 2,
 			   USB_PORT_INTERNAL);
-	/* P5: Port D, CN25 */
+	/* P5: Port 2, USB2 */
 	pei_data_usb2_port(pei_data, 5, 0x0040, 1, 2,
 			   USB_PORT_INTERNAL);
 	/* P6: Card Reader */
 	pei_data_usb2_port(pei_data, 6, 0x0040, 1, USB_OC_PIN_SKIP,
 			   USB_PORT_INTERNAL);
-	/* P7: EMPTY */
-	pei_data_usb2_port(pei_data, 7, 0x0000, 0, 0,
-			   USB_PORT_SKIP);
+	/* P7: Pin Header */
+	pei_data_usb2_port(pei_data, 7, 0x0040, 1, 3,
+			   USB_PORT_INTERNAL);
 
-	/* P1: CN22 */
-	pei_data_usb3_port(pei_data, 0, 1, 0, 0);
-	/* P2: CN23 */
-	pei_data_usb3_port(pei_data, 1, 1, 1, 0);
-	/* P3: CN25 */
-	pei_data_usb3_port(pei_data, 2, 1, 2, 0);
-	/* P4: CN25 */
-	pei_data_usb3_port(pei_data, 3, 1, 2, 0);
+	/* P1: USB1 */
+	pei_data_usb3_port(pei_data, 0, 1, 2, 0);
+	/* P2: USB2 */
+	pei_data_usb3_port(pei_data, 1, 1, 2, 0);
+	/* P3: USB3 */
+	pei_data_usb3_port(pei_data, 2, 1, 0, 0);
+	/* P4: USB4 */
+	pei_data_usb3_port(pei_data, 3, 1, 1, 0);
 }
