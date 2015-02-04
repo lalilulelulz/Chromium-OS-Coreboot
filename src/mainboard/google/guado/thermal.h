@@ -54,6 +54,6 @@
 #define PASSIVE_TEMPERATURE	95
 
 /* Tj_max value for calculating PECI CPU temperature */
-#define MAX_TEMPERATURE		100
+#define MAX_TEMPERATURE		105
 
 #endif
