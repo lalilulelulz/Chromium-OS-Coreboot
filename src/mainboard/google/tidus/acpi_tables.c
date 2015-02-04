@@ -48,7 +48,6 @@ static void acpi_create_gnvs(global_nvs_t *gnvs)
 	/* TPM Present */
 	gnvs->tpmp = 1;
 
-	gnvs->tmps = TEMPERATURE_SENSOR_ID;
 	gnvs->tcrt = CRITICAL_TEMPERATURE;
 	gnvs->tpsv = PASSIVE_TEMPERATURE;
 	gnvs->tmax = MAX_TEMPERATURE;
