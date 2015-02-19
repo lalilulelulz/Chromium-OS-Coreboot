@@ -23,14 +23,13 @@
 
 uint64_t mct_raw_value(void)
 {
-	uint64_t upper = readl(&exynos_mct->g_cnt_u);
-	uint64_t lower = readl(&exynos_mct->g_cnt_l);
+	uint64_t upper = read32(&exynos_mct->g_cnt_u);
+	uint64_t lower = read32(&exynos_mct->g_cnt_l);
 
 	return (upper << 32) | lower;
 }
 
 void mct_start(void)
 {
-	writel(readl(&exynos_mct->g_tcon) | (0x1 << 8),
-		&exynos_mct->g_tcon);
+	write32(&exynos_mct->g_tcon, read32(&exynos_mct->g_tcon) | (0x1 << 8));
 }

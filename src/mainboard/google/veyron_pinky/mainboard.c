@@ -17,113 +17,158 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <console/console.h>
-#include <device/device.h>
 #include <arch/cache.h>
+#include <arch/io.h>
+#include <boot/coreboot_tables.h>
+#include <console/console.h>
 #include <delay.h>
+#include <device/device.h>
+#include <device/i2c.h>
 #include <edid.h>
+#include <elog.h>
+#include <gpio.h>
+#include <soc/display.h>
+#include <soc/grf.h>
+#include <soc/soc.h>
+#include <soc/pmu.h>
+#include <soc/clock.h>
+#include <soc/rk808.h>
+#include <soc/spi.h>
+#include <soc/i2c.h>
 #include <symbols.h>
 #include <vbe.h>
-#include <boot/coreboot_tables.h>
-#include <device/i2c.h>
-#include <soc/rockchip/rk3288/gpio.h>
-#include <soc/rockchip/rk3288/soc.h>
-#include <soc/rockchip/rk3288/pmu.h>
-#include <soc/rockchip/rk3288/clock.h>
-#include <soc/rockchip/rk3288/rk808.h>
-#include <soc/rockchip/rk3288/spi.h>
+#include <vendorcode/google/chromeos/chromeos.h>
 
-#define DRAM_START	(CONFIG_SYS_SDRAM_BASE >> 20)
-#define DRAM_SIZE	CONFIG_DRAM_SIZE_MB
-#define DRAM_END	(DRAM_START + DRAM_SIZE)
+#include "board.h"
 
-static void setup_gpio(void)
+static void configure_usb(void)
 {
-	/*SOC and TPM reset GPIO, active high.*/
-	gpio_output((gpio_t){.port = 0, .bank = GPIO_B, .idx = 2}, 0);
+	gpio_output(GPIO(0, B, 3), 1);			/* HOST1_PWR_EN */
+	gpio_output(GPIO(0, B, 4), 1);			/* USBOTG_PWREN_H */
 
-	/* Configure GPIO for lcd_bl_en */
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_A, .idx = 2}, 1);
-
-	/*Configure backlight PWM 100% brightness*/
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_A, .idx = 0}, 0);
-
-	/* Configure GPIO for lcd_en */
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_B, .idx = 7}, 1);
-}
-
-static void setup_iomux(void)
-{
-	/*i2c0 for pmic*/
-	setbits_le32(&rk3288_pmu->iomux_i2c0scl, IOMUX_I2C0SCL);
-	setbits_le32(&rk3288_pmu->iomux_i2c0sda, IOMUX_I2C0SDA);
-
-	/*i2c2 for codec*/
-	writel(IOMUX_I2C2, &rk3288_grf->iomux_i2c2);
-
-	writel(IOMUX_I2S, &rk3288_grf->iomux_i2s);
-	writel(IOMUX_I2SCLK, &rk3288_grf->iomux_i2sclk);
-	writel(IOMUX_LCDC, &rk3288_grf->iomux_lcdc);
-	writel(IOMUX_SDMMC0, &rk3288_grf->iomux_sdmmc0);
-	writel(IOMUX_EMMCDATA, &rk3288_grf->iomux_emmcdata);
-	writel(IOMUX_EMMCPWREN, &rk3288_grf->iomux_emmcpwren);
-	writel(IOMUX_EMMCCMD, &rk3288_grf->iomux_emmccmd);
-}
-
-static void setup_usb_poweron(void)
-{
-	/* Configure GPIO for usb1_pwr_en */
-	gpio_output((gpio_t){.port = 0, .bank = GPIO_B, .idx = 3}, 1);
-
-	/* Configure GPIO for usb2_pwr_en */
-	gpio_output((gpio_t){.port = 0, .bank = GPIO_B, .idx = 4}, 1);
-
-	/* Configure GPIO for 5v_drv */
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_B, .idx = 3}, 1);
+	switch (board_id()) {
+	case 0:
+		gpio_output(GPIO(7, B, 3), 1);		/* 5V_DRV */
+		break;
+	case 1:
+		break;	/* 5V_DRV moved to EC in rev2 */
+	default:
+		gpio_output(GPIO(7, C, 5), 1);		/* 5V_DRV, again */
+		break;
+	}
 }
 
 static void configure_sdmmc(void)
 {
-	/* Configure GPIO for sd_en */
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_C, .idx = 5}, 1);
+	write32(&rk3288_grf->iomux_sdmmc0, IOMUX_SDMMC0);
 
-	/* Configure GPIO for sd_detec */
-	gpio_input_pullup((gpio_t){.port = 7, .bank = GPIO_A, .idx = 5});
+	/* use sdmmc0 io, disable JTAG function */
+	write32(&rk3288_grf->soc_con0, RK_CLRBITS(1 << 12));
 
-	/*use sdmmc0 io, disable JTAG function*/
-	writel(RK_CLRBITS(1 << 12), &rk3288_grf->soc_con0);
+	/* Note: these power rail definitions are copied in romstage.c */
+	switch (board_id()) {
+	case 0:
+		rk808_configure_ldo(8, 3300);	/* VCCIO_SD */
+		gpio_output(GPIO(7, C, 5), 1);		/* SD_EN */
+		break;
+	default:
+		rk808_configure_ldo(4, 3300); /* VCCIO_SD */
+		rk808_configure_ldo(5, 3300); /* VCC33_SD */
+		break;
+	}
+
+	gpio_input(GPIO(7, A, 5));		/* SD_DET */
 }
 
 static void configure_emmc(void)
 {
-	/* Configure GPIO for emmc_pwrctrl */
-	gpio_output((gpio_t){.port = 7, .bank = GPIO_B, .idx = 4}, 1);
+	write32(&rk3288_grf->iomux_emmcdata, IOMUX_EMMCDATA);
+	write32(&rk3288_grf->iomux_emmcpwren, IOMUX_EMMCPWREN);
+	write32(&rk3288_grf->iomux_emmccmd, IOMUX_EMMCCMD);
+
+	switch (board_id()) {
+	case 0:
+	case 1:
+	/*
+	 * Use a pullup instead of a drive since the output is 3.3V and
+	 * really should be 1.8V (oops).  The external pulldown will help
+	 * bring the voltage down if we only drive with a pullup here.
+	 */
+		gpio_input_pullup(GPIO(7, B, 4));	/* EMMC_RST_L */
+		break;
+	default:
+		gpio_output(GPIO(2, B, 1), 1);		/* EMMC_RST_L */
+		break;
+	}
 }
 
-static void configure_i2s(void)
+static void configure_codec(void)
 {
-	/*AUDIO IO domain 1.8V voltage selection*/
-	writel(RK_SETBITS(1 << 6), &rk3288_grf->io_vsel);
+	write32(&rk3288_grf->iomux_i2c2, IOMUX_I2C2);	/* CODEC I2C */
+	i2c_init(2, 400*KHz);				/* CODEC I2C */
+
+	write32(&rk3288_grf->iomux_i2s, IOMUX_I2S);
+	write32(&rk3288_grf->iomux_i2sclk, IOMUX_I2SCLK);
+
+	switch (board_id()) {
+	case 0:
+		rk808_configure_ldo(5, 1800);	/* VCC18_CODEC */
+		break;
+	default:
+		rk808_configure_ldo(6, 1800);	/* VCC18_CODEC */
+		break;
+	}
+
+	/* AUDIO IO domain 1.8V voltage selection */
+	write32(&rk3288_grf->io_vsel, RK_SETBITS(1 << 6));
 	rkclk_configure_i2s(12288000);
 }
 
-static void pmic_init(unsigned int bus)
+static void configure_vop(void)
 {
-	rk808_configure_ldo(bus, 4, 1800);	/* VCC18_LCD */
-	rk808_configure_ldo(bus, 5, 1800);	/* VCC18_CODEC */
-	rk808_configure_ldo(bus, 6, 1000);	/* VCC10_LCD */
-	rk808_configure_ldo(bus, 8, 3300);	/* VCCIO_SD */
+	write32(&rk3288_grf->iomux_lcdc, IOMUX_LCDC);
+
+	/* lcdc(vop) iodomain select 1.8V */
+	write32(&rk3288_grf->io_vsel, RK_SETBITS(1 << 0));
+
+	switch (board_id()) {
+	case 0:
+		rk808_configure_ldo(4, 1800); /* VCC18_LCD */
+		rk808_configure_ldo(6, 1000); /* VCC10_LCD */
+		gpio_output(GPIO(7, B, 7), 1); /* LCD_EN */
+		break;
+	case 1:
+	case 2:
+		rk808_configure_switch(2, 1);	/* VCC18_LCD */
+		rk808_configure_ldo(7, 2500);	/* VCC10_LCD_PWREN_H */
+		rk808_configure_switch(1, 1);	/* VCC33_LCD */
+		break;
+	default:
+		gpio_output(GPIO(2, B, 5), 1);	/* AVDD_1V8_DISP_EN */
+		rk808_configure_ldo(7, 2500);	/* VCC10_LCD_PWREN_H */
+		rk808_configure_switch(1, 1);	/* VCC33_LCD */
+		gpio_output(GPIO(7, B, 6), 1);	/* LCD_EN */
+
+		/* enable edp HPD */
+		gpio_input_pulldown(GPIO(7, B, 3));
+		write32(&rk3288_grf->iomux_edp_hotplug, IOMUX_EDP_HOTPLUG);
+		break;
+	}
 }
 
 static void mainboard_init(device_t dev)
 {
-	setup_iomux();
-	pmic_init(0);
-	setup_gpio();
-	setup_usb_poweron();
+	gpio_output(GPIO_RESET, 0);
+
+	configure_usb();
 	configure_sdmmc();
 	configure_emmc();
-	configure_i2s();
+	configure_codec();
+	configure_vop();
+
+	elog_init();
+	elog_add_watchdog_reset();
+	elog_add_boot_reason();
 }
 
 static void mainboard_enable(device_t dev)
@@ -144,4 +189,25 @@ void lb_board(struct lb_header *header)
 	dma->size = sizeof(*dma);
 	dma->range_start = (uintptr_t)_dma_coherent;
 	dma->range_size = _dma_coherent_size;
+}
+
+void mainboard_power_on_backlight(void)
+{
+	switch (board_id()) {
+	case 0:
+	case 1:
+	case 2:
+		gpio_output(GPIO_BACKLIGHT, 0);	/* BL_EN */
+		gpio_output(GPIO(7, A, 2), 1);	/* LCD_BL */
+		mdelay(10);
+		gpio_output(GPIO_BACKLIGHT, 1);	/* BL_EN */
+		break;
+	default:
+		gpio_output(GPIO(2, B, 4), 1);	/* BL_PWR_EN */
+		mdelay(20);
+		gpio_output(GPIO_BACKLIGHT, 1);	/* LCD_BL */
+		mdelay(10);
+		gpio_output(GPIO(7, A, 2), 1);	/* BL_EN */
+		break;
+	}
 }
