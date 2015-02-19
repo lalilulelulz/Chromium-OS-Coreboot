@@ -87,27 +87,27 @@ void main(void)
 	if (CONFIG_BOOTBLOCK_CONSOLE) {
 		console_init();
 		exception_init();
-		printk(BIOS_INFO, "T132: Bootblock here\n");
+		printk(BIOS_INFO, "T210: Bootblock here\n");
 	}
 
 	clock_init();
 
-	printk(BIOS_INFO, "T132 bootblock: Clock init done\n");
+	printk(BIOS_INFO, "T210 bootblock: Clock init done\n");
 
 	pmc_print_rst_status();
 
 	bootblock_mainboard_init();
 
-	printk(BIOS_INFO, "T132 bootblock: Mainboard bootblock init done\n");
+	printk(BIOS_INFO, "T210 bootblock: Mainboard bootblock init done\n");
 
 	if (IS_ENABLED(CONFIG_VBOOT2_VERIFY_FIRMWARE)) {
 		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
 					CONFIG_CBFS_PREFIX "/verstage");
-		printk(BIOS_DEBUG, "T132 bootblock: jumping to verstage\n");
+		printk(BIOS_DEBUG, "T210 bootblock: jumping to verstage\n");
 	} else {
 		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
 					CONFIG_CBFS_PREFIX "/romstage");
-		printk(BIOS_INFO, "T132 bootblock: jumping to romstage\n");
+		printk(BIOS_INFO, "T210 bootblock: jumping to romstage\n");
 	}
 
 	timestamp_add_now(TS_END_BOOTBLOCK);
@@ -115,7 +115,7 @@ void main(void)
 	if (entry != CBFS_LOAD_ERROR)
 		stage_exit(entry);
 	else
-		printk(BIOS_INFO, "T132 bootblock: stage not found\n");
+		printk(BIOS_INFO, "T210 bootblock: stage not found\n");
 
 	hlt();
 }

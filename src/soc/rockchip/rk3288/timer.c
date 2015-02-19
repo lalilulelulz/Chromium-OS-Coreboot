@@ -25,7 +25,7 @@
 
 void init_timer(void)
 {
-	write32(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count0);
-	write32(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count1);
-	write32(1, &timer7_ptr->timer_ctrl_reg);
+	writel(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count0);
+	writel(TIMER_LOAD_VAL, &timer7_ptr->timer_load_count1);
+	writel(1, &timer7_ptr->timer_ctrl_reg);
 }

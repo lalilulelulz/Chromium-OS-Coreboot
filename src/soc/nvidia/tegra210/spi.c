@@ -18,24 +18,24 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <arch/cache.h>
+#include <arch/io.h>
 #include <assert.h>
 #include <cbfs.h>
 #include <cbfs_core.h>
+#include <console/console.h>
+#include <delay.h>
 #include <inttypes.h>
 #include <spi-generic.h>
 #include <spi_flash.h>
+#include <soc/addressmap.h>
+#include <soc/dma.h>
+#include <soc/spi.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <timer.h>
-#include <arch/cache.h>
-#include <arch/io.h>
-#include <console/console.h>
-#include <soc/addressmap.h>
-#include <delay.h>
 
-#include "dma.h"
-#include "spi.h"
 
 #if defined(CONFIG_DEBUG_SPI) && CONFIG_DEBUG_SPI
 # define DEBUG_SPI(x,...)	printk(BIOS_DEBUG, "TEGRA_SPI: " x)
@@ -494,8 +494,9 @@ static int tegra_spi_dma_prepare(struct tegra_spi_channel *spi,
 		/* ensure bytes to send will be visible to DMA controller */
 		dcache_clean_by_mva(spi->out_buf, bytes);
 
-		writel((u32)&spi->regs->tx_fifo, &spi->dma_out->regs->apb_ptr);
-		writel((u32)spi->out_buf, &spi->dma_out->regs->ahb_ptr);
+		writel((uintptr_t) & spi->regs->tx_fifo,
+		       &spi->dma_out->regs->apb_ptr);
+		writel((uintptr_t)spi->out_buf, &spi->dma_out->regs->ahb_ptr);
 		setbits_le32(&spi->dma_out->regs->csr, APB_CSR_DIR);
 		setup_dma_params(spi, spi->dma_out);
 		writel(wcount, &spi->dma_out->regs->wcount);
@@ -507,8 +508,9 @@ static int tegra_spi_dma_prepare(struct tegra_spi_channel *spi,
 		/* avoid data collisions */
 		dcache_clean_invalidate_by_mva(spi->in_buf, bytes);
 
-		writel((u32)&spi->regs->rx_fifo, &spi->dma_in->regs->apb_ptr);
-		writel((u32)spi->in_buf, &spi->dma_in->regs->ahb_ptr);
+		writel((uintptr_t)&spi->regs->rx_fifo,
+		       &spi->dma_in->regs->apb_ptr);
+		writel((uintptr_t)spi->in_buf, &spi->dma_in->regs->ahb_ptr);
 		clrbits_le32(&spi->dma_in->regs->csr, APB_CSR_DIR);
 		setup_dma_params(spi, spi->dma_in);
 		writel(wcount, &spi->dma_in->regs->wcount);
@@ -528,10 +530,24 @@ static void tegra_spi_dma_start(struct tegra_spi_channel *spi)
 	 */
 	setbits_le32(&spi->regs->trans_status, SPI_STATUS_RDY);
 
-	if (spi->dma_out)
+	/*
+	 * The DMA triggers have units of packets. As each packet is currently
+	 * 1 byte the triggers need to be set to 4 packets (0b01) to match
+	 * the AHB 32-bit (4 byte) tranfser. Otherwise the FIFO errors can
+	 * occur.
+	 */
+	if (spi->dma_out) {
+		clrsetbits_le32(&spi->regs->dma_ctl,
+			SPI_DMA_CTL_TX_TRIG_MASK << SPI_DMA_CTL_TX_TRIG_SHIFT,
+			1 << SPI_DMA_CTL_TX_TRIG_SHIFT);
 		setbits_le32(&spi->regs->command1, SPI_CMD1_TX_EN);
-	if (spi->dma_in)
+	}
+	if (spi->dma_in) {
+		clrsetbits_le32(&spi->regs->dma_ctl,
+			SPI_DMA_CTL_RX_TRIG_MASK << SPI_DMA_CTL_RX_TRIG_SHIFT,
+			1 << SPI_DMA_CTL_RX_TRIG_SHIFT);
 		setbits_le32(&spi->regs->command1, SPI_CMD1_RX_EN);
+	}
 
 	/*
 	 * To avoid underrun conditions, enable APB DMA before SPI DMA for
@@ -853,7 +869,7 @@ static size_t tegra_spi_cbfs_read(struct cbfs_media *media, void *dest,
 	if (spi_xfer(spi->slave, spi_read_cmd,
 			read_cmd_bytes, NULL, 0) < 0) {
 		ret = -1;
-		printk(BIOS_ERR, "%s: Failed to transfer %u bytes\n",
+		printk(BIOS_ERR, "%s: Failed to transfer %zu bytes\n",
 				__func__, sizeof(spi_read_cmd));
 		goto tegra_spi_cbfs_read_exit;
 	}
@@ -863,7 +879,7 @@ static size_t tegra_spi_cbfs_read(struct cbfs_media *media, void *dest,
 	}
 	if (spi_xfer(spi->slave, NULL, 0, dest, count)) {
 		ret = -1;
-		printk(BIOS_ERR, "%s: Failed to transfer %u bytes\n",
+		printk(BIOS_ERR, "%s: Failed to transfer %zu bytes\n",
 				__func__, count);
 	}
 	if (channel->dual_mode)

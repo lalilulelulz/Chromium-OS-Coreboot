@@ -1,6 +1,6 @@
 /*
  * Copyright 2014 Google Inc.
- * Copyright 2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright 2013-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -27,7 +27,6 @@ enum {
 	APB_MISC_BASE = 0x70000000,
 	PMC_CTLR_BASE = 0X7000e400,
 	MC_CTLR_BASE = 0X70019000,
-	SYSCTR_CTLR_BASE = 0X700f0000
 };
 
 
@@ -129,31 +128,18 @@ enum {
 	CAR2PMC_CPU_ACK_WIDTH_MASK = 0xfff << CAR2PMC_CPU_ACK_WIDTH_SHIFT
 };
 
-static uint32_t *clk_rst_clk_src_mselect_ptr =
-	(void *)(CLK_RST_BASE + 0x3b4);
-enum {
-	MSELECT_CLK_DIV_SHIFT = 0,
-	MSELECT_CLK_SRC_SHIFT = 29,
-	MSELECT_CLK_SRC_PLLP_OUT0 = 0x0 << MSELECT_CLK_SRC_SHIFT,
-	MSELECT_CLK_SRC_PLLC2_OUT0 = 0x1 << MSELECT_CLK_SRC_SHIFT,
-	MSELECT_CLK_SRC_PLLC_OUT0 = 0x2 << MSELECT_CLK_SRC_SHIFT,
-	MSELECT_CLK_SRC_PLLC3_OUT0 = 0x3 << MSELECT_CLK_SRC_SHIFT
-};
-
-static uint32_t *clk_rst_rst_dev_v_clr_ptr = (void *)(CLK_RST_BASE + 0x434);
-enum {
-	SWR_MSELECT_RST = 0x1 << 3
-};
-
 static uint32_t *clk_rst_clk_enb_v_set_ptr = (void *)(CLK_RST_BASE + 0x440);
 enum {
 	CLK_ENB_CPUG = 0x1 << 0,
 	CLK_ENB_CPULP = 0x1 << 1,
-	CLK_ENB_MSELECT = 0x1 << 3
 };
 
-static uint32_t *clk_rst_rst_cpulp_cmplx_clr_ptr =
-	(void *)(CLK_RST_BASE + 0x45c);
+static uint32_t *clk_rst_rst_cpulp_cmplx_set_ptr =
+	(void *)(CLK_RST_BASE + 0x450);
+enum {
+	SET_CXRESET0 = 0x1 << 20,
+	SET_CXRESET1 = 0x1 << 21
+};
 static uint32_t *clk_rst_rst_cpug_cmplx_clr_ptr =
 	(void *)(CLK_RST_BASE + 0x454);
 enum {
@@ -173,9 +159,10 @@ enum {
 	CLR_CXRESET1 = 0x1 << 21,
 	CLR_CXRESET2 = 0x1 << 22,
 	CLR_CXRESET3 = 0x1 << 23,
-	CLR_NONCPURESET = 0x1 << 29
+	CLR_L2RESET = 0x1 << 24,
+	CLR_NONCPURESET = 0x1 << 29,
+	CLR_PRESETDBG = 0x1 << 30
 };
-
 
 
 /* Reset vector. */
@@ -213,10 +200,8 @@ enum {
 /* Power management controller registers. */
 enum {
 	PARTID_CRAIL = 0,
-	PARTID_CELP = 12,
 	PARTID_CE0 = 14,
 	PARTID_C0NC = 15,
-	PARTID_C1NC = 16
 };
 
 static uint32_t *pmc_ctlr_clamp_status_ptr = (void *)(PMC_CTLR_BASE + 0x2c);
@@ -228,15 +213,14 @@ enum {
 
 static uint32_t *pmc_ctlr_pwrgate_status_ptr = (void *)(PMC_CTLR_BASE + 0x38);
 
-static uint32_t *pmc_ctlr_scratch4_ptr = (void *)(PMC_CTLR_BASE + 0x60);
-enum {
-	PMC_SCRATCH4_LP = 0x1 << 31
-};
-
 static uint32_t *pmc_ctlr_cpupwrgood_timer_ptr =
 	(void *)(PMC_CTLR_BASE + 0xc8);
 
+static uint32_t *pmc_odmdata_ptr = (void *)(PMC_CTLR_BASE + 0xa0);
+
 static uint32_t *pmc_ctlr_scratch41_ptr = (void *)(PMC_CTLR_BASE + 0x140);
+static uint32_t *pmc_ctlr_secure_scratch34_ptr = (void *)(PMC_CTLR_BASE + 0x368);
+static uint32_t *pmc_ctlr_secure_scratch35_ptr = (void *)(PMC_CTLR_BASE + 0x36c);
 
 static uint32_t *pmc_ctlr_osc_edpd_over_ptr = (void *)(PMC_CTLR_BASE + 0x1a4);
 enum {
@@ -255,18 +239,6 @@ enum {
 	VIDEO_PROTECT_WRITE_ACCESS_DISABLE = 0x1 << 0,
 	VIDEO_PROTECT_ALLOW_TZ_WRITE_ACCESS = 0x1 << 1
 };
-
-
-
-/* System counter registers. */
-static uint32_t *sysctr_cntcr_ptr = (void *)(SYSCTR_CTLR_BASE + 0x0);
-enum {
-	TSC_CNTCR_ENABLE = 0x1 << 0,
-	TSC_CNTCR_HDBG = 0x1 << 1
-};
-
-static uint32_t *sysctr_cntfid0_ptr = (void *)(SYSCTR_CTLR_BASE + 0x20);
-
 
 
 /* Utility functions. */
@@ -310,14 +282,109 @@ static void udelay(unsigned usecs)
 		;
 }
 
+/* UART related defines */
+static uint32_t *uart_clk_out_enb_regs[4] = {
+	(uint32_t *)0x60006010,
+	(uint32_t *)0x60006010,
+	(uint32_t *)0x60006014,
+	(uint32_t *)0x60006018
+};
 
+static uint32_t *uart_rst_devices_regs[4] = {
+	(uint32_t *)0x60006004,
+	(uint32_t *)0x60006004,
+	(uint32_t *)0x60006008,
+	(uint32_t *)0x6000600c
+};
+
+static uint32_t uart_enable_mask[4] = {
+	1 << 6,
+	1 << 7,
+	1 << 23,
+	1 << 1
+};
+
+static uint32_t *uart_clk_source_regs[4] = {
+	(uint32_t *)0x60006178,
+	(uint32_t *)0x6000617c,
+	(uint32_t *)0x600061a0,
+	(uint32_t *)0x600061c0,
+};
+
+static uint32_t *uart_base_regs[4] = {
+	(uint32_t *)0x70006000,
+	(uint32_t *)0x70006040,
+	(uint32_t *)0x70006200,
+	(uint32_t *)0x70006300,
+};
+enum {
+	UART_THR_DLAB = 0x0,
+	UART_IER_DLAB = 0x1,
+	UART_IIR_FCR = 0x2,
+	UART_LCR = 0x3
+};
+enum {
+	UART_RATE_115200 = (408000000/115200/16), /* based on 408000000 PLLP */
+	FCR_TX_CLR = 0x4,	/* bit 2 of FCR : clear TX FIFO */
+	FCR_RX_CLR = 0x2,	/* bit 1 of FCR : clear RX FIFO */
+	FCR_EN_FIFO = 0x1,	/* bit 0 of FCR : enable TX & RX FIFO */
+	LCR_DLAB = 0x80,	/* bit 7 of LCR : Divisor Latch Access Bit */
+	LCR_WD_SIZE_8 = 0x3,	/* bit 1:0 of LCR : word length of 8 */
+};
+
+static void enable_uart(void)
+{
+	uint32_t *uart_clk_enb_reg;
+	uint32_t *uart_rst_reg;
+	uint32_t *uart_clk_source;
+	uint32_t uart_port;
+	uint32_t uart_mask;
+	uint32_t *uart_base;
+
+	/*
+	 * Read odmdata (stored in pmc->odmdata) to determine debug uart port.
+	 *
+	 * Bits 15-17 of odmdata contains debug uart port.
+	 *  0 : UARTA
+	 *  1 : UARTB
+	 *  2 : UARTC
+	 *  3 : UARTD
+	 */
+	uart_port = (read32(pmc_odmdata_ptr) >> 15) & 0x7;
+
+	/* Default to UARTA if uart_port is out of range */
+	if (uart_port >= 4)
+		uart_port = 0;
+
+	uart_clk_enb_reg = uart_clk_out_enb_regs[uart_port];
+	uart_rst_reg = uart_rst_devices_regs[uart_port];
+	uart_mask = uart_enable_mask[uart_port];
+	uart_clk_source = uart_clk_source_regs[uart_port];
+	uart_base = uart_base_regs[uart_port];
+
+	/* Enable UART clock */
+	setbits32(uart_mask, uart_clk_enb_reg);
+
+	/* Reset and unreset UART */
+	setbits32(uart_mask, uart_rst_reg);
+	clrbits32(uart_mask, uart_rst_reg);
+
+	/* Program UART clock source: PLLP (408000000) */
+	writel(0, uart_clk_source);
+
+	/* Program 115200n8 to the uart port */
+	/* baud-rate of 115200 */
+	writel(LCR_DLAB, (uart_base + UART_LCR));
+	writel((UART_RATE_115200 & 0xff), (uart_base + UART_THR_DLAB));
+	writel((UART_RATE_115200 >> 8), (uart_base + UART_IER_DLAB));
+	/* 8-bit and no parity */
+	writel(LCR_WD_SIZE_8, (uart_base + UART_LCR));
+	/* enable and clear RX/TX FIFO */
+	writel((FCR_TX_CLR + FCR_RX_CLR + FCR_EN_FIFO),
+	       (uart_base + UART_IIR_FCR));
+}
 
 /* Accessors. */
-
-static int wakeup_on_lp(void)
-{
-	return !!(read32(pmc_ctlr_scratch4_ptr) & PMC_SCRATCH4_LP);
-}
 
 static uint32_t get_wakeup_vector(void)
 {
@@ -408,38 +475,6 @@ static void config_pllu(void)
 	writel(misc, clk_rst_pllu_misc_ptr);
 }
 
-static void config_tsc(void)
-{
-	// Tell the TSC the oscillator frequency.
-	switch (get_osc_freq()) {
-	case OSC_FREQ_12:
-		writel(12000000, sysctr_cntfid0_ptr);
-		break;
-	case OSC_FREQ_48:
-		writel(48000000, sysctr_cntfid0_ptr);
-		break;
-	case OSC_FREQ_16P8:
-		writel(16800000, sysctr_cntfid0_ptr);
-		break;
-	case OSC_FREQ_19P2:
-		writel(19200000, sysctr_cntfid0_ptr);
-		break;
-	case OSC_FREQ_38P4:
-		writel(38400000, sysctr_cntfid0_ptr);
-		break;
-	case OSC_FREQ_26:
-		writel(26000000, sysctr_cntfid0_ptr);
-		break;
-	default:
-		// Default to 13MHz.
-		writel(13000000, sysctr_cntfid0_ptr);
-		break;
-	}
-
-	// Enable the TSC.
-	setbits32(TSC_CNTCR_ENABLE | TSC_CNTCR_HDBG, sysctr_cntcr_ptr);
-}
-
 static void enable_cpu_clocks(void)
 {
 	// Enable the CPU complex clock.
@@ -465,37 +500,18 @@ static void config_core_sight(void)
 	writel(SWR_CSITE_RST, clk_rst_rst_dev_u_clr_ptr);
 }
 
-static void config_mselect(void)
-{
-	// Set MSELECT clock source to PLLP with 1:4 divider.
-	writel((6 << MSELECT_CLK_DIV_SHIFT) | MSELECT_CLK_SRC_PLLP_OUT0,
-	       clk_rst_clk_src_mselect_ptr);
-
-	// Enable clock to MSELECT.
-	writel(CLK_ENB_MSELECT, clk_rst_clk_enb_v_set_ptr);
-
-	udelay(2);
-
-	// Bring MSELECT out of reset.
-	writel(SWR_MSELECT_RST, clk_rst_rst_dev_v_clr_ptr);
-}
-
-
 
 /* Resets. */
 
 static void clear_cpu_resets(void)
 {
-	// Take the non-cpu of the G and LP clusters out of reset.
-	writel(CLR_NONCPURESET, clk_rst_rst_cpulp_cmplx_clr_ptr);
-	writel(CLR_NONCPURESET, clk_rst_rst_cpug_cmplx_clr_ptr);
+	/* Hold CPU1 in reset */
+	setbits32(SET_CXRESET1, clk_rst_rst_cpulp_cmplx_set_ptr);
 
-	// Clear software controlled reset of the slow cluster.
+	writel(CLR_NONCPURESET | CLR_L2RESET | CLR_PRESETDBG,
+	       clk_rst_rst_cpug_cmplx_clr_ptr);
+
 	writel(CLR_CPURESET0 | CLR_DBGRESET0 | CLR_CORERESET0 | CLR_CXRESET0,
-	       clk_rst_rst_cpulp_cmplx_clr_ptr);
-
-	// Clear software controlled reset of the fast cluster.
-	writel(CLR_CPURESET0 | CLR_DBGRESET0 | CLR_CORERESET0 | CLR_CXRESET0 | CLR_CPURESET1 | CLR_DBGRESET1 | CLR_CORERESET1 | CLR_CXRESET1 | CLR_CPURESET2 | CLR_DBGRESET2 | CLR_CORERESET2 | CLR_CXRESET2 | CLR_CPURESET3 | CLR_DBGRESET3 | CLR_CORERESET3 | CLR_CXRESET3,
 	       clk_rst_rst_cpug_cmplx_clr_ptr);
 }
 
@@ -559,19 +575,24 @@ static void power_on_main_cpu(void)
 	writel(orig_timer * (204000000 / 32768),
 	       pmc_ctlr_cpupwrgood_timer_ptr);
 
-	if (wakeup_on_lp()) {
-		power_on_partition(PARTID_C1NC);
-		power_on_partition(PARTID_CELP);
-	} else {
-		power_on_partition(PARTID_CRAIL);
-		power_on_partition(PARTID_C0NC);
-		power_on_partition(PARTID_CE0);
-	}
+	power_on_partition(PARTID_CRAIL);
+	power_on_partition(PARTID_C0NC);
+	power_on_partition(PARTID_CE0);
 
 	// Restore the original PMC_CPUPWRGOOD_TIMER.
 	writel(orig_timer, pmc_ctlr_cpupwrgood_timer_ptr);
 }
 
+
+static void aarch64_trampoline(void)
+{
+	uint32_t val = 3;	/* bit1: to warm reset; bit0: AARCH64*/
+
+	asm volatile ("mcr p15, 0, %0, c12, c0, 2" : : "r" (val));
+
+	/* unreachable */
+	halt();
+}
 
 
 /* Entry point. */
@@ -587,26 +608,27 @@ void lp0_resume(void)
 
 	config_oscillator();
 
-	// Tell the flow controller which cluster to wake up. The default is
-	// the fast cluster.
-	if (wakeup_on_lp())
-		setbits32(FLOW_CLUSTER_ACTIVE_LP,
-			  flow_ctlr_cluster_control_ptr);
-
 	// Program SUPER_CCLK_DIVIDER.
 	writel(SUPER_CDIV_ENB, clk_rst_super_cclk_div_ptr);
 
 	config_core_sight();
 
+	enable_uart();
+
 	config_pllu();
 
-	// Set the CPU reset vector.
-	writel(get_wakeup_vector(), evp_cpu_reset_ptr);
+	/*
+	 * Set the CPU reset vector.
+	 *
+	 * T210 always resets to AARCH32 and SW needs to write RMR_EL3
+	 * to bootstrap into AARCH64.
+	 */
+	writel(get_wakeup_vector(), pmc_ctlr_secure_scratch34_ptr);
+	writel(0, pmc_ctlr_secure_scratch35_ptr);
+	writel((uint32_t)aarch64_trampoline, evp_cpu_reset_ptr);
 
 	// Select CPU complex clock source.
 	writel(CCLK_PLLP_BURST_POLICY, clk_rst_cclk_burst_policy_ptr);
-
-	config_mselect();
 
 	// Disable PLLX since it isn't used as CPU clock source.
 	clrbits32(PLLX_ENABLE, clk_rst_pllx_base_ptr);
@@ -616,8 +638,6 @@ void lp0_resume(void)
 	ack_width &= ~CAR2PMC_CPU_ACK_WIDTH_MASK;
 	ack_width |= 408 << CAR2PMC_CPU_ACK_WIDTH_SHIFT;
 	writel(ack_width, clk_rst_cpu_softrst_ctrl2_ptr);
-
-	config_tsc();
 
 	// Disable VPR.
 	writel(0, mc_video_protect_size_mb_ptr);

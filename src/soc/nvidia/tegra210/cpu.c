@@ -17,12 +17,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <console/console.h>
 #include <arch/io.h>
+#include <console/console.h>
 #include <soc/addressmap.h>
+#include <soc/clk_rst.h>
 #include <soc/cpu.h>
-#include "clk_rst.h"
-#include "pmc.h"
+#include <soc/pmc.h>
 
 #define EVP_CPU_RESET_VECTOR (void *)(uintptr_t)(TEGRA_EVP_BASE + 0x100)
 #define PMC_REGS (void *)(uintptr_t)(TEGRA_PMC_BASE)
@@ -60,12 +60,8 @@ static void set_armv8_64bit_reset_vector(uintptr_t entry)
 	writel(0, &pmc->secure_scratch35);
 }
 
-
-void start_cpu(int cpu, void *entry_64)
+void cpu_prepare_startup(void *entry_64)
 {
-	printk(BIOS_DEBUG, "Starting CPU%d @ %p trampolining to %p.\n",
-		cpu, reset_entry_32bit, entry_64);
-
 	/* Warm reset vector is pulled from the PMC scratch registers. */
 	set_armv8_64bit_reset_vector((uintptr_t)entry_64);
 
@@ -75,6 +71,18 @@ void start_cpu(int cpu, void *entry_64)
 	 * to the traompoline location.
 	 */
 	set_armv8_32bit_reset_vector((uintptr_t)reset_entry_32bit);
+}
 
+void start_cpu_silent(int cpu, void *entry_64)
+{
+	cpu_prepare_startup(entry_64);
 	enable_core_clocks(cpu);
+}
+
+void start_cpu(int cpu, void *entry_64)
+{
+	printk(BIOS_DEBUG, "Starting CPU%d @ %p trampolining to %p.\n",
+		cpu, reset_entry_32bit, entry_64);
+
+	start_cpu_silent(cpu, entry_64);
 }

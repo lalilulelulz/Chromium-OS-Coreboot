@@ -90,7 +90,7 @@ static void lock_down_vpr(void)
 
 static void soc_init(device_t dev)
 {
-	struct soc_nvidia_tegra132_config *cfg;
+	struct soc_nvidia_tegra210_config *cfg;
 
 	clock_init_arm_generic_timer();
 
@@ -121,13 +121,13 @@ static struct device_operations soc_ops = {
 	.scan_bus         = NULL,
 };
 
-static void enable_tegra132_dev(device_t dev)
+static void enable_tegra210_dev(device_t dev)
 {
 	if (dev->path.type == DEVICE_PATH_CPU_CLUSTER)
 		dev->ops = &soc_ops;
 }
 
-static void tegra132_init(void *chip_info)
+static void tegra210_init(void *chip_info)
 {
 	struct tegra_revision rev;
 
@@ -139,13 +139,13 @@ static void tegra132_init(void *chip_info)
 	printk(BIOS_INFO, "MTS build %u\n", raw_read_aidr_el1());
 }
 
-struct chip_operations soc_nvidia_tegra132_ops = {
-	CHIP_NAME("SOC Nvidia Tegra132")
-	.init = tegra132_init,
-	.enable_dev = enable_tegra132_dev,
+struct chip_operations soc_nvidia_tegra210_ops = {
+	CHIP_NAME("SOC Nvidia Tegra210")
+	.init = tegra210_init,
+	.enable_dev = enable_tegra210_dev,
 };
 
-static void tegra132_cpu_init(device_t cpu)
+static void tegra210_cpu_init(device_t cpu)
 {
 }
 
@@ -155,7 +155,7 @@ static const struct cpu_device_id ids[] = {
 };
 
 static struct device_operations cpu_dev_ops = {
-	.init = tegra132_cpu_init,
+	.init = tegra210_cpu_init,
 };
 
 static const struct cpu_driver driver __cpu_driver = {

@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (c) 2014, NVIDIA CORPORATION.
+ * Copyright (c) 2014-2015, NVIDIA CORPORATION.
  * Copyright 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,19 +18,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <delay.h>
 #include <soc/addressmap.h>
+#include <soc/clk_rst.h>
 #include <soc/clock.h>
-#include <soc/padconfig.h>
 #include <soc/nvidia/tegra/i2c.h>
-#include <soc/nvidia/tegra132/power.h>
-#include <soc/nvidia/tegra132/clk_rst.h>
-#include "delay.h"
+#include <soc/padconfig.h>
+#include <soc/power.h>
 
 #define I2C6_PADCTL		0xC001
 #define DPAUX_HYBRID_PADCTL	0x545C0124
 
 static struct tegra_pmc_regs * const pmc = (void *)TEGRA_PMC_BASE;
-static struct clk_rst_ctlr *clk_rst = (void *)TEGRA_CLK_RST_BASE;
 
 static int partition_clamp_on(int id)
 {
@@ -74,7 +73,7 @@ static void unreset_sor_periphs(void)
 void soc_configure_i2c6pad(void)
 {
 	/*
-	 * I2C6 on Tegra124/132 requires some special init.
+	 * I2C6 on Tegra1xx requires some special init.
 	 * The SOR block must be unpowergated, and a couple of
 	 * display-based peripherals must be clocked and taken
 	 * out of reset so that a DPAUX register can be
@@ -83,13 +82,7 @@ void soc_configure_i2c6pad(void)
 	 * and put Host1X back in reset. DPAUX must remain out of
 	 * reset and the SOR partition must remained unpowergated.
 	 */
-	power_ungate_partition(POWER_PARTID_SOR);
-	/* Host1X needs a valid clock source so DPAUX can be accessed. */
-	clock_configure_source(host1x, PLLP, 204000);
-
-	enable_sor_periph_clocks();
-	remove_clamps(POWER_PARTID_SOR);
-	unreset_sor_periphs();
+	soc_configure_host1x();
 
 	/* Now we can write the I2C6 mux in DPAUX */
 	writel(I2C6_PADCTL, (void *)DPAUX_HYBRID_PADCTL);
@@ -104,4 +97,16 @@ void soc_configure_i2c6pad(void)
 	/* Stop Host1X/DPAUX clocks and reset Host1X */
 	disable_sor_periph_clocks();
 	clock_set_reset_l(CLK_L_HOST1X);
+}
+
+void soc_configure_host1x(void)
+{
+	power_ungate_partition(POWER_PARTID_SOR);
+
+	/* Host1X needs a valid clock source so DPAUX can be accessed. */
+	clock_configure_source(host1x, PLLP, 204000);
+
+	enable_sor_periph_clocks();
+	remove_clamps(POWER_PARTID_SOR);
+	unreset_sor_periphs();
 }

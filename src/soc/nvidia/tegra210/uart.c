@@ -17,13 +17,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <uart.h>
 #include <arch/io.h>
 #include <console/console.h>	/* for __console definition */
 #include <stdint.h>
+#include <uart.h>
 #include <uart8250.h>
 
-struct tegra124_uart {
+struct tegra210_uart {
 	union {
 		uint32_t thr; // Transmit holding register.
 		uint32_t rbr; // Receive buffer register.
@@ -43,19 +43,20 @@ struct tegra124_uart {
 	uint32_t msr; // Modem status register.
 } __attribute__ ((packed));
 
-static struct tegra124_uart * const uart_ptr =
-	(void *)CONFIG_CONSOLE_SERIAL_UART_ADDRESS;
 
-static void tegra124_uart_tx_flush(void);
-static int tegra124_uart_tst_byte(void);
+static struct tegra210_uart * const uart_ptr =
+	(void *)CONFIG_CONSOLE_SERIAL_TEGRA210_UART_ADDRESS;
 
-static void tegra124_uart_init(void)
+static void tegra210_uart_tx_flush(void);
+static int tegra210_uart_tst_byte(void);
+
+static void tegra210_uart_init(void)
 {
 	// Use a hardcoded divisor for now.
 	const unsigned divisor = 221;
 	const uint8_t line_config = UART8250_LCR_WLS_8; // 8n1
 
-	tegra124_uart_tx_flush();
+	tegra210_uart_tx_flush();
 
 	// Disable interrupts.
 	writeb(0, &uart_ptr->ier);
@@ -73,37 +74,37 @@ static void tegra124_uart_init(void)
 	       &uart_ptr->fcr);
 }
 
-static void tegra124_uart_tx_byte(unsigned char data)
+static void tegra210_uart_tx_byte(unsigned char data)
 {
 	while (!(read8(&uart_ptr->lsr) & UART8250_LSR_THRE));
 	writeb(data, &uart_ptr->thr);
 }
 
-static void tegra124_uart_tx_flush(void)
+static void tegra210_uart_tx_flush(void)
 {
 	while (!(read8(&uart_ptr->lsr) & UART8250_LSR_TEMT));
 }
 
-static unsigned char tegra124_uart_rx_byte(void)
+static unsigned char tegra210_uart_rx_byte(void)
 {
-	if (!tegra124_uart_tst_byte())
+	if (!tegra210_uart_tst_byte())
 		return 0;
 	return read8(&uart_ptr->rbr);
 }
 
-static int tegra124_uart_tst_byte(void)
+static int tegra210_uart_tst_byte(void)
 {
 	return (read8(&uart_ptr->lsr) & UART8250_LSR_DR) == UART8250_LSR_DR;
 }
 
 #if !defined(__PRE_RAM__)
 
-static const struct console_driver tegra124_uart_console __console = {
-	.init     = tegra124_uart_init,
-	.tx_byte  = tegra124_uart_tx_byte,
-	.tx_flush = tegra124_uart_tx_flush,
-	.rx_byte  = tegra124_uart_rx_byte,
-	.tst_byte = tegra124_uart_tst_byte,
+static const struct console_driver tegra210_uart_console __console = {
+	.init     = tegra210_uart_init,
+	.tx_byte  = tegra210_uart_tx_byte,
+	.tx_flush = tegra210_uart_tx_flush,
+	.rx_byte  = tegra210_uart_rx_byte,
+	.tst_byte = tegra210_uart_tst_byte,
 };
 
 uint32_t uartmem_getbaseaddr(void)
@@ -115,22 +116,22 @@ uint32_t uartmem_getbaseaddr(void)
 
 void uart_init(void)
 {
-	tegra124_uart_init();
+	tegra210_uart_init();
 }
 
 void uart_tx_byte(unsigned char data)
 {
-	tegra124_uart_tx_byte(data);
+	tegra210_uart_tx_byte(data);
 }
 
 void uart_tx_flush(void)
 {
-	tegra124_uart_tx_flush();
+	tegra210_uart_tx_flush();
 }
 
 unsigned char uart_rx_byte(void)
 {
-	return tegra124_uart_rx_byte();
+	return tegra210_uart_rx_byte();
 }
 
 #endif
