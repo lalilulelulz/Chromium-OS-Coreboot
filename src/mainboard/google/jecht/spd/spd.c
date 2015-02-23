@@ -1,7 +1,7 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2014 Imagination Technologies
+ * Copyright (C) 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,25 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef __MIPS_ARCH_BYTEORDER_H
-#define __MIPS_ARCH_BYTEORDER_H
+#include <cbfs.h>
+#include <console/console.h>
+#include <endian.h>
+#include <string.h>
+#include <soc/gpio.h>
+#include <soc/pei_data.h>
+#include <soc/romstage.h>
+#include <mainboard/google/jecht/spd/spd.h>
 
-#ifndef __ORDER_LITTLE_ENDIAN__
-#errror "What endian are you!?"
-#endif
-
-#define __LITTLE_ENDIAN 1234
-
-#endif /* __MIPS_ARCH_BYTEORDER_H */
+/* Copy SPD data for on-board memory */
+void mainboard_fill_spd_data(struct pei_data *pei_data)
+{
+	pei_data->spd_addresses[0] = 0xa0;
+	pei_data->spd_addresses[1] = 0x00;
+	pei_data->spd_addresses[2] = 0xa4;
+	pei_data->spd_addresses[3] = 0x00;
+	pei_data->dimm_channel0_disabled = 2;
+	pei_data->dimm_channel1_disabled = 2;
+	// Enable 2x refresh mode
+	pei_data->ddr_refresh_2x = 1;
+	pei_data->dq_pins_interleaved = 1;
+}
