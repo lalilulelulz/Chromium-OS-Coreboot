@@ -48,6 +48,8 @@ config BOARD_GOOGLE_FALCO
 	bool "Falco"
 config BOARD_GOOGLE_GLIMMER
 	bool "Glimmer"
+config BOARD_GOOGLE_GLOWER
+	bool "Glower"
 config BOARD_GOOGLE_GNAWTY
         bool "Gnawty"
 config BOARD_GOOGLE_KIP
@@ -98,6 +100,7 @@ source "src/mainboard/google/enguarde/Kconfig"
 source "src/mainboard/google/expresso/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/glimmer/Kconfig"
+source "src/mainboard/google/glower/Kconfig"
 source "src/mainboard/google/gnawty/Kconfig"
 source "src/mainboard/google/kip/Kconfig"
 source "src/mainboard/google/link/Kconfig"
