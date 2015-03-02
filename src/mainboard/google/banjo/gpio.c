@@ -89,15 +89,15 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_NC,	/* S0-SC030 - NC */
 	GPIO_NC,	/* S0-SC031 - NC */
 	GPIO_NC,	/* S0-SC032 - NC */
-	GPIO_FUNC(1, PULL_DOWN, 20K),	/* S0-SC033 - SD3_CLK */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC034 - SD3_D0 */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC035 - SD3_D1 */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC036 - SD3_D2 */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC037 - SD3_D3 */
+	GPIO_NC,	/* S0-SC033 - SD3_CLK */
+	GPIO_NC,	/* S0-SC034 - SD3_D0 */
+	GPIO_NC,	/* S0-SC035 - SD3_D1 */
+	GPIO_NC,	/* S0-SC036 - SD3_D2 */
+	GPIO_NC,	/* S0-SC037 - SD3_D3 */
 	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC038 - SD3_CD# */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC039 - SD3_CMD */
+	GPIO_NC,	/* S0-SC039 - SD3_CMD */
 	GPIO_NC,	/* S0-SC040 - SDMMC3_1P8_EN - TP3 */
-	GPIO_FUNC(1, PULL_UP, 20K),	/* S0-SC041 - SDIO3_PWR_EN# */
+	GPIO_NC,	/* S0-SC041 - SDIO3_PWR_EN# */
 	GPIO_FUNC1,	/* S0-SC042 - LPC_LAD0 */
 	GPIO_FUNC1,	/* S0-SC043 - LPC-LAD1 */
 	GPIO_FUNC1,	/* S0-SC044 - LPC_LAD2 */
@@ -165,7 +165,7 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 static const struct soc_gpio_map gpssus_gpio_map[] = {
 	GPIO_ACPI_WAKE,	/* S500 - PCH_WAKE# */
 	GPIO_ACPI_WAKE,	/* S501 - TRACKPAD_INT# - INT */
-	GPIO_ACPI_WAKE,	/* S502 - TOUCH_INT# - INT */
+	GPIO_NC,	/* S502 - TOUCH_INT# - INT */
 	GPIO_FUNC6,	/* S503 - LTE_WAKE_L# - INT */
 	GPIO_NC,	/* S504 - SOC_JTAG2_TDO (NC/PU) */
 	GPIO_FUNC1,	/* S505 - SUS_CLK_WLAN (NC) */
