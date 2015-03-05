@@ -40,8 +40,6 @@ struct romstage_handoff {
 	 * cached value can only be utilized when the chipset code properly
 	 * fills in the s3_resume field above. */
 	uint32_t ramstage_entry_point;
-	/* Reboot after romstage if requested by the system. */
-	uint32_t reboot_required;
 };
 
 #if defined(__PRE_RAM__)
