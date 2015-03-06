@@ -59,7 +59,7 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_ACPI_SCI,	/* S0_SC000 - SOC_KBC_SCI - INT */
 	GPIO_FUNC2,	/* S0_SC001 - SATA_DEVSLP_C */
 	GPIO_NC,	/* S0-SC002 - SATA_LED_R_N (NC/PU) */
-	GPIO_FUNC1,	/* S0-SC003 - PCIE_CLKREQ_IMAGE# */
+	GPIO_NC,	/* S0-SC003 - PCIE_CLKREQ_IMAGE# */
 	GPIO_FUNC1,	/* S0-SC004 - PCIE_CLKREQ_WLAN# */
 	GPIO_NC,	/* S0-SC005 - PCIE_CLKREQ_LAN# (NC) */
 	GPIO_NC,	/* S0-SC006 - PCIE_CLKREQ3# (NC) */
@@ -142,10 +142,10 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_NC,	/* S0-SC083 - NC */
 	GPIO_NC,	/* S0-SC084 - NC */
 	GPIO_NC,	/* S0-SC085 - NC */
-	GPIO_FUNC1,	/* S0-SC086 - I2C_4_SDA */
-	GPIO_FUNC1,	/* S0-SC087 - I2C_4_SCL */
-	GPIO_FUNC1,	/* S0-SC088 - I2C_5_SDA */
-	GPIO_FUNC1,	/* S0-SC089 - I2C_5_SCL */
+	GPIO_NC,	/* S0-SC086 - I2C_4_SDA */
+	GPIO_NC,	/* S0-SC087 - I2C_4_SCL */
+	GPIO_NC,	/* S0-SC088 - I2C_5_SDA */
+	GPIO_NC,	/* S0-SC089 - I2C_5_SCL */
 	GPIO_NC,	/* S0-SC090 - NC */
 	GPIO_NC,	/* S0-SC091 - NC */
 	GPIO_NC,	/* S0-SC092 - I2C_NGFF_SDA (NC/PU) */
