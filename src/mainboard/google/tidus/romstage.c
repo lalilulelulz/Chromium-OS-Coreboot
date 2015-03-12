@@ -29,6 +29,7 @@
 #include <mainboard/google/tidus/spd/spd.h>
 #include "gpio.h"
 #include <superio/ite/it8772f/it8772f.h>
+#include "onboard.h"
 
 void mainboard_romstage_entry(struct romstage_params *rp)
 {
@@ -56,4 +57,7 @@ void mainboard_pre_console_init(void)
 	it8772f_ac_resume_southbridge();
 	it8772f_enable_serial(PNP_DEV(IT8772F_BASE, IT8772F_SP1),
 			      CONFIG_TTYS0_BASE);
+
+	/* Turn On GPI10.LED */
+	set_power_led(SIO_GPIO_BLINK_GPIO10, LED_ON);
 }

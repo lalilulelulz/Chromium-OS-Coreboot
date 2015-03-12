@@ -22,7 +22,7 @@ romstage-$(CONFIG_CHROMEOS) += chromeos.c
 ramstage-$(CONFIG_CHROMEOS) += chromeos.c
 ramstage-y += lan.c
 
-smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c
+smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c led.c
 
-romstage-y += pei_data.c
+romstage-y += pei_data.c led.c
 ramstage-y += pei_data.c

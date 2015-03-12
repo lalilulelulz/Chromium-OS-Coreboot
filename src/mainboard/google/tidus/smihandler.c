@@ -30,6 +30,8 @@
 #include <broadwell/nvs.h>
 #include <broadwell/pm.h>
 #include <broadwell/smm.h>
+#include <superio/ite/it8772f/it8772f.h>
+#include "onboard.h"
 
 int mainboard_io_trap_handler(int smif)
 {
@@ -61,8 +63,10 @@ void mainboard_smi_sleep(u8 slp_typ)
 	/* Disable USB charging if required */
 	switch (slp_typ) {
 	case 3:
+		set_power_led(SIO_GPIO_BLINK_GPIO10, LED_BLINK);
 		break;
 	case 5:
+		set_power_led(SIO_GPIO_BLINK_GPIO10, LED_OFF);
 		break;
 	}
 }
