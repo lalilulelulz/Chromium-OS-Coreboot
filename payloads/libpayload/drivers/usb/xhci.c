@@ -610,6 +610,7 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 	int i, transferred = 0;
 	const int n_stages = 2 + !!dalen;
 	for (i = 0; i < n_stages; ++i) {
+		udelay(10);
 		const int ret = xhci_wait_for_transfer(xhci, dev->address, 1);
 		transferred += ret;
 		if (ret < 0) {
