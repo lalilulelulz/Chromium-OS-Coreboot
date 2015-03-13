@@ -33,6 +33,7 @@ int get_developer_mode_switch(void);
 int get_recovery_mode_switch(void);
 int clear_recovery_mode_switch(void);
 int get_write_protect_state(void);
+int get_wipeout_mode_switch(void);
 
 /*for mainboard use only*/
 void setup_chromeos_gpios(void);
