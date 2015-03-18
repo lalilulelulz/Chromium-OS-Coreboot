@@ -20,6 +20,7 @@
 
 #include <device/device.h>
 #include <device/pnp.h>
+#include <console/console.h>
 #include <uart8250.h>
 #include <pc80/keyboard.h>
 #include <arch/io.h>
@@ -86,6 +87,43 @@ static void it8772f_enable_peci(struct resource *res, int tmpin)
 }
 
 /*
+ * Setup External Temperature to read via thermal diode/resistor
+ * into TMPINx register
+ */
+static void it8772f_enable_tmpin(struct resource *res, int tmpin,
+				enum thermal_mode mode)
+{
+	u8 reg;
+
+	if (tmpin != 1 && tmpin != 2)
+		return;
+
+	reg = it8772f_envc_read(res, IT8772F_ADC_TEMP_CHANNEL_ENABLE);
+
+	switch (mode) {
+	case THERMAL_DIODE:
+		/* Thermal Diode Mode */
+		it8772f_envc_write(res, IT8772F_ADC_TEMP_CHANNEL_ENABLE,
+				   reg | tmpin);
+		break;
+	case THERMAL_RESISTOR:
+		/* Thermal Resistor Mode */
+		it8772f_envc_write(res, IT8772F_ADC_TEMP_CHANNEL_ENABLE,
+				   reg | (tmpin << 3));
+		break;
+	default:
+		printk(BIOS_ERR, "Unsupported thermal mode 0x%x on TMPIN%d\n",
+			mode, tmpin);
+		return;
+	}
+
+	reg = it8772f_envc_read(res, IT8772F_CONFIGURATION);
+
+	/* Enable the startup of monitoring operation */
+	it8772f_envc_write(res, IT8772F_CONFIGURATION, reg | 0x01);
+}
+
+/*
  * Setup a FAN PWM interface for software control
  */
 static void it8772f_enable_fan(struct resource *res, int fan)
@@ -148,6 +186,12 @@ static void it8772f_init(device_t dev)
 
 		/* Enable PECI if configured */
 		it8772f_enable_peci(res, conf->peci_tmpin);
+
+		/* Enable HWM if configured */
+		if (conf->tmpin1_mode)
+			it8772f_enable_tmpin(res, 1, conf->tmpin1_mode);
+		if (conf->tmpin2_mode)
+			it8772f_enable_tmpin(res, 2, conf->tmpin2_mode);
 
 		/* Enable FANx if configured */
 		if (conf->fan1_enable)
