@@ -45,6 +45,12 @@ struct superio_ite_it8772f_config {
 	u8 peci_tmpin;
 
 	/*
+	 * Enable thermal mode on tmpinx.
+	 */
+	u8 tmpin1_mode;
+	u8 tmpin2_mode;
+
+	/*
 	 * Enable a FAN for sofware control.
 	 */
 	u8 fan1_enable;
