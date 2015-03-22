@@ -25,5 +25,6 @@ ramstage-$(CONFIG_CHROMEOS) += gpio.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC) += ec.c
 ramstage-y += irqroute.c
 ramstage-y += w25q64.c
+ramstage-y += lan.c
 
 smm-$(CONFIG_HAVE_SMI_HANDLER) += mainboard_smi.c
