@@ -68,7 +68,7 @@ void bootblock_mainboard_init(void)
 	/* spi2 for firmware ROM */
 	writel(IOMUX_SPI2_CSCLK, &rk3288_grf->iomux_spi2csclk);
 	writel(IOMUX_SPI2_TXRX, &rk3288_grf->iomux_spi2txrx);
-	rockchip_spi_init(CONFIG_BOOT_MEDIA_SPI_BUS, 9900*KHz);
+	rockchip_spi_init(CONFIG_BOOT_MEDIA_SPI_BUS, 24750*KHz);
 
 	/* spi0 for chrome ec */
 	writel(IOMUX_SPI0, &rk3288_grf->iomux_spi0);
