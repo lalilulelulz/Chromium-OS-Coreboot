@@ -193,7 +193,7 @@ static const struct soc_gpio_map gpssus_gpio_map[] = {
 	GPIO_NC,	/* S527 - XDP_GPIO_DFX5 */
 	GPIO_NC,	/* S528 - XDP_GPIO_DFX6 */
 	GPIO_NC,	/* S529 - XDP_GPIO_DFX7 */
-	GPIO_NC,	/* S530 - XDP_GPIO_DFX8 */
+	GPIO_INPUT,	/* S530 - SOC_RECOVER- */
 	GPIO_NC,	/* S531 - NC */
 	GPIO_NC,	/* S532 - NC */
 	GPIO_NC,	/* S533 - NC */
