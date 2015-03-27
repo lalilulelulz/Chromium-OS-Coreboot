@@ -46,7 +46,7 @@ void lan_init(void);
 #define BOARD_TOUCHSCREEN_IRQ           GPIO_S0_DED_IRQ(TOUCH_IRQ_OFFSET)
 #define BOARD_TOUCHSCREEN_WAKE_GPIO     ACPI_ENABLE_WAKE_SUS_GPIO(2)
 #define BOARD_TOUCHSCREEN_I2C_BUS       5
-#define BOARD_TOUCHSCREEN_I2C_ADDR      0x4a    /* TODO(shawnn): Check this */
+#define BOARD_TOUCHSCREEN_I2C_ADDR      0x2c    /* TODO(shawnn): Check this */
 
 #define BOARD_I8042_IRQ                 GPIO_S0_DED_IRQ(I8042_IRQ_OFFSET)
 #define BOARD_CODEC_IRQ                 GPIO_S5_DED_IRQ(CODEC_IRQ_OFFSET)
