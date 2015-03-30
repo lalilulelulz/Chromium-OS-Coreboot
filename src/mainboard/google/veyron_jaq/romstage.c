@@ -32,6 +32,7 @@
 #include <soc/pwm.h>
 #include <soc/grf.h>
 #include <soc/rk808.h>
+#include <soc/spi.h>
 #include <soc/tsadc.h>
 #include <stdlib.h>
 #include <symbols.h>
@@ -101,6 +102,9 @@ void main(void)
 	timestamp_add_now(TS_BEFORE_INITRAM);
 	sdram_init(get_sdram_config());
 	timestamp_add_now(TS_AFTER_INITRAM);
+
+	/* Increase frequency in RW in case it was set up too low by old RO. */
+	rockchip_spi_init(CONFIG_BOOT_MEDIA_SPI_BUS, 24750*KHz);
 
 	/* Now that DRAM is up, add mappings for it and DMA coherency buffer. */
 	mmu_config_range((uintptr_t)_dram/MiB,
