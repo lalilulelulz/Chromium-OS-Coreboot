@@ -89,6 +89,13 @@ config BOARD_GOOGLE_FALCO
 	  Enable this config to select the Google Falco mainboard.
 	  Falco is a Chrome OS mainboard.
 	  Falco is based on the Intel Haswell platform.
+config BOARD_GOOGLE_GANDOF
+	bool "Gandof"
+	help
+	  Google Gandof mainboard.
+	  Enable this config to select the Google Gandof mainboard.
+	  Gandof is a Chrome OS mainboard.
+	  Gandof is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_GUADO
 	bool "Guado"
 	help
@@ -255,6 +262,7 @@ source "src/mainboard/google/butterfly/Kconfig"
 source "src/mainboard/google/cid/Kconfig"
 source "src/mainboard/google/daisy/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
+source "src/mainboard/google/gandof/Kconfig"
 source "src/mainboard/google/guado/Kconfig"
 source "src/mainboard/google/jecht/Kconfig"
 source "src/mainboard/google/link/Kconfig"
