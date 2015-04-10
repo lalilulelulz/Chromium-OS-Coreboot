@@ -60,6 +60,8 @@ config BOARD_GOOGLE_NINJA
 	bool "Ninja"
 config BOARD_GOOGLE_NYAN
 	bool "Nyan"
+config BOARD_GOOGLE_ORCO
+        bool "Orco"
 config BOARD_GOOGLE_PANTHER
 	bool "Panther"
 config BOARD_GOOGLE_PARROT
@@ -110,6 +112,7 @@ source "src/mainboard/google/kip/Kconfig"
 source "src/mainboard/google/link/Kconfig"
 source "src/mainboard/google/ninja/Kconfig"
 source "src/mainboard/google/nyan/Kconfig"
+source "src/mainboard/google/orco/Kconfig"
 source "src/mainboard/google/panther/Kconfig"
 source "src/mainboard/google/parrot/Kconfig"
 source "src/mainboard/google/parry/Kconfig"
