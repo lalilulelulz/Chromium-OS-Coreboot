@@ -30,6 +30,6 @@
  */
 
 Name(OIPG, Package() {
-	Package () { 0x0001, 0, 0x201e, "BayTrail" }, // recovery
+	Package () { 0x0001, 0, 0x2008, "BayTrail" }, // recovery
 	Package () { 0x0003, 1, 0x2006, "BayTrail" }, // firmware write protect
 })

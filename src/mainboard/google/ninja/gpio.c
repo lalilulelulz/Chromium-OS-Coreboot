@@ -171,7 +171,7 @@ static const struct soc_gpio_map gpssus_gpio_map[] = {
 	GPIO_FUNC1,	/* S505 - SUS_CLK_WLAN (NC) */
 	GPIO_INPUT_PU,	/* S506 - PCH_SPI_WP */
 	GPIO_ACPI_SMI,	/* S507 - SOC_KBC_SMI - INT */
-	GPIO_NC,	/* S508 - NC */
+	GPIO_INPUT,	/* S508 - SOC_RECOVER- */
 	GPIO_DIRQ,	/* S509 - MUX_AUD_INT1# */
 	GPIO_OUT_HIGH,	/* S510 - WIFI_DISABLE_L */
 	GPIO_FUNC0,	/* S511 - SUSPWRDNACK */
@@ -193,7 +193,7 @@ static const struct soc_gpio_map gpssus_gpio_map[] = {
 	GPIO_NC,	/* S527 - XDP_GPIO_DFX5 */
 	GPIO_NC,	/* S528 - XDP_GPIO_DFX6 */
 	GPIO_NC,	/* S529 - XDP_GPIO_DFX7 */
-	GPIO_INPUT,	/* S530 - SOC_RECOVER- */
+	GPIO_NC,	/* S530 - XDP_GPIO_DFX8 */
 	GPIO_NC,	/* S531 - NC */
 	GPIO_NC,	/* S532 - NC */
 	GPIO_NC,	/* S533 - NC */
