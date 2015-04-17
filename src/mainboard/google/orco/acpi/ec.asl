@@ -18,7 +18,7 @@
  */
 
 /* mainboard configuration */
-#include <mainboard/google/ocro/ec.h>
+#include <mainboard/google/orco/ec.h>
 
 /* ACPI code for EC functions */
 #include <ec/google/chromeec/acpi/ec.asl>
