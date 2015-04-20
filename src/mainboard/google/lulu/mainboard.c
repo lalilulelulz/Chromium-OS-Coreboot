@@ -34,6 +34,7 @@
 #include <arch/io.h>
 #include <arch/interrupt.h>
 #include <boot/coreboot_tables.h>
+#include <ec/google/chromeec/ec.h>
 #include "hda_verb.h"
 #include "ec.h"
 #include "onboard.h"
@@ -131,6 +132,22 @@ static void verb_setup(void)
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
+}
+
+const char *smbios_mainboard_version(void)
+{
+	switch (google_chromeec_get_board_version()) {
+	case 0:
+		return "EVT";
+	case 1:
+		return "DVT1";
+	case 2:
+		return "DVT2";
+	case 4:
+		return "Pilot";
+	default:
+		return "Unknown";
+	}
 }
 
 static int mainboard_smbios_data(device_t dev, int *handle,
