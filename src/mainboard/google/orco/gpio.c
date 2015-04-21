@@ -126,7 +126,7 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_FUNC1,	/* S0-SC067 - SIO_SPI_MISO */
 	GPIO_FUNC1,	/* S0-SC068 - SIO_SPI_MOSI */
 	GPIO_FUNC1,	/* S0-SC069 - SIO_SPI_CLK */
-	GPIO_DIRQ,	/* S0-SC070 - ALS_INT_L - INT */
+	GPIO_NC,	/* S0-SC070 - ALS_INT_L - INT (NC) */
 	GPIO_NC,	/* S0-SC071 - NC */
 	GPIO_DIRQ,	/* S0-SC072 - TOUCH_INT_L_DX */
 	GPIO_NC,	/* S0-SC073 - NC */
@@ -142,8 +142,8 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_NC,	/* S0-SC083 - NC */
 	GPIO_NC,	/* S0-SC084 - NC */
 	GPIO_NC,	/* S0-SC085 - NC */
-	GPIO_FUNC1,	/* S0-SC086 - I2C_4_SDA */
-	GPIO_FUNC1,	/* S0-SC087 - I2C_4_SCL */
+	GPIO_NC,	/* S0-SC086 - I2C_4_SDA */
+	GPIO_NC,	/* S0-SC087 - I2C_4_SCL */
 	GPIO_NC,	/* S0-SC088 - I2C_5_SDA */
 	GPIO_NC,	/* S0-SC089 - I2C_5_SCL */
 	GPIO_NC,	/* S0-SC090 - NC */
@@ -214,7 +214,6 @@ static const u8 core_dedicated_irq[GPIO_MAX_DIRQS] = {
 	[TPAD_IRQ_OFFSET] = TPAD_IRQ_GPIO,
 	[TOUCH_IRQ_OFFSET] = TOUCH_IRQ_GPIO,
 	[I8042_IRQ_OFFSET] = I8042_IRQ_GPIO,
-	[ALS_IRQ_OFFSET] = ALS_IRQ_GPIO,
 };
 
 static const u8 sus_dedicated_irq[GPIO_MAX_DIRQS] = {
