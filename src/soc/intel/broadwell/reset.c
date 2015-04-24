@@ -56,7 +56,13 @@ void hard_reset(void)
 void reset_system(void)
 {
 	hard_reset();
+#ifndef __PRE_RAM__
+	/*
+	 * If hard_reset() returned in __PRE_RAM__, continue until the
+	 * reset can be done. Otherwise, halt here.
+	 */
 	while (1) {
 		hlt();
 	}
+#endif
 }
