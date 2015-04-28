@@ -33,6 +33,9 @@
 #include <superio/ite/it8772f/it8772f.h>
 #include "onboard.h"
 
+/* USB Charger Control: GPIO26 */
+#define GPIO_USB_CTL_1 26
+
 int mainboard_io_trap_handler(int smif)
 {
 	switch (smif) {
@@ -64,6 +67,9 @@ void mainboard_smi_sleep(u8 slp_typ)
 	switch (slp_typ) {
 	case 3:
 		set_power_led(SIO_GPIO_BLINK_GPIO10, LED_BLINK);
+
+		/* Enable DCP mode */
+		set_gpio(GPIO_USB_CTL_1, 0);
 		break;
 	case 5:
 		set_power_led(SIO_GPIO_BLINK_GPIO10, LED_OFF);
