@@ -587,6 +587,17 @@ void rkclk_configure_edp(void)
 	writel(RK_CLRBITS(1 << 15), &cru_ptr->cru_softrst_con[6]);
 }
 
+void rkclk_configure_hdmi(void)
+{
+	/* enable pclk hdmi ctrl */
+	writel(RK_CLRBITS(1 << 9), &cru_ptr->cru_clkgate_con[16]);
+
+	/* software reset hdmi */
+	writel(RK_SETBITS(1 << 9), &cru_ptr->cru_softrst_con[7]);
+	udelay(1);
+	writel(RK_CLRBITS(1 << 9), &cru_ptr->cru_softrst_con[7]);
+}
+
 void rkclk_configure_vop_aclk(u32 vop_id, u32 aclk_hz)
 {
 	u32 div;
