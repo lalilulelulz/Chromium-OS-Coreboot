@@ -42,6 +42,26 @@ Scope (\_SB)
 	{
 		Name(_HID, EisaId("PNP0C0C"))
 	}
+
+	/* Keyboard Backlight interface via EC */
+	Device (KBLT)
+	{
+		Name (_HID, "GOOG0002")
+		Name (_UID, 1)
+		Name (_ADR, 0)
+
+		/* Read current backlight value */
+		Method (KBQC, 0)
+		{
+			Return (\_SB.PCI0.LPCB.EC0.KBLV)
+		}
+
+		/* Write new backlight value */
+		Method (KBCM, 1)
+		{
+			Store (Arg0, \_SB.PCI0.LPCB.EC0.KBLV)
+		}
+	}
 }
 
 Scope (\_SB.PCI0.I2C0)
