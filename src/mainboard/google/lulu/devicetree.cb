@@ -57,6 +57,8 @@ chip soc/intel/broadwell
 
 	register "s0ix_enable" = "1"
 
+	register "tcc_offset" = "6"
+
 	device cpu_cluster 0 on
 		device lapic 0 on end
 	end

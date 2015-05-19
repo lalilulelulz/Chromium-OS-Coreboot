@@ -28,10 +28,10 @@
 #define CTL_TDP_THRESHOLD_ON		90	/* Limited at 90C */
 
 /* Temperature which OS will shutdown at */
-#define CRITICAL_TEMPERATURE		104
+#define CRITICAL_TEMPERATURE		103
 
 /* Temperature which OS will throttle CPU */
-#define PASSIVE_TEMPERATURE		95
+#define PASSIVE_TEMPERATURE		98
 
 /* Tj_max value for calculating PECI CPU temperature */
 #define MAX_TEMPERATURE			105
