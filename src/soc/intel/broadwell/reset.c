@@ -45,9 +45,15 @@ void hard_reset(void)
 	/*
 	 * Cold reset will not work until reference code has been
 	 * executed, so request a reboot after that step.
+	 *
+	 * Do a soft_reset() if this is a S3 resume or other case where CBMEM
+	 * isn't setup.
 	 */
 	struct romstage_handoff *handoff = cbmem_find(CBMEM_ID_ROMSTAGE_INFO);
-	handoff->reboot_required = 1;
+	if (!handoff)
+		soft_reset();
+	else
+		handoff->reboot_required = 1;
 #else
         outb(0x06, 0xcf9);
 #endif
