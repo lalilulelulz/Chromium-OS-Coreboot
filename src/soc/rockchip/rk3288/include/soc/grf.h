@@ -221,4 +221,7 @@ static struct rk3288_sgrf_regs * const rk3288_sgrf = (void *)GRF_SECURE_BASE;
 #define IOMUX_EMMCCMD	 RK_CLRSETBITS(0x3f, 2 << 4 | 2 << 2 | 2 << 0)
 #define IOMUX_PWM1	RK_SETBITS(1 << 2)
 #define IOMUX_EDP_HOTPLUG	RK_CLRSETBITS(0x3 << 6, 0x2 << 6)
-#endif
+#define IOMUX_HDMI_EDP_I2C_SDA	RK_CLRSETBITS(0x3 << 12, 2 << 12)
+#define IOMUX_HDMI_EDP_I2C_SCL	RK_CLRSETBITS(0x3 << 0, 2 << 0)
+
+#endif	/* __SOC_ROCKCHIP_RK3288_GRF_H__ */
