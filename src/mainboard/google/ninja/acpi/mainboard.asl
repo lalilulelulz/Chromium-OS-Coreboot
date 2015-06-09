@@ -55,6 +55,8 @@ Scope (\_SB.I2C2)
 		Name (_DDN, "Maxim 98090 Codec")
 		Name (_UID, 1)
 
+		Name (SPKR, 0)
+
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
