@@ -52,6 +52,8 @@ config BOARD_GOOGLE_GLOWER
 	bool "Glower"
 config BOARD_GOOGLE_GNAWTY
         bool "Gnawty"
+config BOARD_GOOGLE_HELI
+        bool "Heli"
 config BOARD_GOOGLE_KIP
 	bool "Kip"
 config BOARD_GOOGLE_LINK
@@ -108,6 +110,7 @@ source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/glimmer/Kconfig"
 source "src/mainboard/google/glower/Kconfig"
 source "src/mainboard/google/gnawty/Kconfig"
+source "src/mainboard/google/heli/Kconfig"
 source "src/mainboard/google/kip/Kconfig"
 source "src/mainboard/google/link/Kconfig"
 source "src/mainboard/google/ninja/Kconfig"
