@@ -26,6 +26,11 @@
 	REGION(ttb, addr, size, 4K) \
 	_ = ASSERT(size % 4K == 0, "TTB size must be divisible by 4K!");
 
+#define DMA_COHERENT(addr, size) \
+	REGION(dma_coherent, addr, size, 4K) \
+	_ = ASSERT(size % 4K == 0, \
+		"DMA buffer should be multiple of smallest page size (4K)!");
+
 /* ARM64 stacks need 16-byte alignment. */
 #if !(IS_ENABLED(CONFIG_SOC_NVIDIA_TEGRA132) || \
       IS_ENABLED(CONFIG_SOC_NVIDIA_TEGRA210))
