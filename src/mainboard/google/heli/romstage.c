@@ -26,16 +26,16 @@
 #include <baytrail/romstage.h>
 
 /*
- * RAM_ID[2:0] are on GPIO_SSUS[39:37]
- * 0b000 - 4GiB total - 2 x 2GiB Micron MT41K256M16HA-125:E 1600MHz
- * 0b001 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63AFR-PBA 1600MHz
- * 0b010 - 2GiB total - 2 x 1GiB Micron MT41K128M16JT-125:K 1600MHz
- * 0b011 - 2GiB total - 2 x 1GiB Hynix  H5TC2G63FFR-PBA 1600MHz
- * 0b100 - 2GiB total - 1 x 2GiB Micron MT41K256M16HA-125:E 1600MHz
- * 0b101 - 2GiB total - 1 x 2GiB Hynix  H5TC4G63AFR-PBA 1600MHz
+ * RAM_ID[3:0] are on GPIO_SSUS[40:37]
+ * RAM_ID	Vendor	Vendor_PN	Freq	Size	Total_size	channel
+ * 0b0011	Hynix	H5TC4G63AFR-PBA	1600MHZ	4Gb	2GB	single-channel
+ * 0b0100	Hynix	H5TC4G63CFR-PBA	1600MHZ	4Gb	2GB	single-channel
+ * 0b0101	Samsung	K4B4G1646Q-HYK0	1600MHZ	4Gb	2GB	single-channel
+ * 0b0110	Hynix	H5TC4G63CFR-PBA	1600MHZ	4Gb	4GB	dual-channel
+ * 0b0111	Samsung	K4B4G1646Q-HYK0	1600MHZ	4Gb	4GB	dual-channel
  */
 static const uint32_t dual_channel_config =
-	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3);
+	(1 << 6) | (1 << 7);
 
 #define SPD_SIZE 256
 #define GPIO_SSUS_37_PAD 57
