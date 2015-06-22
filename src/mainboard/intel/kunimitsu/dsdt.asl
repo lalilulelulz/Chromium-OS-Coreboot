@@ -42,7 +42,10 @@ DefinitionBlock(
 		{
 			#include <soc/intel/skylake/acpi/systemagent.asl>
 			#include <soc/intel/skylake/acpi/pch.asl>
+			#include <soc/intel/skylake/acpi/dptf/cpu.asl>
 		}
+		// Thermal handler
+		#include "acpi/dptf.asl"
 	}
 
 	// Chrome OS specific

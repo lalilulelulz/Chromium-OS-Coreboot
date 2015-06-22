@@ -77,6 +77,9 @@ chip soc/intel/skylake
 	# Integrated Sensor
 	register "IshEnable" = "0"
 
+	# CPU Thermal participant device
+	register "Device4Enable" = "1"
+
 	# XDCI controller
 	register "XdciEnable" = "0"
 
