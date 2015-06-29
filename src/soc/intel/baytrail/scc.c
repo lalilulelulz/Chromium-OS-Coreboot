@@ -53,7 +53,7 @@ static const struct reg_script scc_after_dll[] = {
 	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49a8, ~0x1f001f, 0xd000d),
 	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49ac, ~0x1f001f, 0xd000d),
 	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49b0, ~0x1f001f, 0xd000d),
-	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49b4, ~0x1f001f, 0xd000d),
+	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49b4, ~0x1f001f, 0xd000a),
 	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x49b8, ~0x1, 0x0),
 	/* cfio_regs_mmc1_ELECTRICAL.nslew/pslew  */
 	REG_IOSF_RMW(IOSF_PORT_SCORE, 0x48c0, ~0x3c, 0x0),
