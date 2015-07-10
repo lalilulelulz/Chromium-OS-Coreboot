@@ -61,6 +61,13 @@ config BOARD_GOOGLE_BOLT
 	  Enable this config to select the Google Bolt mainboard.
 	  Bolt is a Chrome OS mainboard.
 	  Bolt is based on the Intel Haswell platform.
+config BOARD_GOOGLE_BUDDY
+	bool "Buddy"
+	help
+	  Google Buddy mainboard.
+	  Enable this config to select the Google Buddy mainboard.
+	  Buddy is a Chrome OS mainboard.
+	  Buddy is based on the Intel Broadwell platform.
 config BOARD_GOOGLE_BUTTERFLY
 	bool "Butterfly"
 	help
@@ -258,6 +265,7 @@ source "src/mainboard/google/auron_paine/Kconfig"
 source "src/mainboard/google/auron_yuna/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
+source "src/mainboard/google/buddy/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
 source "src/mainboard/google/cid/Kconfig"
 source "src/mainboard/google/daisy/Kconfig"
