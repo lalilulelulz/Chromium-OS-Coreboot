@@ -78,6 +78,7 @@
 #define CBMEM_ID_SPINTABLE	0x59175917
 #define CBMEM_ID_TIMESTAMP	0x54494d45
 #define CBMEM_ID_VBOOT_HANDOFF	0x780074f0
+#define CBMEM_ID_VPD		0x56504420
 #define CBMEM_ID_NONE		0x00000000
 
 #ifndef __ASSEMBLER__
@@ -119,7 +120,8 @@ struct cbmem_id_to_name {
 	{ CBMEM_ID_SMM_SAVE_SPACE,	"SMM BACKUP " }, \
 	{ CBMEM_ID_SPINTABLE,		"SPIN TABLE " }, \
 	{ CBMEM_ID_TIMESTAMP,		"TIME STAMP " }, \
-	{ CBMEM_ID_VBOOT_HANDOFF,	"VBOOT      " },
+	{ CBMEM_ID_VBOOT_HANDOFF,	"VBOOT      " }, \
+	{ CBMEM_ID_VPD,			"VPD        " },
 
 struct cbmem_entry;
 
