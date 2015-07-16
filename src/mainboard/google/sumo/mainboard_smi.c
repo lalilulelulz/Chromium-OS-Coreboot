@@ -28,8 +28,8 @@
 #include <baytrail/nvs.h>
 #include <baytrail/pmc.h>
 
-/* The wake gpio is SUS_GPIO[0]. */
-#define WAKE_GPIO_EN SUS_GPIO_EN0
+/* GPIO wake resources are PCH_WAKE# and touchscreen */
+#define WAKE_GPIO_EN (SUS_GPIO_EN0 | SUS_GPIO_EN2)
 
 int mainboard_io_trap_handler(int smif)
 {
