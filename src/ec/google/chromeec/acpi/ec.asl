@@ -175,6 +175,7 @@ Device (EC0)
 		Store (ACEX, \PWRS)
 		Notify (AC, 0x80)
 		If (CondRefOf (\_SB.DPTF.TCHG)) {
+			\_SB.DPTF.TCHG.SPPC (\_SB.DPTF.TCHG.PPPC ())
 			Notify (\_SB.DPTF.TCHG, 0x80)
 		}
 		\PNOT ()
