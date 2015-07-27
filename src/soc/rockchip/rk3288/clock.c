@@ -514,7 +514,7 @@ void rkclk_configure_tsadc(unsigned int hz)
 			&cru_ptr->cru_clksel_con[2]);
 }
 
-static int pll_para_config(u32 freq_hz, struct pll_div *div)
+static int pll_para_config(u32 freq_hz, struct pll_div *div, u32 *ext_div)
 {
 	u32 ref_khz = OSC_HZ / KHz, nr, nf = 0;
 	u32 fref_khz;
@@ -528,17 +528,27 @@ static int pll_para_config(u32 freq_hz, struct pll_div *div)
 		printk(BIOS_ERR, "%s: the frequency can not be 0 Hz\n", __func__);
 		return -1;
 	}
+
 	no = div_round_up(VCO_MIN_KHZ, freq_khz);
+	if (ext_div) {
+		*ext_div = div_round_up(no, max_no);
+		no = div_round_up(no, *ext_div);
+	}
 
 	/* only even divisors (and 1) are supported */
 	if (no > 1)
 		no = div_round_up(no, 2) * 2;
+
 	vco_khz = freq_khz * no;
+	if (ext_div)
+		vco_khz *= *ext_div;
+
 	if (vco_khz < VCO_MIN_KHZ || vco_khz > VCO_MAX_KHZ || no > max_no) {
 		printk(BIOS_ERR, "%s: Cannot find out a supported VCO"
 		" for Frequency (%uHz).\n", __func__, freq_hz);
 		return -1;
 	}
+
 	div->no = no;
 
 	best_diff_khz = vco_khz;
@@ -624,8 +634,9 @@ void rkclk_configure_vop_aclk(u32 vop_id, u32 aclk_hz)
 int rkclk_configure_vop_dclk(u32 vop_id, u32 dclk_hz)
 {
 	struct pll_div npll_config = {0};
+	u32 lcdc_div;
 
-	if (pll_para_config(dclk_hz, &npll_config))
+	if (pll_para_config(dclk_hz, &npll_config, &lcdc_div))
 		return -1;
 
 	/* npll enter slow-mode */
@@ -649,13 +660,13 @@ int rkclk_configure_vop_dclk(u32 vop_id, u32 dclk_hz)
 	switch (vop_id) {
 	case 0:
 		writel(RK_CLRSETBITS(0xff << 8 | 3 << 0,
-					0 << 8 | 2 << 0),
+					(lcdc_div - 1) << 8 | 2 << 0),
 					&cru_ptr->cru_clksel_con[27]);
 		break;
 
 	case 1:
 		writel(RK_CLRSETBITS(0xff << 8 | 3 << 6,
-					0 << 8 | 2 << 6),
+					(lcdc_div - 1) << 8 | 2 << 6),
 					&cru_ptr->cru_clksel_con[29]);
 		break;
 	}
