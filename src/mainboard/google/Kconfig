@@ -58,6 +58,11 @@ config BOARD_GOOGLE_BUTTERFLY
 	  Butterfly is a Chrome OS mainboard.
 	  Butterfly is based on the Intel Sandy Bridge platform.
 
+config BOARD_GOOGLE_CELES
+	bool "Celes"
+	help
+	  Google Celes mainboard.
+
 config BOARD_GOOGLE_COSMOS
 	bool "Cosmos"
 	help
@@ -342,6 +347,7 @@ source "src/mainboard/google/auron/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
+source "src/mainboard/google/celes/Kconfig"
 source "src/mainboard/google/cosmos/Kconfig"
 source "src/mainboard/google/cyan/Kconfig"
 source "src/mainboard/google/daisy/Kconfig"
