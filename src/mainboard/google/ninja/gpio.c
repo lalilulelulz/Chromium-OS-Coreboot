@@ -31,9 +31,9 @@ static const struct soc_gpio_map gpncore_gpio_map[] = {
 	GPIO_NC,	/* S0_NC04 - NC */
 	GPIO_NC,	/* S0_NC05 - NC */
 	GPIO_FUNC2,	/* S0_NC06 - EDP_HPD_L */
-	GPIO_INPUT,	/* S0_NC07 - DDI1_DDCDATA - STRAP */
-	GPIO_NC,	/* S0_NC08 - NC */
-	GPIO_OUT_HIGH,	/* S0_NC09 - SOC_DISP_ON_C */
+	GPIO_FUNC2,	/* S0_NC07 - DDI1_DDCDATA */
+	GPIO_FUNC2,	/* S0_NC08 - DDI1_DDCCLK */
+	GPIO_NC,	/* S0_NC09 - NC */
 	GPIO_FUNC2,	/* S0_NC10 - SOC_EDP_BLON_C */
 	GPIO_FUNC2,	/* S0_NC11 - SOC_DPST_PWM_C */
 	GPIO_NC,	/* S0_NC12 - NC */
@@ -57,7 +57,7 @@ static const struct soc_gpio_map gpncore_gpio_map[] = {
 /* SCORE GPIOs */
 static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_ACPI_SCI,	/* S0_SC000 - SOC_KBC_SCI - INT */
-	GPIO_FUNC2,	/* S0_SC001 - SATA_DEVSLP_C */
+	GPIO_NC,	/* S0_SC001 - NC */
 	GPIO_NC,	/* S0-SC002 - SATA_LED_R_N (NC/PU) */
 	GPIO_FUNC1,	/* S0-SC003 - PCIE_CLKREQ_IMAGE0# */
 	GPIO_NC,	/* S0-SC004 - NC# */
@@ -107,8 +107,8 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_FUNC1,	/* S0-SC048 - CLK_PCI_EC */
 	GPIO_FUNC1,	/* S0-SC049 - LPC_CLKRUN_L */
 	GPIO_NC,	/* S0-SC050 - IRQ_SERIRQ */
-	GPIO_NC,	/* S0-SC051 - SMB_SOC_DATA (XDP) */
-	GPIO_NC,	/* S0-SC052 - SMB_SOC_CLK (XDP) */
+	GPIO_FUNC1,	/* S0-SC051 - SMB_SOC_DATA (XDP) */
+	GPIO_FUNC1,	/* S0-SC052 - SMB_SOC_CLK (XDP) */
 	GPIO_NC,	/* S0-SC053 - SMB_SOC_ALERTB (NC) */
 	GPIO_DEFAULT,	/* S0-SC054 - NC */
 	GPIO_NC,	/* S0-SC055 - NC */
@@ -132,8 +132,8 @@ static const struct soc_gpio_map gpscore_gpio_map[] = {
 	GPIO_NC,	/* S0-SC073 - NC */
 	GPIO_NC,	/* S0-SC074 - SIO_UART2_RXD (NC) */
 	GPIO_NC,	/* S0-SC075 - SIO_UART2_TXD (NC) */
-	GPIO_INPUT,	/* S0-SC076 - BIOS_STRAP - STRAP */
-	GPIO_INPUT,	/* S0-SC077 - SOC_OVERRIDE - STRAP */
+	GPIO_NC,	/* S0-SC076 - NC */
+	GPIO_NC,	/* S0-SC077 - NC */
 	GPIO_NC,	/* S0-SC078 - NC */
 	GPIO_NC,	/* S0-SC079 - NC */
 	GPIO_FUNC1,	/* S0-SC080 - I2C_1_SDA */
