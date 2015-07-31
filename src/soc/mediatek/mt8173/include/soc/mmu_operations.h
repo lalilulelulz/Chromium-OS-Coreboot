@@ -16,31 +16,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#include <arch/cache.h>
-#include <arch/cpu.h>
-#include <arch/exception.h>
-#include <arch/io.h>
+
+#ifndef __SOC_MEDIATEK_MT8173_MMU_OPERATIONS_H__
+#define __SOC_MEDIATEK_MT8173_MMU_OPERATIONS_H__
+
 #include <arch/mmu.h>
 
-#include <cbfs.h>
-#include <console/console.h>
-#include <delay.h>
-#include <program_loading.h>
-#include <romstage_handoff.h>
-#include <symbols.h>
-#include <timestamp.h>
+enum {
+	DEV_MEM		= MA_DEV | MA_S  | MA_RW,
+	CACHED_MEM	= MA_MEM | MA_NS | MA_RW,
+	SECURE_MEM	= MA_MEM | MA_S  | MA_RW,
+	UNCACHED_MEM	= MA_MEM | MA_NS | MA_RW | MA_MEM_NC,
+};
 
-#include <soc/mmu_operations.h>
+extern unsigned char _sram_l2c[];
+extern unsigned char _esram_l2c[];
+#define _sram_l2c_size (_esram_l2c - _sram_l2c)
 
-void main(void)
-{
-	timestamp_add_now(TS_START_ROMSTAGE);
+void mt8173_mmu_init(void);
+void mt8173_mmu_after_dram(void);
 
-	/* init uart baudrate when pll on */
-	console_init();
-	exception_init();
-
-	mt8173_mmu_after_dram();
-
-	run_ramstage();
-}
+#endif //__SOC_MEDIATEK_MT8173_MMU_OPERATIONS_H__

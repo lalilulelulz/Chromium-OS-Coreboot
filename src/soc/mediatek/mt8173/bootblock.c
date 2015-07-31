@@ -18,6 +18,7 @@
  */
 
 #include <bootblock_common.h>
+#include <soc/mmu_operations.h>
 #include <soc/mt6391.h>
 #include <soc/pll.h>
 #include <soc/wdt.h>
@@ -31,6 +32,8 @@ void bootblock_soc_init(void)
 
 	/* post init pll */
 	mt_pll_post_init();
+
+	mt8173_mmu_init();
 
 	/* init watch dog, will disable AP watch dog */
 	mtk_wdt_init();
