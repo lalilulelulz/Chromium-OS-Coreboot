@@ -16,42 +16,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#include <arch/cache.h>
-#include <arch/cpu.h>
-#include <arch/exception.h>
-#include <arch/io.h>
-#include <arch/mmu.h>
 
-#include <cbfs.h>
-#include <cbmem.h>
-#include <console/console.h>
-#include <delay.h>
-#include <program_loading.h>
-#include <romstage_handoff.h>
-#include <symbols.h>
-#include <timestamp.h>
+#ifndef _DRAMC_COMMON_H_
+#define _DRAMC_COMMON_H_
 
-#include <soc/emi.h>
-#include <soc/mmu_operations.h>
-#include <soc/rtc.h>
+enum {
+	CHANNEL_A = 0,
+	CHANNEL_B,
+	CHANNEL_NUM
+};
 
-void main(void)
-{
-	timestamp_add_now(TS_START_ROMSTAGE);
+enum {
+	GW_PARAM_COARSE = 0,
+	GW_PARAM_FINE,
+	GW_PARAM_NUM
+};
 
-	/* init uart baudrate when pll on */
-	console_init();
-	exception_init();
+enum {
+	DUAL_RANKS = 2,
+	CATRAINING_NUM = 10
+};
 
-	rtc_boot();
+enum {
+	DQ_DATA_WIDTH = 32,
+	DQS_BIT_NUMBER = 8,
+	DQS_NUMBER = (DQ_DATA_WIDTH / DQS_BIT_NUMBER)
+};
 
-	/* init memory */
-	mt_mem_init(get_sdram_config());
-
-	mt8173_mmu_after_dram();
-
-	/* should be called after memory init */
-	cbmem_initialize_empty();
-
-	run_ramstage();
-}
+#endif   /* _DRAMC_COMMON_H_ */
