@@ -35,6 +35,7 @@ bootblock-y += mmu_operations.c
 
 ################################################################################
 
+verstage-y += i2c.c
 verstage-y += spi.c
 
 verstage-$(CONFIG_DRIVERS_UART) += uart.c
