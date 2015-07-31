@@ -17,21 +17,42 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <bootblock_common.h>
-#include <soc/mt6391.h>
-#include <soc/pll.h>
-#include <soc/wdt.h>
+#ifndef SOC_MEDIATEK_MT8173_WDT_H
+#define SOC_MEDIATEK_MT8173_WDT_H
 
-void bootblock_soc_init(void)
-{
-	mt_pll_init();
+#include <stdint.h>
 
-	/* init pmic wrap SPI interface and pmic */
-	mt6391_init();
+struct mt8173_wdt_regs {
+	u32 wdt_mode;
+	u32 wdt_length;
+	u32 wdt_restart;
+	u32 wdt_status;
+	u32 wdt_interval;
+	u32 wdt_swrst;
+	u32 wdt_swsysrst;
+	u32 reserved[9];
+	u32 wdt_debug_ctrl;
+};
 
-	/* post init pll */
-	mt_pll_post_init();
+/* WDT_MODE */
+enum {
+	MTK_WDT_MODE_KEY	= 0x22000000,
+	MTK_WDT_MODE_DUAL_MODE	= 1 << 6,
+	MTK_WDT_MODE_IRQ	= 1 << 3,
+	MTK_WDT_MODE_EXTEN	= 1 << 2,
+	MTK_WDT_MODE_EXT_POL	= 1 << 1,
+	MTK_WDT_MODE_ENABLE	= 1 << 0
+};
 
-	/* init watch dog, will disable AP watch dog */
-	mtk_wdt_init();
-}
+/* WDT_RESET */
+enum {
+	MTK_WDT_SWRST_KEY	= 0x1209,
+	MTK_WDT_STA_SPM_RST	= 1 << 1,
+	MTK_WDT_STA_SW_RST	= 1 << 30,
+	MTK_WDT_STA_HW_RST	= 1 << 31
+};
+
+int mtk_wdt_init(void);
+
+#endif /* SOC_MEDIATEK_MT8173_WDT_H */
+
