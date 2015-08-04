@@ -29,11 +29,12 @@
  * RAM_ID[2:0] are on GPIO_SSUS[39:37]
  * 0b000 - 4GiB total - 2 x 2GiB Elpida EDJ4216EFBG-GNL-F 1600MHz
  * 0b001 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63AFR-PBA 1600MHz
- * 0b010 - 2GiB total - 2 x 1GiB Micron MT41K128M16JT-125:K 1600MHz
+ * 0b010 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63CFR-PBR 1600MHz
  * 0b011 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63AFR-PBR 1600MHz
  * 0b100 - 2GiB total - 1 x 2GiB Elpida EDJ4216EFBG-GNL-F 1600MHz
  * 0b101 - 2GiB total - 1 x 2GiB Hynix  H5TC4G63AFR-PBA 1600MHz
  * 0b110 - 2GiB total - 1 x 2GiB Hynix  H5TC4G63AFR-PBR 1600MHz
+ * 0b111 - 2GiB total - 1 x 2GiB Hynix  H5TC4G63CFR-PBR 1600MHz
  */
 static const uint32_t dual_channel_config =
 	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3);
