@@ -132,7 +132,7 @@ static void fill_in_pattrs(void)
 	attrs->iacore_vids[IACORE_TURBO] = (msr.lo & 0xff); /* 1 core max */
 
 	/* Set bus clock speed */
-	attrs->bclk_khz = BUS_FREQ_KHZ;
+	attrs->bclk_khz = bus_freq_khz();
 }
 
 static inline void set_acpi_sleep_type(int val)

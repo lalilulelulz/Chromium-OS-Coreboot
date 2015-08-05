@@ -30,12 +30,33 @@
 #endif
 #include <stdint.h>
 
+unsigned bus_freq_khz(void)
+{
+	msr_t clk_info = rdmsr(MSR_BSEL_CR_OVERCLOCK_CONTROL);
+	switch (clk_info.lo & 0xF) {
+	case 0: return 83333;
+	case 1: return 100000;
+	case 2: return 133333;
+	case 3: return 116666;
+	case 4: return 80000;
+	case 5: return 93333;
+	case 6: return 90000;
+	case 7: return 88900;
+	case 8: return 87500;
+	default: return 0;
+	}
+}
+
 unsigned long tsc_freq_mhz(void)
 {
-	msr_t ia_core_ratios;
+	msr_t platform_info;
+	unsigned bclk_khz = bus_freq_khz();
 
-	ia_core_ratios = rdmsr(MSR_IACORE_RATIOS);
-	return (BUS_FREQ_KHZ * ((ia_core_ratios.lo >> 16) & 0x3f)) / 1000;
+	if (!bclk_khz)
+		return 0;
+
+	platform_info = rdmsr(MSR_PLATFORM_INFO);
+	return (bclk_khz * ((platform_info.lo >> 8) & 0xff)) / 1000;
 }
 
 #if !ENV_SMM
