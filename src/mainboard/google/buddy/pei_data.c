@@ -27,37 +27,37 @@ void mainboard_fill_pei_data(struct pei_data *pei_data)
 {
 	pei_data->ec_present = 1;
 
-	/* P0: LTE */
-	pei_data_usb2_port(pei_data, 0, 0x0150, 1, USB_OC_PIN_SKIP,
-			   USB_PORT_MINI_PCIE);
-	/* P1: POrt A, CN10 */
-	pei_data_usb2_port(pei_data, 1, 0x0040, 1, 0,
-			   USB_PORT_BACK_PANEL);
-	/* P2: CCD */
-	pei_data_usb2_port(pei_data, 2, 0x0080, 1, USB_OC_PIN_SKIP,
+	/* P0: Side USB3.0 port, USB3S1 */
+	pei_data_usb2_port(pei_data, 0, 0x0150, 1, 0,
 			   USB_PORT_INTERNAL);
-	/* P3: BT */
+	/* P1: Rear USB3.0 port, USB3R1 */
+	pei_data_usb2_port(pei_data, 1, 0x0040, 1, 0,
+			   USB_PORT_INTERNAL);
+	/* P2: Rear USB3.0 port, USB3R2 */
+	pei_data_usb2_port(pei_data, 2, 0x0080, 1, 1,
+			   USB_PORT_INTERNAL);
+	/* P3: Card Rearder, CRS1 */
 	pei_data_usb2_port(pei_data, 3, 0x0040, 1, USB_OC_PIN_SKIP,
-			   USB_PORT_MINI_PCIE);
-	/* P4: Port B, CN6 */
+			   USB_PORT_INTERNAL);
+	/* P4: Rear USB2.0 port, USB2R1 */
 	pei_data_usb2_port(pei_data, 4, 0x0040, 1, 2,
-			   USB_PORT_BACK_PANEL);
-	/* P5: EMPTY */
-	pei_data_usb2_port(pei_data, 5, 0x0000, 0, USB_OC_PIN_SKIP,
-			   USB_PORT_SKIP);
-	/* P6: SD Card */
+			   USB_PORT_INTERNAL);
+	/* P5: 2D Camera */
+	pei_data_usb2_port(pei_data, 5, 0x0000, 1, USB_OC_PIN_SKIP,
+			   USB_PORT_INTERNAL);
+	/* P6: VP8 */
 	pei_data_usb2_port(pei_data, 6, 0x0150, 1, USB_OC_PIN_SKIP,
-			   USB_PORT_FLEX);
-	/* P7: EMPTY */
-	pei_data_usb2_port(pei_data, 7, 0x0000, 0, USB_OC_PIN_SKIP,
-			   USB_PORT_SKIP);
+			   USB_PORT_MINI_PCIE);
+	/* P7: WLAN & BT */
+	pei_data_usb2_port(pei_data, 7, 0x0000, 1, USB_OC_PIN_SKIP,
+			   USB_PORT_MINI_PCIE);
 
-	/* P1: Port A, CN6 */
+	/* P1: Side USB3.0 port, USB3S1 */
 	pei_data_usb3_port(pei_data, 0, 1, 0, 0);
-	/* P2: EMPTY */
-	pei_data_usb3_port(pei_data, 1, 0, USB_OC_PIN_SKIP, 0);
-	/* P3: EMPTY */
-	pei_data_usb3_port(pei_data, 2, 0, USB_OC_PIN_SKIP, 0);
-	/* P4: EMPTY */
-	pei_data_usb3_port(pei_data, 3, 0, USB_OC_PIN_SKIP, 0);
+	/* P2: Rear USB3.0 port, USB3R1 */
+	pei_data_usb3_port(pei_data, 1, 1, 0, 0);
+	/* P3: Rear USB3.0 port, USB3R2 */
+	pei_data_usb3_port(pei_data, 2, 1, 1, 0);
+	/* P4: Card Rearder, CRS1 */
+	pei_data_usb3_port(pei_data, 3, 1, USB_OC_PIN_SKIP, 0);
 }
