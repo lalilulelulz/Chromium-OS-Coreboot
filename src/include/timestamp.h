@@ -96,6 +96,7 @@ enum timestamp_id {
 	TS_FSP_UPD_SOC_UPDATE = 528,
 	TS_FSP_LOAD_VBT = 529,
 	TS_FSP_UPD_MAINBOARD_UPDATE = 530,
+	TS_FSP_RO_FOUND = 531,
 
 	/* 1000+ reserved for payloads (1000-1200: ChromeOS depthcharge) */
 };

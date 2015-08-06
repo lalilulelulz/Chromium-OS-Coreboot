@@ -429,7 +429,7 @@ static const struct timestamp_id_to_name {
 	{ TS_FSP_BEFORE_FINALIZE, "calling FspNotify(ReadyToBoot)" },
 	{ TS_FSP_AFTER_FINALIZE, "FspNotify(ReadyToBoot) time" },
 	{ TS_FSP_START_RELOCATION, "ready to relocate FSP" },
-	{ TS_FSP_RW_FOUND, "FSP image found" },
+	{ TS_FSP_RW_FOUND, "FSP read/write image found" },
 	{ TS_FSP_COPIED_FROM_FLASH_TO_MEMORY,
 		"copy FSP from flash into memory" },
 	{ TS_FSP_FV_RELOCATED, "FSP flash volume relocated" },
@@ -442,7 +442,8 @@ static const struct timestamp_id_to_name {
 	{ TS_FSP_GET_ORIGINAL_UPD_DATA, "copied original UPD values" },
 	{ TS_FSP_UPD_SOC_UPDATE, "SOC updated UPD values" },
 	{ TS_FSP_LOAD_VBT, "loaded Video BIOS Table (VBT)" },
-	{ TS_FSP_UPD_MAINBOARD_UPDATE, "mainboard updated UPD values" }
+	{ TS_FSP_UPD_MAINBOARD_UPDATE, "mainboard updated UPD values" },
+	{ TS_FSP_RO_FOUND, "FSP read/only image found" }
 };
 
 void timestamp_print_entry(uint32_t id, uint64_t stamp, uint64_t prev_stamp)

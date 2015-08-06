@@ -29,6 +29,7 @@
 #include <soc/intel/common/ramstage.h>
 #include <soc/intel/common/util.h>
 #include <timestamp.h>
+#include <vendorcode/google/chromeos/vboot_handoff.h>
 
 /* SOC initialization after FSP silicon init */
 __attribute__((weak)) void soc_after_silicon_init(void)
@@ -281,25 +282,47 @@ static void fsp_cache_save(void)
 				cbmem_entry_size(fsp_entry), fih);
 }
 
-static int fsp_find_and_relocate(void)
+static void fsp_find_and_relocate(void)
 {
-	struct cbfs_file *file;
 	void *fih;
+	struct cbfs_file *file;
+	struct firmware_component fwc;
+	struct vboot_handoff *vboot_handoff;
 
-	file = cbfs_get_file(CBFS_DEFAULT_MEDIA, "fsp.bin");
-
-	if (file == NULL) {
-		printk(BIOS_ERR, "Couldn't find fsp.bin in CBFS.\n");
-		return -1;
+	vboot_handoff = cbmem_find(CBMEM_ID_VBOOT_HANDOFF);
+	fwc.address = 0;
+	if ((vboot_handoff != NULL)
+		&& (vboot_handoff->selected_firmware !=
+			VB_SELECT_FIRMWARE_READONLY)
+		&& (CONFIG_VBOOT_REFCODE_INDEX < MAX_PARSED_FW_COMPONENTS)) {
+		/* Use FSP from the read/write area in flash */
+		fwc = vboot_handoff->components[CONFIG_VBOOT_REFCODE_INDEX];
+		if ((fwc.address != 0) || (fwc.size != 0)) {
+			printk(BIOS_DEBUG,
+				"Loading fsp.bin from vboot rw area.\n");
+			timestamp_add_now(TS_FSP_RW_FOUND);
+			fih = fsp_relocate((void *)fwc.address, fwc.size);
+			if (fih == NULL) {
+				printk(BIOS_ERR,
+					"ERROR: Unable to load fsp.bin from vboot rw area!\n");
+				fwc.address = 0;
+			}
+		}
 	}
-	timestamp_add_now(TS_FSP_RW_FOUND);
+	if (fwc.address == 0) {
+		/* Locate the existing copy of FSP in cbfs */
+		printk(BIOS_DEBUG, "Loading fsp.bin from cbfs.\n");
+		file = cbfs_get_file(CBFS_DEFAULT_MEDIA, "fsp.bin");
+		fwc.address = (uint32_t)CBFS_SUBHEADER(file);
+		fwc.size = ntohl(file->len);
+		timestamp_add_now(TS_FSP_RO_FOUND);
+		fih = fsp_relocate((void *)fwc.address, fwc.size);
+	}
 
-	fih = fsp_relocate(CBFS_SUBHEADER(file), ntohl(file->len));
 	timestamp_add_now(TS_FSP_RELOCATED_REMAINING_ITEMS);
-
+	if (fih == NULL)
+		die("ERROR - failed to find and relocate fsp.bin!\n");
 	fsp_update_fih(fih);
-
-	return 0;
 }
 
 void intel_silicon_init(void)
