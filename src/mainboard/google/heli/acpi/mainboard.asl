@@ -171,6 +171,73 @@ Scope (\_SB.I2C1)
 		/* Allow device to power off in S0 */
 		Name (_S0W, 4)
 	}
+
+	Device (STPA)
+	{
+		Name (_HID, "SYN9431")
+		Name (_CID, "PNP0C50")
+		Name (_DDN, "Synaptics Touchpad")
+		Name (_UID, 3)
+		Name (ISTP, 1) /* Touchpad */
+
+		/*
+		 * Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
+		{
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
+			{
+				If (LEqual (Arg2, Zero))
+				{
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
+				}
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
+			}
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
+		}
+
+		Name (_CRS, ResourceTemplate()
+		{
+			I2cSerialBus (
+				0x2C,			/* SlaveAddress */
+				ControllerInitiated,	/* SlaveMode */
+				400000,			/* ConnectionSpeed */
+				AddressingMode7Bit,	/* AddressingMode */
+				"\\_SB.I2C1",		/* ResourceSource */
+			)
+			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			{
+				BOARD_TRACKPAD_IRQ
+			}
+		})
+	}
+
 }
 
 Scope (\_SB.I2C2)
