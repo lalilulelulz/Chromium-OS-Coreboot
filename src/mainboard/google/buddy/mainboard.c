@@ -131,6 +131,7 @@ static void verb_setup(void)
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
+	lan_init();
 }
 
 static int mainboard_smbios_data(device_t dev, int *handle,
