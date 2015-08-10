@@ -58,39 +58,9 @@ int mainboard_io_trap_handler(int smif)
 	return 1;
 }
 
-static u8 mainboard_smi_ec(void)
-{
-	u8 cmd = google_chromeec_get_event();
-	u32 pm1_cnt;
-
-#if CONFIG_ELOG_GSMI
-	/* Log this event */
-	if (cmd)
-		elog_add_event_byte(ELOG_TYPE_EC_EVENT, cmd);
-#endif
-
-	switch (cmd) {
-	case EC_HOST_EVENT_LID_CLOSED:
-		printk(BIOS_DEBUG, "LID CLOSED, SHUTDOWN\n");
-
-		/* Go to S5 */
-		pm1_cnt = inl(ACPI_BASE_ADDRESS + PM1_CNT);
-		pm1_cnt |= (0xf << 10);
-		outl(pm1_cnt, ACPI_BASE_ADDRESS + PM1_CNT);
-		break;
-	}
-
-	return cmd;
-}
-
 /* gpi_sts is GPIO 47:32 */
 void mainboard_smi_gpi(u32 gpi_sts)
 {
-	if (gpi_sts & (1 << (EC_SMI_GPI - 32))) {
-		/* Process all pending events */
-		while (mainboard_smi_ec() != 0)
-			;
-	}
 }
 
 void mainboard_smi_sleep(u8 slp_typ)
