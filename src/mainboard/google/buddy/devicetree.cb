@@ -55,7 +55,7 @@ chip soc/intel/broadwell
 	# Disable PCIe CLKOUT 1,5 and CLKOUT_XDP
 	register "icc_clock_disable" = "0x01220000"
 
-	register "s0ix_enable" = "1"
+	register "s0ix_enable" = "0"
 
 	device cpu_cluster 0 on
 		device lapic 0 on end
