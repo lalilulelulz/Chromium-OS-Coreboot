@@ -47,124 +47,6 @@ Scope (\_SB.PCI0.LPCB)
 {
 	#include <drivers/pc80/tpm/acpi/tpm.asl>
 }
-Scope (\_SB.I2C1)
-{
-	Device (ATSB)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
-		Name (_UID, 4)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Method(_CRS, 0x0, NotSerialized)
-		{
-			Name (BUF0, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_TOUCH_IRQ
-				}
-			})
-			Name (BUF1, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_DVT_TOUCH_IRQ
-				}
-			})
-			If (LEqual (\BDID, BOARD_EVT)) {
-				Return (BUF0)
-			} Else {
-				Return (BUF1)
-			}
-		}
-
-		Method (_STA)
-		{
-			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Method(_CRS, 0x0, NotSerialized)
-		{
-			Name (BUF0, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_TOUCH_IRQ
-				}
-			})
-			Name (BUF1, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_DVT_TOUCH_IRQ
-				}
-			})
-			If (LEqual (\BDID, BOARD_EVT)) {
-				Return (BUF0)
-			} Else {
-				Return (BUF1)
-			}
-		}
-
-		Method (_STA)
-		{
-			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-}
 
 Scope (\_SB.I2C5)
 {
@@ -212,24 +94,26 @@ Scope (\_SB.I2C5)
 
 Scope (\_SB.I2C6)
 {
-	Device (ETPA)
+	Device (ATPB)
 	{
-		Name (_HID, "ELAN0000")
-		Name (_DDN, "Elan Touchpad")
-		Name (_UID, 3)
+		Name (_HID, "ATML0000")
+		Name (_DDN, "Atmel Touchpad Bootloader")
+		Name (_UID, 1)
 		Name (ISTP, 1) /* Touchpad */
 
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x15,                     /* SlaveAddress */
-				ControllerInitiated,      /* SlaveMode */
-				400000,                   /* ConnectionSpeed */
-				AddressingMode7Bit,       /* AddressingMode */
-				"\\_SB.I2C6",             /* ResourceSource */
+				0x26,                     // SlaveAddress
+				ControllerInitiated,      // SlaveMode
+				400000,                   // ConnectionSpeed
+				AddressingMode7Bit,       // AddressingMode
+				"\\_SB.I2C6",             // ResourceSource
 			)
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
-				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
+			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			{
+				183
+			}
 		})
 
 		Method (_STA)
@@ -241,7 +125,42 @@ Scope (\_SB.I2C6)
 			}
 		}
 
+		/* Allow device to power off in S0 */
+		Name (_S0W, 4)
+	}
+
+	Device (ATPA)
+	{
+		Name (_HID, "ATML0000")
+		Name (_DDN, "Atmel Touchpad")
+		Name (_UID, 2)
+		Name (ISTP, 1) /* Touchpad */
 		Name (_PRW, Package() { BOARD_TRACKPAD_WAKE_GPIO, 0x3 })
+
+		Name (_CRS, ResourceTemplate()
+		{
+			I2cSerialBus (
+				0x4a,                     // SlaveAddress
+				ControllerInitiated,      // SlaveMode
+				400000,                   // ConnectionSpeed
+				AddressingMode7Bit,       // AddressingMode
+				"\\_SB.I2C6",             // ResourceSource
+			)
+			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			{
+				183
+			}
+		})
+
+		Method (_STA)
+		{
+			If (LEqual (\S6EN, 1)) {
+				Return (0xF)
+			} Else {
+				Return (0x0)
+			}
+		}
+
 		/* Allow device to power off in S0 */
 		Name (_S0W, 4)
 	}
