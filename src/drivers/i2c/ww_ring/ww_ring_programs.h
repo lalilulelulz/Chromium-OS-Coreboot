@@ -38,6 +38,9 @@
 /* Number of lp55321 controllers on the ring */
 #define WW_RING_NUM_LED_CONTROLLERS 2
 
+/* Number of lp55321 controllers on Arkham */
+#define ARKHAM_NUM_LED_CONTROLLERS 1
+
 /*
  * Structure to describe an lp55231 program: pointer to the text of the
  * program, its size and load address (load addr + size sould not exceed
@@ -55,8 +58,9 @@ typedef struct {
 typedef struct {
 	enum display_pattern   led_pattern;
 	const TiLp55231Program *programs[WW_RING_NUM_LED_CONTROLLERS];
-} WwRingStateProg;
+} ww_ring_state_prog;
 
-extern const WwRingStateProg wwr_state_programs[];
+extern const ww_ring_state_prog wwr_state_programs[];
+extern const ww_ring_state_prog arkham_led_state_programs[];
 
 #endif

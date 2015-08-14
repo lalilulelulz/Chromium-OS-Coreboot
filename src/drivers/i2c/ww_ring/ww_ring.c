@@ -93,7 +93,7 @@ typedef struct {
 	uint8_t  data_buffer[LP55231_PROG_PAGE_SIZE + 1];
 } TiLp55231;
 
-static void ww_ring_init(unsigned i2c_bus);
+static void ww_ring_init(unsigned i2c_bus, uint8_t led_count);
 
 /* Controller descriptors. */
 static TiLp55231 lp55231s[WW_RING_NUM_LED_CONTROLLERS];
@@ -334,18 +334,20 @@ static int ledc_init_validate(TiLp55231 *ledc)
  * Find a program matching screen type, and run it on both controllers, if
  * found.
  */
-int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
+static int display_led_pattern(unsigned i2c_bus, enum display_pattern pattern,
+			       uint8_t led_count,
+			       const ww_ring_state_prog *state_programs)
 {
 	static int initted;
-	const WwRingStateProg *wwr_prog;
+	const ww_ring_state_prog *wwr_prog;
 
 	if (!initted) {
-		ww_ring_init(i2c_bus);
+		ww_ring_init(i2c_bus, led_count);
 		initted = 1;
 	}
 
 	/* Last entry does not have any actual programs defined. */
-	for (wwr_prog = wwr_state_programs; wwr_prog->programs[0]; wwr_prog++)
+	for (wwr_prog = state_programs; wwr_prog->programs[0]; wwr_prog++)
 		if (wwr_prog->led_pattern == pattern) {
 			int j;
 
@@ -353,7 +355,7 @@ int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
 			 * First stop all running programs to avoid
 			 * inerference between the controllers.
 			 */
-			for (j = 0; j < WW_RING_NUM_LED_CONTROLLERS; j++) {
+			for (j = 0; j < led_count; j++) {
 				if (!lp55231s[j].dev_addr)
 					continue;
 				ledc_write_engctrl2
@@ -361,7 +363,7 @@ int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
 					 LP55231_ENGCTRL2_ALL_DISABLE);
 			}
 
-			for (j = 0; j < WW_RING_NUM_LED_CONTROLLERS; j++) {
+			for (j = 0; j < led_count; j++) {
 				if (!lp55231s[j].dev_addr)
 					continue;
 				ledc_run_program(lp55231s + j,
@@ -376,16 +378,29 @@ int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
 	return -1;
 }
 
+int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
+{
+	return display_led_pattern(i2c_bus, pattern,
+				   WW_RING_NUM_LED_CONTROLLERS,
+				   wwr_state_programs);
+}
+
+int arkham_led_display_pattern(unsigned i2c_bus, enum display_pattern pattern)
+{
+	return display_led_pattern(i2c_bus, pattern,
+				   ARKHAM_NUM_LED_CONTROLLERS,
+				   arkham_led_state_programs);
+}
 
 #define LP55231_I2C_BASE_ADDR 0x32
 
-static void ww_ring_init(unsigned i2c_bus)
+static void ww_ring_init(unsigned i2c_bus, uint8_t led_count)
 {
 	TiLp55231 *ledc;
 	int i, count = 0;
 
 	for (i = 0, ledc = lp55231s;
-	     i < WW_RING_NUM_LED_CONTROLLERS;
+	     i < led_count;
 	     i++, ledc++) {
 
 		ledc->i2c_bus = i2c_bus;

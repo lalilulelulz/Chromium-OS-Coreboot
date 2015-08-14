@@ -26,10 +26,10 @@ enum display_pattern {
 	WWR_NORMAL_BOOT		/* No buttons pressed, normal boot sequence. */
 };
 /*
- * ww_ring_display_pattern
- *
- * Display pattern on the ring LEDs.
+ * ww_ring_display_pattern - Display pattern on Whirlwind ring LEDs.
+ * arkham_led_display_pattern - Display pattern on Arkham LED's
  */
 int ww_ring_display_pattern(unsigned i2c_bus, enum display_pattern pattern);
+int arkham_led_display_pattern(unsigned i2c_bus, enum display_pattern pattern);
 
 #endif
