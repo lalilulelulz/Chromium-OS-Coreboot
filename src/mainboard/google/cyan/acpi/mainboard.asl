@@ -86,10 +86,10 @@ Scope (\_SB.I2C1)
 					 "\\_SB.GPNC") { BOARD_EVT_TOUCH_GPIO_INDEX }
 
 			} )
-			If (LEqual (\BDID, BOARD_EVT)) {
-				Return (BUF1)
-			} Else {
+			If (LEqual (\BDID, BOARD_PRE_EVT)) {
 				Return (BUF0)
+			} Else {
+				Return (BUF1)
 			}
 		}
 
