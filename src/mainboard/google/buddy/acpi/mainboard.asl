@@ -46,28 +46,36 @@ Scope (\_SB)
 
 Scope (\_SB.PCI0.I2C1)
 {
-	Device (ATSA)
+	Device (ETSA)
 	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (_S0W, 4)
-		Name (ISTP, 0) /* TouchScreen */
+		Name (_HID, "ELAN0001")
+		Name (_DDN, "Elan Touchscreen")
+		Name (_UID, 6)
+		Name (ISTP, 0) /* Touchscreen */
 
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x4a,                     // SlaveAddress
+				0x10,                     // SlaveAddress
 				ControllerInitiated,      // SlaveMode
 				400000,                   // ConnectionSpeed
 				AddressingMode7Bit,       // AddressingMode
 				"\\_SB.PCI0.I2C1",        // ResourceSource
 			)
-
-			// GPIO54 (ball L3) is PIRQW: PIRQL_GSI + PIRQL - PIRQW = PIRQW_GSI
-			// 27 + 3 - 14 = 38
-			Interrupt (ResourceConsumer, Edge, ActiveLow) { 38 }
+			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			{
+				BOARD_TOUCHSCREEN_IRQ
+			}
 		})
+
+		Method (_STA)
+		{
+			If (LEqual (\S2EN, 1)) {
+				Return (0xF)
+			} Else {
+				Return (0x0)
+			}
+		}
 
 		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
 
@@ -80,21 +88,8 @@ Scope (\_SB.PCI0.I2C1)
 			}
 		}
 
-		Method (_STA)
-		{
-			If (LEqual (\S2EN, 1)) {
-				If (LEqual (\TID2, 0)) {
-					Return (0xF)
-				} Else {
-					If(LEqual (\TID2, 1)) {
-						Return (0xF)
-					}
-					Return (0x0)
-				}
-			} Else {
-				Return (0x0)
-			}
-		}
+		/* Allow device to power off in S0 */
+		Name (_S0W, 4)
 	}
 }
 
