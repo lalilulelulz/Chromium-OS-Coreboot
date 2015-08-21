@@ -100,17 +100,19 @@ static void setup_codec_clock(device_t dev)
 	const char *freq_str;
 
 	config = dev->chip_info;
-	switch (config->lpe_codec_clk_freq) {
-	case 19:
-		freq_str = "19.2";
-		reg = CLK_FREQ_19P2MHZ;
+	switch (config->lpe_codec_clk_src) {
+	case 0:
+		/* XTAL driven bit2=0*/
+		freq_str = "19.2Mhz External Crystal";
+		reg = CLK_SRC_XTAL;
 		break;
-	case 25:
-		freq_str = "25";
-		reg = CLK_FREQ_25MHZ;
+	case 1:
+		/* PLL driven bit2=1*/
+		freq_str = "19.2Mhz PLL";
+		reg = CLK_SRC_PLL;
 		break;
 	default:
-		printk(BIOS_DEBUG, "LPE codec clock not required.\n");
+		printk(BIOS_DEBUG, "LPE codec clock default.\n");
 		return;
 	}
 
