@@ -21,6 +21,7 @@
 #include <cbfs.h>
 #include <cbmem.h>
 #include <console/console.h>
+#include <gpio.h>
 #include <lib.h>
 #include <memory_info.h>
 #include <smbios.h>
@@ -30,10 +31,6 @@
 #include <string.h>
 
 #define SPD_SIZE 256
-#define SATA_GP3_PAD_CFG0       0x5828
-#define I2C3_SCL_PAD_CFG0       0x5438
-#define MF_PLT_CLK1_PAD_CFG0    0x4410
-#define I2C3_SDA_PAD_CFG0       0x5420
 
 /*
  * 0b0000 - 4GiB total - 2 x 2GiB Samsung K4B4G1646Q-HYK0 1600MHz
@@ -43,22 +40,18 @@
  */
 static const uint32_t dual_channel_config = (1 << 0) | (1 << 1);
 
-static void configure_ramid_gpios(void)
-{
-	write32((void *)(COMMUNITY_GPSOUTHWEST_BASE + SATA_GP3_PAD_CFG0),
-		(PAD_PULL_DISABLE | PAD_GPIO_ENABLE | PAD_CONFIG0_GPI_DEFAULT));
-	write32((void *)(COMMUNITY_GPSOUTHEAST_BASE + MF_PLT_CLK1_PAD_CFG0),
-		(PAD_PULL_DISABLE | PAD_GPIO_ENABLE | PAD_CONFIG0_GPI_DEFAULT));
-}
-
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
 	int ram_id = 0;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, SATA_GP3_PAD_CFG0) << 0;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, I2C3_SCL_PAD_CFG0) << 1;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHEAST_BASE, MF_PLT_CLK1_PAD_CFG0)
-		<< 2;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, I2C3_SDA_PAD_CFG0) << 3;
+
+	gpio_t spd_gpios[] = {
+		GP_SW_80,	/* SATA_GP3,RAMID0 */
+		GP_SW_67,	/* I2C3_SCL,RAMID1 */
+		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
+		GP_SW_64,	/* I2C3_SDA RAMID3 */
+	};
+
+	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
 	printk(BIOS_DEBUG, "ram_id=%d, total_spds: %d\n", ram_id, total_spds);
 	if (ram_id >= total_spds)
 		return NULL;
@@ -70,10 +63,14 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	/* Display the RAM type */
 	switch (ram_id) {
 	case 0:
+		printk(BIOS_DEBUG, "4GiB Samsung K4B4G1646Q-HYK0 1600MHz\n");
+		break;
 	case 2:
 		printk(BIOS_DEBUG, "2GiB Samsung K4B4G1646Q-HYK0 1600MHz\n");
 		break;
 	case 1:
+		printk(BIOS_DEBUG, "4GiB Hynix  H5TC4G63CFR-PBA 1600MHz\n");
+		break;
 	case 3:
 		printk(BIOS_DEBUG, "2GiB Hynix  H5TC4G63CFR-PBA 1600MHz\n");
 		break;
@@ -94,8 +91,6 @@ void mainboard_fill_spd_data(struct pei_data *ps)
 	spd_file = cbfs_get_file(CBFS_DEFAULT_MEDIA, "spd.bin");
 	if (!spd_file)
 		die("SPD data not found.");
-
-	configure_ramid_gpios();
 
 	/*
 	 * Both channels are always present in SPD data. Always use matched
