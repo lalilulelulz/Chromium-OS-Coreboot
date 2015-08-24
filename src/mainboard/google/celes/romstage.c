@@ -52,9 +52,9 @@ void mainboard_memory_init_params(struct romstage_params *params,
 		memory_params->PcdMemoryTypeEnable = MEM_DDR3;
 		memory_params->PcdMemorySpdPtr =
 					(u32)params->pei_data->spd_data_ch0;
-		memory_params->PcdMemChannel0Config =
-					params->pei_data->spd_ch0_config;
-		memory_params->PcdMemChannel1Config =
-					params->pei_data->spd_ch1_config;
 	}
+	memory_params->PcdMemChannel0Config =
+				params->pei_data->spd_ch0_config;
+	memory_params->PcdMemChannel1Config =
+				params->pei_data->spd_ch1_config;
 }
