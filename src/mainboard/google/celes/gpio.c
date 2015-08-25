@@ -21,8 +21,6 @@
 #include "irqroute.h"
 #include <soc/gpio.h>
 #include <stdlib.h>
-#include <boardid.h>
-#include "onboard.h"
 #include "gpio.h"
 
 /* South East Community */
@@ -78,7 +76,9 @@ static const struct soc_gpio_map gpse_gpio_map[] = {
 	Native_M1, /* 78  SDMMC3_PWR_EN_B */
 	GPIO_NC, /* 79  GPI ILB_SERIRQ */
 	Native_M1, /* 80  USB_OC0_B */
-	NATIVE_INT(1, L1), /* 81  SDMMC3_CD_B */
+	GPI(trig_edge_both, L1, P_20K_H, non_maskable,
+				en_edge_detect, NA , NA),
+	/* 81  SDMMC3_CD_B */
 	GPIO_NC,  /* 82  spkr	 asummed gpio number */
 	Native_M1, /* 83 SUSPWRDNACK */
 	SPARE_PIN,/* 84 spare pin */
@@ -116,11 +116,11 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	GPI(trig_edge_both, L2, P_1K_H, non_maskable, en_edge_detect, NA, NA),
 		/* 37 MF_HDA_DOCKENB */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 45 I2C5_SDA */
-	GPIO_NC, /* 46 I2C4_SDA */
+	NATIVE_PU1K_CSEN_INVTX(1), /* 46 I2C4_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 47 I2C6_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 48 I2C5_SCL */
 	GPIO_NC, /* 49 I2C_NFC_SDA */
-	GPIO_NC, /* 50 I2C4_SCL */
+	NATIVE_PU1K_CSEN_INVTX(1), /* 50 I2C4_SCL */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 51 I2C6_SCL */
 	GPIO_NC, /* 52 I2C_NFC_SCL */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 60 I2C1_SDA */
@@ -132,14 +132,13 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	NATIVE_PU1K_CSEN_INVTX(1), /* 66  I2C2_SCL */
 	GPIO_INPUT_NO_PULL,/* 67  I2C3_SCL,RAMID1 */
 	GPIO_OUT_HIGH, /* 75 SATA_GP0 */
-	GPI(trig_edge_low, L0, P_1K_H, non_maskable, NA, NA, NA),
-	/* 76 GPI SATA_GP1 */
+	GPIO_NC, /* 76 GPI SATA_GP1 */
 	Native_M1, /* 77 SATA_LEDN */
-	GPIO_NC, /* 80 SATA_GP3 */
-	Native_M1, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
+	GPIO_NC, /* 78 SATA_GP2 */
+	GPIO_NC, /* 79 MF_SMB_ALERTB */
 	GPIO_INPUT_NO_PULL, /* 80 SATA_GP3,RAMID0 */
-	Native_M1, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
-	Native_M1, /* 82 NFC_FW_DOWNLOAD, MF_SMB_DATA */
+	GPIO_NC, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
+	GPIO_NC, /* 82 NFC_FW_DOWNLOAD, MF_SMB_DATA */
 	/* Per DE request, change PCIE_CLKREQ0123B to GPIO_INPUT */
 	Native_M1, /* 90 PCIE_CLKREQ0B */
 	GPIO_INPUT_PU_20K, /* 91 GPI PCIE_CLKREQ1B/LTE_WAKE# */
@@ -156,16 +155,15 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 
 /* North Community */
 static const struct soc_gpio_map  gpn_gpio_map[] = {
-	Native_M5, /* 00 GPIO_DFX0 */
-	Native_M5, /* 01 GPIO_DFX3 */
-	Native_M1, /* 02 GPIO_DFX7 */
-	Native_M5, /* 03 GPIO_DFX1 */
-	Native_M1, /* 04 GPIO_DFX5 */
-	Native_M1, /* 05 GPIO_DFX4 */
-	GPI(trig_edge_low, L5, NA, non_maskable, en_rx_data, NA, NA),
-	/* 06 GPIO_DFX8 */
-	Native_M5, /* 07 GPIO_DFX2 */
-	Native_M8, /* 08 GPIO_DFX6 */
+	GPIO_NC, /* 00 GPIO_DFX0 */
+	GPIO_NC, /* 01 GPIO_DFX3 */
+	GPIO_NC, /* 02 GPIO_DFX7 */
+	GPIO_NC, /* 03 GPIO_DFX1 */
+	GPIO_NC, /* 04 GPIO_DFX5 */
+	GPIO_NC, /* 05 GPIO_DFX4 */
+	GPIO_NC, /* 06 GPIO_DFX8 */
+	GPIO_NC, /* 07 GPIO_DFX2 */
+	GPIO_NC, /* 08 GPIO_DFX6 */
 	GPI(trig_edge_low, L8, NA, non_maskable, en_edge_rx_data ,
 	UNMASK_WAKE, SCI), /* 15 GPIO_SUS0 */
 	GPO_FUNC(NA, NA), /* 16 SEC_GPIO_SUS10 */
@@ -173,9 +171,11 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	/* 17 GPIO_SUS3 */
 	GPI(trig_edge_low, L1, P_1K_H, non_maskable, NA, UNMASK_WAKE, NA),
 	/* 18 GPIO_SUS7 */
-	GPO_FUNC(0, 0), /* 19 GPIO_SUS1 */
+	GPI(trig_edge_low, L3, P_1K_H, non_maskable, NA, UNMASK_WAKE, NA),
+	/* 19 GPIO_SUS1 */
 	GPIO_NC, /* 20 GPIO_SUS5 */
-	GPI(trig_edge_high, L2, NA, non_maskable, en_edge_rx_data, NA , NA),
+	GPI(trig_edge_high, L2, P_20K_H, non_maskable,
+			en_edge_rx_data,	NA , NA),
 	/* 21 SEC_GPIO_SUS11 */
 	GPIO_NC, /* 22 GPIO_SUS4 */
 	GPIO_NC,
@@ -196,20 +196,20 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	Native_M1, /* 39 TDO */
 	GPIO_SKIP, /* 40 SVID0_CLK */
 	Native_M1, /* 41 TDI */
-	Native_M2, /* 45 GP_CAMERASB05 */
-	Native_M2, /* 46 GP_CAMERASB02 */
-	Native_M2, /* 47 GP_CAMERASB08 */
-	Native_M2, /* 48 GP_CAMERASB00 */
-	Native_M2, /* 49 GP_CAMERASBO6 */
+	GPIO_NC, /* 45 GP_CAMERASB05 */
+	GPIO_NC, /* 46 GP_CAMERASB02 */
+	GPIO_NC, /* 47 GP_CAMERASB08 */
+	GPIO_NC, /* 48 GP_CAMERASB00 */
+	GPIO_NC, /* 49 GP_CAMERASBO6 */
 	GPIO_NC, /* 50 GP_CAMERASB10 */
-	Native_M2, /* 51 GP_CAMERASB03 */
+	GPIO_NC, /* 51 GP_CAMERASB03 */
 	GPIO_NC, /* 52 GP_CAMERASB09 */
-	Native_M2, /* 53 GP_CAMERASB01 */
-	Native_M2, /* 54 GP_CAMERASB07 */
+	GPIO_NC, /* 53 GP_CAMERASB01 */
+	GPIO_NC, /* 54 GP_CAMERASB07 */
 	GPIO_NC, /* 55 GP_CAMERASB11 */
-	Native_M2, /* 56 GP_CAMERASB04 */
+	GPIO_NC, /* 56 GP_CAMERASB04 */
 	GPIO_NC, /* 60 PANEL0_BKLTEN */
-	Native_M1, /* 61 HV_DDI0_HPD */
+	GPIO_NC, /* 61 HV_DDI0_HPD */
 	NATIVE_PU1K_M1, /* 62 HV_DDI2_DDC_SDA */
 	Native_M1, /* 63 PANEL1_BKLTCTL */
 	NATIVE_TX_RX_EN, /* 64 HV_DDI1_HPD */
@@ -265,13 +265,5 @@ static struct soc_gpio_config gpio_config = {
 
 struct soc_gpio_config *mainboard_get_gpios(void)
 {
-
-	switch (board_id()) {
-	case BOARD_DVT:
-		return get_override_gpios_dvt();
-	case BOARD_BCRD2:
-		return get_override_gpios_bcrd2();
-	default:
-		return &gpio_config;
-	}
+	return &gpio_config;
 }

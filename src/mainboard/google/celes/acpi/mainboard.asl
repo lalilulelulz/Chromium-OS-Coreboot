@@ -83,9 +83,7 @@ Scope (\_SB.I2C5)
 		Method (_STA)
 		{
 			If (LEqual (\S5EN, 1)) {
-				If (LEqual (\BDID, BOARD_BCRD2)) {
-					Return (0xF)
-				}
+				Return (0xF)
 			}
 			Return (0x0)
 		}
@@ -104,11 +102,11 @@ Scope (\_SB.I2C6)
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x26,                     // SlaveAddress
-				ControllerInitiated,      // SlaveMode
-				400000,                   // ConnectionSpeed
-				AddressingMode7Bit,       // AddressingMode
-				"\\_SB.I2C6",             // ResourceSource
+				BOARD_TRACKPAD_I2C_ADDR_B,	// SlaveAddress
+				ControllerInitiated,		// SlaveMode
+				400000,				// ConnectionSpeed
+				AddressingMode7Bit,		// AddressingMode
+				"\\_SB.I2C6",			// ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{
@@ -140,11 +138,11 @@ Scope (\_SB.I2C6)
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x4a,                     // SlaveAddress
-				ControllerInitiated,      // SlaveMode
-				400000,                   // ConnectionSpeed
-				AddressingMode7Bit,       // AddressingMode
-				"\\_SB.I2C6",             // ResourceSource
+				BOARD_TRACKPAD_I2C_ADDR,	// SlaveAddress
+				ControllerInitiated,		// SlaveMode
+				400000,				// ConnectionSpeed
+				AddressingMode7Bit,		// AddressingMode
+				"\\_SB.I2C6",			// ResourceSource
 			)
 			Interrupt (ResourceConsumer, Edge, ActiveLow)
 			{

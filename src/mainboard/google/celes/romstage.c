@@ -43,16 +43,8 @@ void mainboard_romstage_entry(struct romstage_params *rp)
 void mainboard_memory_init_params(struct romstage_params *params,
 	MEMORY_INIT_UPD *memory_params)
 {
-	int id;
-	id = board_id();
-	if (id == BOARD_BCRD2) {
-		memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
-		memory_params->PcdDvfsEnable = 0;
-	} else {
-		memory_params->PcdMemoryTypeEnable = MEM_DDR3;
-		memory_params->PcdMemorySpdPtr =
-					(u32)params->pei_data->spd_data_ch0;
-	}
+	memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
+	memory_params->PcdDvfsEnable = 0;
 	memory_params->PcdMemChannel0Config =
 				params->pei_data->spd_ch0_config;
 	memory_params->PcdMemChannel1Config =
