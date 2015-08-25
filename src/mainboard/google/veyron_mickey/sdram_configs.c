@@ -42,6 +42,7 @@ static struct rk3288_sdram_params sdram_configs[] = {
 #include "sdram_inf/sdram-ddr3-samsung-4GB.inc"		/* ram_code = 1110 */
 #include "sdram_inf/sdram-ddr3-hynix-4GB.inc"		/* ram_code = 1111 */
 };
+_Static_assert(ARRAY_SIZE(sdram_configs) == 16, "Must have 16 sdram_configs!");
 
 const struct rk3288_sdram_params *get_sdram_config()
 {

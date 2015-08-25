@@ -1,9 +1,9 @@
 {
-	/* two Samsung K4E8E304ED-EGCE000 chips */
+	/* two ELPIDA FA232A2MA-GC-F chips */
 	{
 		{
 			.rank = 0x2,
-			.col = 0xA,
+			.col = 0xB,
 			.bk = 0x3,
 			.bw = 0x2,
 			.dbw = 0x2,
@@ -13,7 +13,7 @@
 		},
 		{
 			.rank = 0x2,
-			.col = 0xA,
+			.col = 0xB,
 			.bk = 0x3,
 			.bw = 0x2,
 			.dbw = 0x2,
@@ -69,10 +69,10 @@
 	},
 	.noc_timing = 0x20D266A4,
 	.noc_activate = 0x5B6,
-	.ddrconfig = 2,
+	.ddrconfig = 6,
 	.ddr_freq = 533*MHz,
 	.dramtype = LPDDR3,
 	.num_channels = 2,
-	.stride = 9,
-	.odt = 0,
+	.stride = 13,
+	.odt = 0
 },

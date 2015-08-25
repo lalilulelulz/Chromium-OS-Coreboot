@@ -1,5 +1,5 @@
 {
-	/* two Samsung K4E8E304ED-EGCE000 chips */
+	/* two ELPIDA F8132A3MA-GD-F chips */
 	{
 		{
 			.rank = 0x2,
@@ -74,5 +74,5 @@
 	.dramtype = LPDDR3,
 	.num_channels = 2,
 	.stride = 9,
-	.odt = 0,
+	.odt = 0
 },

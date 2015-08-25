@@ -1,5 +1,4 @@
 {
-	/* two Samsung K4E8E304ED-EGCE000 chips */
 	{
 		{
 			.rank = 0x2,
@@ -8,8 +7,8 @@
 			.bw = 0x2,
 			.dbw = 0x2,
 			.row_3_4 = 0x0,
-			.cs0_row = 0xE,
-			.cs1_row = 0xE
+			.cs0_row = 0xF,
+			.cs1_row = 0xF
 		},
 		{
 			.rank = 0x2,
@@ -18,8 +17,8 @@
 			.bw = 0x2,
 			.dbw = 0x2,
 			.row_3_4 = 0x0,
-			.cs0_row = 0xE,
-			.cs1_row = 0xE
+			.cs0_row = 0xF,
+			.cs1_row = 0xF
 		}
 	},
 	{
@@ -69,10 +68,10 @@
 	},
 	.noc_timing = 0x20D266A4,
 	.noc_activate = 0x5B6,
-	.ddrconfig = 2,
+	.ddrconfig = 3,
 	.ddr_freq = 533*MHz,
 	.dramtype = LPDDR3,
 	.num_channels = 2,
-	.stride = 9,
+	.stride = 13,
 	.odt = 0,
 },
