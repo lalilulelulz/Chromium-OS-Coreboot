@@ -83,3 +83,8 @@
 #define BOARD_EVT		0x02
 #define BOARD_DVT		0x03
 #endif
+
+
+#define DPTF_CPU_PASSIVE	88
+#define DPTF_CPU_CRITICAL	90
+
