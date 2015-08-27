@@ -171,3 +171,9 @@ config NO_TPM_RESUME
 	  On some boards the TPM stays powered up in S3. On those
 	  boards, booting Windows will break if the TPM resume command
 	  is sent during an S3 resume.
+
+config PHYSICAL_REC_SWITCH
+	bool "Physical recovery switch is present"
+	default n
+	help
+	  Whether this platform has a physical recovery switch
