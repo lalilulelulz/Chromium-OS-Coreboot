@@ -22,10 +22,9 @@ romstage-y += spd.c
 
 SPD_BIN = $(obj)/spd.bin
 
-SPD_SOURCES = samsung_2GiB_dimm_K4B4G1646Q-HYK0
-SPD_SOURCES += hynix_2GiB_dimm_HMT425S6CFR6A_H5TC4G63CFR
-SPD_SOURCES += samsung_2GiB_dimm_K4B4G1646Q-HYK0
-SPD_SOURCES += hynix_2GiB_dimm_HMT425S6CFR6A_H5TC4G63CFR
+SPD_SOURCES = samsung_2GiB_dimm_K4E8E304EE-EGCF
+SPD_SOURCES += hynix_2GiB_dimm_H9CCNNN8GTMLAR-NUD
+SPD_SOURCES += micron_2GiB_dimm_EDF8132A3MA-JD-F
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 
