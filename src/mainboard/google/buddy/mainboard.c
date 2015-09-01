@@ -60,7 +60,7 @@ static int int15_handler(void)
 		 *  bit 7 = RESERVED
 		 */
 		X86_AX = 0x005f;
-		X86_CX = 0x0008;
+		X86_CX = 0x000c;
 		res = 1;
 		break;
 	case 0x5f51:
