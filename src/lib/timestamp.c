@@ -25,6 +25,7 @@
 #include <symbols.h>
 #include <timestamp.h>
 #include <arch/early_variables.h>
+#include <rules.h>
 
 #define MAX_TIMESTAMPS 60
 
@@ -209,6 +210,11 @@ static void timestamp_sync(void)
 					  tse->entry_stamp);
 	}
 
+	/* Seed the timestamp tick frequency in ramstage. */
+#if ENV_RAMSTAGE
+	ts_cbmem_table->tick_freq_mhz = timestamp_tick_freq_mhz();
+#endif
+
 	ts_cache_table->num_entries = 0;
 	/* Freshly added cbmem table has base_time 0. Inherit cache base_time */
 	if (ts_cbmem_table->base_time == 0)
@@ -262,4 +268,10 @@ void timestamp_add(enum timestamp_id id, uint64_t ts_time)
 void timestamp_add_now(enum timestamp_id id)
 {
 	timestamp_add(id, timestamp_get());
+}
+
+/* Like timestamp_get() above this matches up with microsecond granularity. */
+int __attribute__((weak)) timestamp_tick_freq_mhz(void)
+{
+	return 1;
 }

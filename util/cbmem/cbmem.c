@@ -271,7 +271,7 @@ static int parse_cbtable(u64 address, size_t table_size)
  * read CPU frequency from a sysfs file, return an frequency in Kilohertz as
  * an int or exit on any error.
  */
-static u64 get_cpu_freq_KHz(void)
+static unsigned long arch_tick_frequency(void)
 {
 	FILE *cpuf;
 	char freqs[100];
@@ -306,31 +306,39 @@ static u64 get_cpu_freq_KHz(void)
 	exit(1);
 }
 
-/* On x86 platforms timestamps are stored
- * in CPU cycles (from rdtsc). Hence the
- * timestamp divider is the CPU frequency
- * in MHz.
- */
-u64 arch_convert_raw_ts_entry(u64 ts)
-{
-	static u64 cpu_freq_mhz = 0;
-
-	if (!cpu_freq_mhz)
-		cpu_freq_mhz = get_cpu_freq_KHz() / 1000;
-
-	return ts / cpu_freq_mhz;
-}
-
 #else
 
-/* On non-x86 platforms the timestamp entries
- * are not in clock cycles but in usecs
- */
-u64 arch_convert_raw_ts_entry(u64 ts)
+static unsigned long arch_tick_frequency(void)
 {
-	return ts;
+	/* 1 MHz = 1us. */
+	return 1;
+
 }
 #endif
+
+static unsigned long tick_freq_mhz;
+
+static void timestamp_set_tick_freq(unsigned long table_tick_freq_mhz)
+{
+	tick_freq_mhz = table_tick_freq_mhz;
+
+	/* Honor table frequency. */
+	if (tick_freq_mhz)
+		return;
+
+	tick_freq_mhz = arch_tick_frequency();
+
+	if (!tick_freq_mhz) {
+		fprintf(stderr, "Cannot determine timestamp tick frequency.\n");
+		exit(1);
+	}
+}
+
+u64 arch_convert_raw_ts_entry(u64 ts)
+{
+	return ts / tick_freq_mhz;
+}
+
 
 /*
  * Print an integer in 'normalized' form - with commas separating every three
@@ -484,6 +492,8 @@ static void dump_timestamps(void)
 
 	size = sizeof(*tst_p);
 	tst_p = map_memory_size((unsigned long)timestamps.cbmem_addr, size);
+
+	timestamp_set_tick_freq(tst_p->tick_freq_mhz);
 
 	printf("%d entries total:\n\n", tst_p->num_entries);
 	size += tst_p->num_entries * sizeof(tst_p->entries[0]);

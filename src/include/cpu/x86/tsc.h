@@ -40,8 +40,8 @@ static inline unsigned long long rdtscll(void)
 }
 #endif
 
-#if CONFIG_TSC_CONSTANT_RATE
+/* Provided by CPU/chipset code for the TSC rate in MHz. */
 unsigned long tsc_freq_mhz(void);
-#endif
+
 
 #endif /* CPU_X86_TSC_H */
