@@ -453,37 +453,65 @@ static const struct timestamp_id_to_name {
 	{ TS_FSP_UPD_MAINBOARD_UPDATE, "mainboard updated UPD values" },
 	{ TS_FSP_RO_FOUND, "FSP read/only image found" }
 };
-
-void timestamp_print_entry(uint32_t id, uint64_t stamp, uint64_t prev_stamp)
+static const char *timestamp_name(uint32_t id)
 {
 	int i;
-	const char *name;
 
-	name = "<unknown>";
 	for (i = 0; i < ARRAY_SIZE(timestamp_ids); i++) {
-		if (timestamp_ids[i].id == id) {
-			name = timestamp_ids[i].name;
-			break;
-		}
+		if (timestamp_ids[i].id == id)
+			return timestamp_ids[i].name;
 	}
+	return "<unknown>";
+}
+
+static uint64_t timestamp_print_parseable_entry(uint32_t id, uint64_t stamp,
+						uint64_t prev_stamp)
+{
+	const char *name;
+	uint64_t step_time;
+
+	name = timestamp_name(id);
+
+	step_time = arch_convert_raw_ts_entry(stamp - prev_stamp);
+
+	/* ID<tab>absolute time<tab>relative time<tab>description */
+	printf("%d\t", id);
+	printf("%llu\t", (long long)arch_convert_raw_ts_entry(stamp));
+	printf("%llu\t", (long long)step_time);
+	printf("%s\n", name);
+
+	return step_time;
+}
+
+uint64_t timestamp_print_entry(uint32_t id, uint64_t stamp, uint64_t prev_stamp)
+{
+	const char *name;
+	uint64_t step_time;
+
+	name = timestamp_name(id);
 
 	printf("%4d:", id);
 	printf("%-50s", name);
 	print_norm(arch_convert_raw_ts_entry(stamp));
+	step_time = arch_convert_raw_ts_entry(stamp - prev_stamp);
 	if (prev_stamp) {
 		printf(" (");
 		print_norm(arch_convert_raw_ts_entry(stamp - prev_stamp));
 		printf(")");
 	}
 	printf("\n");
+
+	return step_time;
 }
 
 /* dump the timestamp table */
-static void dump_timestamps(void)
+static void dump_timestamps(int mach_readable)
 {
 	int i;
 	struct timestamp_table *tst_p;
 	size_t size;
+	uint64_t prev_stamp;
+	uint64_t total_time;
 
 	if (timestamps.tag != LB_TAG_TIMESTAMPS) {
 		fprintf(stderr, "No timestamps found in coreboot table.\n");
@@ -495,16 +523,43 @@ static void dump_timestamps(void)
 
 	timestamp_set_tick_freq(tst_p->tick_freq_mhz);
 
-	printf("%d entries total:\n\n", tst_p->num_entries);
+	if (!mach_readable)
+		printf("%d entries total:\n\n", tst_p->num_entries);
 	size += tst_p->num_entries * sizeof(tst_p->entries[0]);
 
 	unmap_memory();
 	tst_p = map_memory_size((unsigned long)timestamps.cbmem_addr, size);
 
+	/* Report the base time within the table. */
+	prev_stamp = 0;
+	if (mach_readable)
+		timestamp_print_parseable_entry(0,  tst_p->base_time,
+						prev_stamp);
+	else
+		timestamp_print_entry(0,  tst_p->base_time, prev_stamp);
+	prev_stamp = tst_p->base_time;
+
+	total_time = 0;
 	for (i = 0; i < tst_p->num_entries; i++) {
-		const struct timestamp_entry *tse_p = tst_p->entries + i;
-		timestamp_print_entry(tse_p->entry_id, tse_p->entry_stamp,
-			i ? tse_p[-1].entry_stamp : 0);
+		uint64_t stamp;
+		const struct timestamp_entry *tse = &tst_p->entries[i];
+
+		/* Make all timestamps absolute. */
+		stamp = tse->entry_stamp + tst_p->base_time;
+		if (mach_readable)
+			total_time +=
+				timestamp_print_parseable_entry(tse->entry_id,
+							stamp, prev_stamp);
+		else
+			total_time += timestamp_print_entry(tse->entry_id,
+							stamp, prev_stamp);
+		prev_stamp = stamp;
+	}
+
+	if (!mach_readable) {
+		printf("\nTotal Time: ");
+		print_norm(total_time);
+		printf("\n");
 	}
 
 	unmap_memory();
@@ -864,6 +919,7 @@ static void print_usage(const char *name)
 	     "   -l | --list:                      print cbmem table of contents\n"
 	     "   -x | --hexdump:                   print hexdump of cbmem area\n"
 	     "   -t | --timestamps:                print timestamp information\n"
+	     "   -T | --parseable-timestamps:      print parseable timestamps\n"
 	     "   -V | --verbose:                   verbose (debugging) output\n"
 	     "   -v | --version:                   print the version\n"
 	     "   -h | --help:                      print this help\n"
@@ -994,6 +1050,7 @@ int main(int argc, char** argv)
 	int print_list = 0;
 	int print_hexdump = 0;
 	int print_timestamps = 0;
+	int machine_readable_timestamps = 0;
 
 	int opt, option_index = 0;
 	static struct option long_options[] = {
@@ -1001,13 +1058,14 @@ int main(int argc, char** argv)
 		{"coverage", 0, 0, 'C'},
 		{"list", 0, 0, 'l'},
 		{"timestamps", 0, 0, 't'},
+		{"parseable-timestamps", 0, 0, 'T'},
 		{"hexdump", 0, 0, 'x'},
 		{"verbose", 0, 0, 'V'},
 		{"version", 0, 0, 'v'},
 		{"help", 0, 0, 'h'},
 		{0, 0, 0, 0}
 	};
-	while ((opt = getopt_long(argc, argv, "cCltxVvh?",
+	while ((opt = getopt_long(argc, argv, "cClTtxVvh?",
 				  long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'c':
@@ -1028,6 +1086,11 @@ int main(int argc, char** argv)
 			break;
 		case 't':
 			print_timestamps = 1;
+			print_defaults = 0;
+			break;
+		case 'T':
+			print_timestamps = 1;
+			machine_readable_timestamps = 1;
 			print_defaults = 0;
 			break;
 		case 'V':
@@ -1129,7 +1192,7 @@ int main(int argc, char** argv)
 		dump_cbmem_hex();
 
 	if (print_defaults || print_timestamps)
-		dump_timestamps();
+		dump_timestamps(machine_readable_timestamps);
 
 	close(mem_fd);
 	return 0;
