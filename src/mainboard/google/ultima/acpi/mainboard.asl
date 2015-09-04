@@ -47,69 +47,13 @@ Scope (\_SB.PCI0.LPCB)
 {
 	#include <drivers/pc80/tpm/acpi/tpm.asl>
 }
+
 Scope (\_SB.I2C1)
 {
-	Device (ATSB)
+	Device (ETSA)
 	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
-		Name (_UID, 4)
-		Name (ISTP, 0) /* TouchScreen */
-
-		Method(_CRS, 0x0, NotSerialized)
-		{
-			Name (BUF0, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_TOUCH_IRQ
-				}
-			})
-			Name (BUF1, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_DVT_TOUCH_IRQ
-				}
-			})
-			If (LEqual (\BDID, BOARD_EVT)) {
-				Return (BUF0)
-			} Else {
-				Return (BUF1)
-			}
-		}
-
-		Method (_STA)
-		{
-			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
+		Name (_HID, "ELAN0001")
+		Name (_DDN, "Elan Touchscreen ")
 		Name (_UID, 5)
 		Name (ISTP, 0) /* TouchScreen */
 
@@ -118,7 +62,7 @@ Scope (\_SB.I2C1)
 			Name (BUF0, ResourceTemplate ()
 			{
 				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
+					0x10,                     /* SlaveAddress */
 					ControllerInitiated,      /* SlaveMode */
 					400000,                   /* ConnectionSpeed */
 					AddressingMode7Bit,       /* AddressingMode */
@@ -129,25 +73,7 @@ Scope (\_SB.I2C1)
 					BOARD_TOUCH_IRQ
 				}
 			})
-			Name (BUF1, ResourceTemplate ()
-			{
-				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_DVT_TOUCH_IRQ
-				}
-			})
-			If (LEqual (\BDID, BOARD_EVT)) {
-				Return (BUF0)
-			} Else {
-				Return (BUF1)
-			}
+			Return (BUF0)
 		}
 
 		Method (_STA)
@@ -201,9 +127,7 @@ Scope (\_SB.I2C5)
 		Method (_STA)
 		{
 			If (LEqual (\S5EN, 1)) {
-				If (LEqual (\BDID, BOARD_BCRD2)) {
-					Return (0xF)
-				}
+				Return (0xF)
 			}
 			Return (0x0)
 		}

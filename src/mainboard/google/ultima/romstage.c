@@ -44,7 +44,6 @@ void mainboard_memory_init_params(struct romstage_params *params,
 	MEMORY_INIT_UPD *memory_params)
 {
 	memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
-	memory_params->PcdDvfsEnable = 1;
 	memory_params->PcdMemChannel0Config =
 			params->pei_data->spd_ch0_config;
 	memory_params->PcdMemChannel1Config =
