@@ -75,8 +75,6 @@ static void bootblock_cpu_init(void)
 {
 	/* Allow memory-mapped PCI config access. */
 	setup_mmconfig();
-
-	/* Load microcode before any caching. */
-	intel_update_microcode_from_cbfs();
 	enable_rom_caching();
+	intel_update_microcode_from_cbfs();
 }
