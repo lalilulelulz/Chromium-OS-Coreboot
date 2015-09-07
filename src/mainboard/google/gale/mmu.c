@@ -14,15 +14,14 @@
 #include <symbols.h>
 #include "mmu.h"
 
-/* convenient shorthand (in MB) */
-#define RPM_START           ((uintptr_t)_rpm / KiB)
-#define RPM_END             ((uintptr_t)_erpm / KiB)
-#define RPM_SIZE            (RPM_END - RPM_START)
-#define SRAM_START          ((uintptr_t)_sram / KiB)
-#define SRAM_END            ((uintptr_t)_esram / KiB)
-#define DRAM_START          ((uintptr_t)_dram / MiB)
-#define DRAM_SIZE           (CONFIG_DRAM_SIZE_MB)
-#define DRAM_END            (DRAM_START + DRAM_SIZE)
+#define WIFI_IMEM_0_START	((uintptr_t)_wifi_imem_0 / KiB)
+#define WIFI_IMEM_0_END		((uintptr_t)_ewifi_imem_0 / KiB)
+#define WIFI_IMEM_1_START	((uintptr_t)_wifi_imem_1 / KiB)
+#define WIFI_IMEM_1_END		((uintptr_t)_ewifi_imem_1 / KiB)
+
+#define DRAM_START		((uintptr_t)_dram / MiB)
+#define DRAM_SIZE		(CONFIG_DRAM_SIZE_MB)
+#define DRAM_END		(DRAM_START + DRAM_SIZE)
 
 /* DMA memory for drivers */
 #define DMA_START            ((uintptr_t)_dma_coherent / MiB)
