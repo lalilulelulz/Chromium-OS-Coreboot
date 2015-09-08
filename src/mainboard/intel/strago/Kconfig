@@ -18,31 +18,15 @@ config BOARD_SPECIFIC_OPTIONS
 	select VIRTUAL_DEV_SWITCH
 	select LID_SWITCH
 
-
-config DISPLAY_SPD_DATA
-	bool "Display Memory Serial Presence Detect Data"
-	default n
-	help
-	  When enabled displays the memory configuration data.
-
-config DISPLAY_SPD_DATA
-	bool "Display Memory Serial Presence Detect Data"
-	default n
-	help
-	  When enabled displays the memory SPD data.
 config DYNAMIC_VNN_SUPPORT
 	bool "Enables support for Dynamic VNN"
 	default n
 config MAINBOARD_DIR
 	string
 	default intel/strago
-
 config MAINBOARD_PART_NUMBER
 	string
 	default "Strago"
-
-
-
 config VBOOT_RAMSTAGE_INDEX
 	hex
 	default 0x2

@@ -41,9 +41,7 @@
 /* ToDo: change kbd irq to gpio bank index */
 #define BOARD_I8042_IRQ			182
 
-#define BOARD_TOUCH_IRQ			156
-#define BOARD_DVT_TOUCH_IRQ		184
-
+#define BOARD_TOUCH_IRQ			184
 
 /* Audio: Gpio index in SW bank */
 #define JACK_DETECT_GPIO_INDEX		95
@@ -60,9 +58,7 @@
 #define BOARD_TOUCHSCREEN_NAME          "touchscreen"
 #define BOARD_TOUCHSCREEN_WAKE_GPIO     ACPI_ENABLE_WAKE_SUS_GPIO(2)
 #define BOARD_TOUCHSCREEN_I2C_BUS       0
-#define BOARD_TOUCHSCREEN_I2C_ADDR      0x4a    /* TODO(shawnn): Check this */
-
-
+#define BOARD_TOUCHSCREEN_I2C_ADDR      0x4a
 
 /* SD CARD gpio */
 #define SDCARD_CD			81
@@ -71,11 +67,6 @@
 #define AUDIO_CODEC_CID			"10EC5650"
 #define AUDIO_CODEC_DDN			"RTEK Codec Controller "
 #define AUDIO_CODEC_I2C_ADDR		0x1A
-
-#define BOARD_EVT			0x02
-#define BOARD_DVT			0x03
-#define BOARD_BCRD2			0x04
-
 #define BCRD2_PMIC_I2C_BUS		0x01
 
 #endif
