@@ -129,7 +129,7 @@ void mainboard_fill_spd_data(struct pei_data *ps)
 static void set_dimm_info(uint32_t chips, uint8_t *spd, struct dimm_info *dimm)
 {
 	uint16_t clock_frequency;
-	uint32_t log2_chips;
+	uint32_t log2_chips = 0;
 
 	/* Parse the SPD data to determine the DIMM information */
 	dimm->ddr_type = MEMORY_DEVICE_DDR3;

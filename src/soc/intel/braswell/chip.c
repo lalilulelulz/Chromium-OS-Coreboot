@@ -88,7 +88,15 @@ static void enable_dev(device_t dev)
 void soc_silicon_init_params(SILICON_INIT_UPD *params)
 {
 	device_t dev = dev_find_slot(0, PCI_DEVFN(LPC_DEV, LPC_FUNC));
-	struct soc_intel_braswell_config *config = dev->chip_info;
+	struct soc_intel_braswell_config *config;
+
+	if (!dev) {
+		printk(BIOS_DEBUG,
+			"Error! Device not found, soc_silicon_init_params!\n");
+		return;
+	}
+
+	config  = dev->chip_info;
 
 	/* Set the parameters for SiliconInit */
 	printk(BIOS_DEBUG, "Updating UPD values for SiliconInit\n");
