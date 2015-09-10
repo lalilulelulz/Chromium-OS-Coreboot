@@ -21,18 +21,19 @@
 #include <arch/io.h>
 #include <device/device.h>
 #include <device/pci.h>
-
 #if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
 #include "ec.h"
 #include <ec/google/chromeec/ec.h>
 #endif
 #include <rules.h>
+#include <gpio.h>
 #include <soc/gpio.h>
 #include <string.h>
 #include <vendorcode/google/chromeos/chromeos.h>
+#include <delay.h>
 
-/* The WP status pin lives on GPIO_SSUS_6 which is pad 36 in the SUS well. */
-#define WP_STATUS_PAD	36
+/* The WP status pin lives on MF_ISH_GPIO_4 */
+#define GP_WP_STATUS	GP_E_22
 
 #if ENV_RAMSTAGE
 #include <boot/coreboot_tables.h>
@@ -79,7 +80,6 @@ int get_lid_switch(void)
 
 	mec_io_bytes(0, EC_LPC_ADDR_MEMMAP + EC_MEMMAP_SWITCHES, 1,
 		     &ec_switches, NULL);
-
 	return !!(ec_switches & EC_SWITCH_LID_OPEN);
 #else
 	/* Default to force open. */
@@ -97,6 +97,7 @@ int get_recovery_mode_switch(void)
 #if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
 	u8 ec_switches;
 	u32 ec_events;
+
 	mec_io_bytes(0, EC_LPC_ADDR_MEMMAP + EC_MEMMAP_SWITCHES, 1,
 		     &ec_switches, NULL);
 
@@ -130,15 +131,17 @@ int get_write_protect_state(void)
 {
 	/*
 	 * The vboot loader queries this function in romstage. The GPIOs have
-	 * not been set up yet as that configuration is done in ramstage. The
-	 * hardware defaults to an input but there is a 20K pulldown. Externally
-	 * there is a 10K pullup. Disable the internal pull in romstage so that
-	 * there isn't any ambiguity in the reading.
+	 * not been set up yet as that configuration is done in ramstage.
+	 * Configuring this GPIO as input so that there isn't any ambiguity
+	 * in the reading.
 	 */
 #if ENV_ROMSTAGE
-	ssus_disable_internal_pull(WP_STATUS_PAD);
+	gpio_input_pullup(GP_WP_STATUS);
+
+	/* Wait until signals become stable */
+	udelay(20);
 #endif
 
 	/* WP is enabled when the pin is reading high. */
-	return ssus_get_gpio(WP_STATUS_PAD);
+	return gpio_get(GP_WP_STATUS);
 }
