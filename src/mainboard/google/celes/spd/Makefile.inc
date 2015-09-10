@@ -22,9 +22,9 @@ romstage-y += spd.c
 
 SPD_BIN = $(obj)/spd.bin
 
-SPD_SOURCES  = samsung_2GiB_dimm_K4E8E304EE-EGCE     # 0b0000
-SPD_SOURCES += empty                                 # 0b0001
-SPD_SOURCES += samsung_2GiB_dimm_K4E8E304EE-EGCE     # 0b0010
+
+SPD_SOURCES = samsung_2GiB_dimm_K4E8E304EE-EGCE    # Index0
+SPD_SOURCES += samsung_2GiB_dimm_K4E8E324EB-EGCF   # Index1
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 

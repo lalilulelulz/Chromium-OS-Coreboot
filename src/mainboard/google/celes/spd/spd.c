@@ -21,52 +21,53 @@
 #include <cbfs.h>
 #include <console/console.h>
 #include <lib.h>
+#include <gpio.h>
 #include <soc/gpio.h>
 #include <soc/romstage.h>
 #include <string.h>
 
 #define SPD_SIZE 256
-#define SATA_GP3_PAD_CFG0       0x5828
-#define I2C3_SCL_PAD_CFG0       0x5438
-#define MF_PLT_CLK1_PAD_CFG0    0x4410
-#define I2C3_SDA_PAD_CFG0       0x5420
+
+#define MEM_SINGLE_CHANNEL	1
+#define MEM_DUAL_CHANNEL	0
 
 /*
- * 0b0000 - 4GiB total - 2 x 2GiB Samsung K4E8E304EE-EGCE 1600MHz
- * 0b0010 - 2GiB total - 1 x 2GiB Samsung K4E8E304EE-EGCE 1600MHz
+ * Usage of RAMID straps
+ *
+ *  RAMID1 - Single/Dual channel configuration
+ *   0 - Dual channel, 1 - Single channel
+ *
+ *  Combination of RAMID3, RAMID2, RAMID0 - Index of SPD table
+ *   Index 0 - Samsung K4E8E304EE-EGCE 1600MHz 23nm
+ *   Index 1 - Samsung K4E8E324EB-EGCF 1866MHz 20nm
  */
-static const uint32_t dual_channel_config = (1 << 0);
 
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
-	int ram_id = 0;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, SATA_GP3_PAD_CFG0) << 0;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, I2C3_SCL_PAD_CFG0) << 1;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHEAST_BASE, MF_PLT_CLK1_PAD_CFG0)
-		<< 2;
-	ram_id |= get_gpio(COMMUNITY_GPSOUTHWEST_BASE, I2C3_SDA_PAD_CFG0) << 3;
+	int spd_index = 0;
+	int single_channel_conf = 0;
 
-	/*
-	 * There are only 2 SPDs supported on Celes Board:
-	 * Samsung 4G:0000 & Samsung 2G:0010
-	 */
+	gpio_t spd_gpios[] = {
+		GP_SW_80,	/* SATA_GP3,RAMID0 */
+		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
+		GP_SW_64,	/* I2C3_SDA RAMID3 */
+	};
 
-	/*
-	 * RAMID0 on the first boot does not read the correct value,so checking
-	 * bit 1 is enough as WA
-	 */
-	if (ram_id > 0)
-		ram_id = 2;
-	printk(BIOS_DEBUG, "ram_id=%d, total_spds: %d\n", ram_id, total_spds);
+	spd_index = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
 
-	if (ram_id >= total_spds)
+	single_channel_conf = gpio_get(GP_SW_67); /* I2C3_SCL,RAMID1 */
+
+	printk(BIOS_DEBUG, "spd_index=%d, total_spds: %d\n", spd_index, total_spds);
+	printk(BIOS_DEBUG, "single_channel_conf=%d\n", single_channel_conf);
+
+	if (spd_index >= total_spds)
 		return NULL;
 
-	/* Single channel configs */
-	if (dual_channel_config & (1 << ram_id))
+	/* Single/Dual channel configs */
+	if (single_channel_conf == MEM_DUAL_CHANNEL)
 		*dual = 1;
 
-	return &spd_file_content[SPD_SIZE * ram_id];
+	return &spd_file_content[SPD_SIZE * spd_index];
 }
 
 /* Copy SPD data for on-board memory */
