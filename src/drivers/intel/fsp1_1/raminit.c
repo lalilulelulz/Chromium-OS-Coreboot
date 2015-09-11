@@ -23,6 +23,7 @@
 #include <fsp/util.h>
 #include <lib.h> /* hexdump */
 #include <reset.h>
+#include <soc/intel/common/mma.h>
 #include <soc/pei_data.h>
 #include <soc/romstage.h>
 #include <string.h>
@@ -102,6 +103,10 @@ void raminit(struct romstage_params *params)
 	/* Update the UPD data */
 	soc_memory_init_params(params, &memory_init_params);
 	mainboard_memory_init_params(params, &memory_init_params);
+
+	if (IS_ENABLED(CONFIG_MMA))
+		setup_mma(&memory_init_params);
+
 	post_code(0x36);
 
 	/* Display the UPD data */
