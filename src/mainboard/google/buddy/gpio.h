@@ -84,7 +84,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_INPUT,         /* 58: PCH_SPI_WP_D */
 	PCH_GPIO_OUT_HIGH,      /* 59: PP3300_LAN_EN */
 	PCH_GPIO_NATIVE,        /* 60: NATIVE: SMB0ALERT# */
-	PCH_GPIO_UNUSED,        /* 61: UNUSED */
+	PCH_GPIO_NATIVE,        /* 61: SUS_STAT# */
 	PCH_GPIO_UNUSED,        /* 62: UNUSED */
 	PCH_GPIO_NATIVE,        /* 63: NATIVE: PCH_SLP_S5_L */
 	PCH_GPIO_UNUSED,        /* 64: UNUSED */
