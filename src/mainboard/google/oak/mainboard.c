@@ -24,6 +24,7 @@
 #include <delay.h>
 #include <device/device.h>
 
+#include <elog.h>
 #include <gpio.h>
 #include <soc/bl31_plat_params.h>
 #include <soc/mt6391.h>
@@ -31,6 +32,7 @@
 #include <soc/pinmux.h>
 #include <soc/pll.h>
 #include <soc/usb.h>
+#include <vendorcode/google/chromeos/chromeos.h>
 
 static void register_da9212_to_bl31(void)
 {
@@ -174,6 +176,9 @@ static void mainboard_init(device_t dev)
 	configure_backlight();
 	configure_usb();
 	configure_bl31();
+
+	elog_init();
+	elog_add_boot_reason();
 }
 
 static void mainboard_enable(device_t dev)
