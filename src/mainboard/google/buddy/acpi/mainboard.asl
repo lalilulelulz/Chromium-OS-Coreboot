@@ -93,14 +93,39 @@ Scope (\_SB.PCI0.I2C1)
 	}
 }
 
+/*
+ * LAN connected to Root Port 3, becomes Root Port 1 after coalesce
+ */
 Scope (\_SB.PCI0.RP01)
+{
+	Device (ETH0)
+	{
+		Name (_ADR, 0x00000000)
+		Name (_PRW, Package() { BUDDY_NIC_WAKE_GPIO, 3 })
+
+		Method (_DSW, 3, NotSerialized)
+		{
+			Store (BUDDY_NIC_WAKE_GPIO, Local0)
+
+			If (LEqual (Arg0, 1)) {
+				// Enable GPIO as wake source
+				\_SB.PCI0.LPCB.GPIO.GWAK (Local0)
+			}
+		}
+	}
+}
+
+/*
+ * WLAN connected to Root Port 4, becomes Root Port 2 after coalesce
+ */
+Scope (\_SB.PCI0.RP02)
 {
 	Device (WLAN)
 	{
 		Name (_ADR, 0x00000000)
 
 		/* GPIO10 is WLAN_WAKE_L_Q */
-		Name (GPIO, 10)
+		Name (GPIO, BUDDY_WLAN_WAKE_GPIO)
 
 		Name (_PRW, Package() { GPIO, 3 })
 

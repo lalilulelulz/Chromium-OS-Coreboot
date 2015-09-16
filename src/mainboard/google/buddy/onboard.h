@@ -37,4 +37,10 @@ void lan_init(void);
 #define BOARD_TOUCHSCREEN_I2C_BUS	2	/* I2C1 */
 #define BOARD_TOUCHSCREEN_I2C_ADDR	0x10
 
+/* NIC wake is GPIO 8 */
+#define BUDDY_NIC_WAKE_GPIO		8
+
+/* WLAN wake is GPIO 10 */
+#define BUDDY_WLAN_WAKE_GPIO		10
+
 #endif
