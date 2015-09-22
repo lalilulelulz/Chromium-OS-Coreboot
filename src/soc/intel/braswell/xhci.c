@@ -39,6 +39,17 @@ static void xhci_init(device_t dev)
 {
 	printk(BIOS_SPEW, "%s/%s ( %s )\n",
 			__FILE__, __func__, dev_name(dev));
+
+	struct soc_intel_braswell_config *config = dev->chip_info;
+	struct reg_script ops[] = {
+		REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x7f04, config->usb_comp_bg),
+		REG_SCRIPT_END
+	};
+
+	if (config && config->usb_comp_bg) {
+		printk(BIOS_INFO, "Override USB2_COMPBG to: 0x%X\n", config->usb_comp_bg);
+		reg_script_run(ops);
+	}
 }
 
 static struct device_operations xhci_device_ops = {

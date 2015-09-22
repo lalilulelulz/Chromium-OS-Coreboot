@@ -60,6 +60,13 @@ struct soc_intel_braswell_config {
 
 	/* Allow PCIe devices to wake system from suspend. */
 	int pcie_wake_enable;
+  
+	/* Program USB2_COMPBG register. 
+         * [10:7] - select vref to AFE port
+         *  x111 - 575mV, x110 - 650mV, x101 - 550mV, x100 - 537.5mV,
+         *  x011 - 625mV, x010 - 700mV, x001 - 600mV, x000 - 675mV
+         */
+	int usb_comp_bg;
 
 	/*
 	 * The following fields come from fsp_vpd.h .aka. VpdHeader.h.
