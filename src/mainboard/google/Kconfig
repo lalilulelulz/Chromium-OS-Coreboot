@@ -199,6 +199,14 @@ config BOARD_GOOGLE_RAMBI
 	  Rambi is a Chrome OS mainboard.
 	  Rambi is based on the Intel Baytrail platform.
 
+config BOARD_GOOGLE_REKS
+	bool "Reks"
+	help
+	  Google Reks mainboard.
+	  Enable this config to select the Google Reks mainboard.
+	  Reks is a Chrome OS mainboard.
+	  Reks is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_RUSH
 	bool "Rush"
 	help
@@ -373,6 +381,7 @@ source "src/mainboard/google/peach_pit/Kconfig"
 source "src/mainboard/google/peppy/Kconfig"
 source "src/mainboard/google/purin/Kconfig"
 source "src/mainboard/google/rambi/Kconfig"
+source "src/mainboard/google/reks/Kconfig"
 source "src/mainboard/google/rush/Kconfig"
 source "src/mainboard/google/rush_ryu/Kconfig"
 source "src/mainboard/google/samus/Kconfig"
