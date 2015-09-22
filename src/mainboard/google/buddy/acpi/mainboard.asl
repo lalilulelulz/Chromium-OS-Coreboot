@@ -44,6 +44,39 @@ Scope (\_SB)
 	}
 }
 
+Scope (\_SB.PCI0.I2C0)
+{
+	Device (RTEK)
+	{
+		Name (_HID, "10EC5650")
+		Name (_CID, "10EC5650")
+		Name (_DDN, "RTEK Codec Controller ")
+		Name (_UID, 1)
+
+		Name (_CRS, ResourceTemplate()
+		{
+			I2cSerialBus (
+				0x1A,                     // SlaveAddress
+				ControllerInitiated,      // SlaveMode
+				400000,                   // ConnectionSpeed
+				AddressingMode7Bit,       // AddressingMode
+				"\\_SB.PCI0.I2C0",        // ResourceSource
+			)
+
+			Interrupt (ResourceConsumer, Edge, ActiveLow){ 37 }
+		})
+
+		Method (_STA)
+		{
+			If (LEqual (\S1EN, 1)) {
+				Return (0xF)
+			} Else {
+				Return (0x0)
+			}
+		}
+	}
+}
+
 Scope (\_SB.PCI0.I2C1)
 {
 	Device (ETSA)

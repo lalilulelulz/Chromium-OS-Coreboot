@@ -34,7 +34,6 @@
 #include <arch/io.h>
 #include <arch/interrupt.h>
 #include <boot/coreboot_tables.h>
-#include "hda_verb.h"
 #include "ec.h"
 #include "onboard.h"
 
@@ -112,22 +111,6 @@ static int int15_handler(void)
 }
 #endif
 
-/* Audio Setup */
-
-extern const u32 *cim_verb_data;
-extern u32 cim_verb_data_size;
-extern const u32 *pc_beep_verbs;
-extern u32 pc_beep_verbs_size;
-
-static void verb_setup(void)
-{
-	cim_verb_data = mainboard_cim_verb_data;
-	cim_verb_data_size = sizeof(mainboard_cim_verb_data);
-	pc_beep_verbs = mainboard_pc_beep_verbs;
-	pc_beep_verbs_size = mainboard_pc_beep_verbs_size;
-
-}
-
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
@@ -162,7 +145,6 @@ static void mainboard_enable(device_t dev)
 	/* Install custom int15 handler for VGA OPROM */
 	mainboard_interrupt_handlers(0x15, &int15_handler);
 #endif
-	verb_setup();
 }
 
 struct chip_operations mainboard_ops = {
