@@ -18,22 +18,20 @@
  * Foundation, Inc.
  */
 
-#define DPTF_TSR0_SENSOR_ID	0
-#define DPTF_TSR0_SENSOR_NAME	"TMP432_Internal"
-#define DPTF_TSR0_PASSIVE	48
-#define DPTF_TSR0_CRITICAL	70
+#define DPTF_TSR0_SENSOR_ID	3
+#define DPTF_TSR0_SENSOR_NAME	"NCP15WB_CPU"
+#define DPTF_TSR0_PASSIVE	52
+#define DPTF_TSR0_CRITICAL	80
 
+#define DPTF_TSR1_SENSOR_ID	4
+#define DPTF_TSR1_SENSOR_NAME	"NCP15WB_DIMM"
+#define DPTF_TSR1_PASSIVE	55
+#define DPTF_TSR1_CRITICAL	80
 
-#define DPTF_TSR1_SENSOR_ID	1
-#define DPTF_TSR1_SENSOR_NAME	"TMP432_Power_top"
-#define DPTF_TSR1_PASSIVE	60
-#define DPTF_TSR1_CRITICAL	70
-
-#define DPTF_TSR2_SENSOR_ID	2
-#define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	55
-#define DPTF_TSR2_CRITICAL	70
-
+#define DPTF_TSR2_SENSOR_ID	5
+#define DPTF_TSR2_SENSOR_NAME	"NCP15WB_PMIC"
+#define DPTF_TSR2_PASSIVE	60
+#define DPTF_TSR2_CRITICAL	80
 
 #define DPTF_ENABLE_CHARGER
 
@@ -56,13 +54,13 @@ Name (DTRT, Package () {
 	/* CPU Effect on Temp Sensor 0 */
 	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR0, 100, 600, 0, 0, 0, 0 },
 
-#ifdef DPTF_ENABLE_CHARGER
-	/* Charger Effect on Temp Sensor 1 */
-	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 600, 0, 0, 0, 0 },
-#endif
-
 	/* CPU Effect on Temp Sensor 1 */
 	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
+
+#ifdef DPTF_ENABLE_CHARGER
+	/* Charger Effect on Temp Sensor 2 */
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR2, 200, 600, 0, 0, 0, 0 },
+#endif
 
 	/* CPU Effect on Temp Sensor 2 */
 	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
