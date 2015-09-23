@@ -49,6 +49,7 @@
 
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
+	int ram_id = 0;
 	int spd_index = 0;
 	int single_channel_conf = 0;
 
@@ -56,11 +57,13 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 		GP_SW_80,	/* SATA_GP3,RAMID0 */
 		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
 		GP_SW_64,	/* I2C3_SDA RAMID3 */
+		GP_SW_67,	/* I2C3_SCL,RAMID1 */
 	};
 
-	spd_index = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
+	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
 
-	single_channel_conf = gpio_get(GP_SW_67); /* I2C3_SCL,RAMID1 */
+	spd_index = ram_id & 0x7;
+	single_channel_conf = (ram_id >> 3) & 0x1;
 
 	printk(BIOS_DEBUG, "spd_index=%d, total_spds: %d\n", spd_index, total_spds);
 	printk(BIOS_DEBUG, "single_channel_conf=%d\n", single_channel_conf);
