@@ -49,12 +49,6 @@ static void acpi_create_gnvs(global_nvs_t *gnvs)
 {
 	acpi_init_gnvs(gnvs);
 
-	/* Enable USB ports in S3 */
-	gnvs->s3u0 = 1;
-
-	/* Disable USB ports in S5 */
-	gnvs->s5u0 = 0;
-
 	/* TPM Present */
 	gnvs->tpmp = 1;
 

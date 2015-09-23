@@ -68,13 +68,6 @@ void mainboard_smi_sleep(u8 slp_typ)
 	/* Disable USB charging if required */
 	switch (slp_typ) {
 	case 3:
-		if (smm_get_gnvs()->s3u0 == 0) {
-			google_chromeec_set_usb_charge_mode(
-				0, USB_CHARGE_MODE_DISABLED);
-			google_chromeec_set_usb_charge_mode(
-				1, USB_CHARGE_MODE_DISABLED);
-		}
-
 		set_gpio(GPIO_PP3300_CODEC_EN, 0);
 		set_gpio(GPIO_WLAN_DISABLE_L, 0);
 
@@ -82,13 +75,6 @@ void mainboard_smi_sleep(u8 slp_typ)
 		google_chromeec_set_wake_mask(MAINBOARD_EC_S3_WAKE_EVENTS);
 		break;
 	case 5:
-		if (smm_get_gnvs()->s5u0 == 0) {
-			google_chromeec_set_usb_charge_mode(
-				0, USB_CHARGE_MODE_DISABLED);
-			google_chromeec_set_usb_charge_mode(
-				1, USB_CHARGE_MODE_DISABLED);
-		}
-
 		set_gpio(GPIO_PP3300_CODEC_EN, 0);
 		set_gpio(GPIO_WLAN_DISABLE_L, 0);
 
