@@ -16,6 +16,10 @@ config SOC_QC_IPQ40XX
 
 if SOC_QC_IPQ40XX
 
+config IPQ_QFN_PART
+	bool "Is the SoC a BGA part or QFN part"
+	default n
+
 config MBN_ENCAPSULATION
 	depends on USE_BLOBS
 	bool "bootblock encapsulation for ipq40xx"
