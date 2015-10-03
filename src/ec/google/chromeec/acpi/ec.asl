@@ -26,7 +26,9 @@
 // Mainboard specific throttle handler
 External (\_TZ.THRT, MethodObj)
 External (\_SB.DPTF.TEVT, MethodObj)
+#ifdef DPTF_ENABLE_CHARGER
 External (\_SB.DPTF.TCHG, DeviceObj)
+#endif
 
 Device (EC0)
 {
@@ -174,10 +176,11 @@ Device (EC0)
 		Store ("EC: AC CONNECTED", Debug)
 		Store (ACEX, \PWRS)
 		Notify (AC, 0x80)
+#ifdef DPTF_ENABLE_CHARGER
 		If (CondRefOf (\_SB.DPTF.TCHG)) {
-			\_SB.DPTF.TCHG.SPPC (\_SB.DPTF.TCHG.PPPC ())
 			Notify (\_SB.DPTF.TCHG, 0x80)
 		}
+#endif
 		\PNOT ()
 	}
 
@@ -187,9 +190,11 @@ Device (EC0)
 		Store ("EC: AC DISCONNECTED", Debug)
 		Store (ACEX, \PWRS)
 		Notify (AC, 0x80)
+#ifdef DPTF_ENABLE_CHARGER
 		If (CondRefOf (\_SB.DPTF.TCHG)) {
 			Notify (\_SB.DPTF.TCHG, 0x80)
 		}
+#endif
 		\PNOT ()
 	}
 
