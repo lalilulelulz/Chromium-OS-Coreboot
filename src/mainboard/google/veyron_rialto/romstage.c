@@ -27,7 +27,6 @@
 #include <cbmem.h>
 #include <console/console.h>
 #include <delay.h>
-#include <program_loading.h>
 #include <soc/sdram.h>
 #include <soc/clock.h>
 #include <soc/pwm.h>
@@ -49,7 +48,7 @@ static void regulate_vdd_log(unsigned int mv)
 	const u32 max_regulator_mv = 1350;	/* 1.35V */
 	const u32 min_regulator_mv = 870;	/* 0.87V */
 
-	write32(&rk3288_grf->iomux_pwm1, IOMUX_PWM1);
+	writel(IOMUX_PWM1, &rk3288_grf->iomux_pwm1);
 
 	assert((mv >= min_regulator_mv) && (mv <= max_regulator_mv));
 
@@ -86,6 +85,8 @@ static void sdmmc_power_off(void)
 
 void main(void)
 {
+	void *entry;
+
 	timestamp_add_now(TS_START_ROMSTAGE);
 
 	console_init();
@@ -112,5 +113,18 @@ void main(void)
 
 	cbmem_initialize_empty();
 
-	run_ramstage();
+	entry = vboot2_load_ramstage();
+
+	if (entry == NULL) {
+		timestamp_add_now(TS_START_COPYRAM);
+		entry = cbfs_load_stage(CBFS_DEFAULT_MEDIA,
+					CONFIG_CBFS_PREFIX "/ramstage");
+		timestamp_add_now(TS_END_COPYRAM);
+		if (entry == (void *)-1)
+			die("failed to load ramstage\n");
+	}
+
+	timestamp_add_now(TS_END_ROMSTAGE);
+
+	stage_exit(entry);
 }

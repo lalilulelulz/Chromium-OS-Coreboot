@@ -21,15 +21,18 @@ if BOARD_GOOGLE_VEYRON_RIALTO
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select BOARD_ID_AUTO
+	select BOARD_ID_SUPPORT
 	select BOARD_ROMSIZE_KB_4096
+	select CHROMEOS
 	select CHROMEOS_VBNV_FLASH
 	select COMMON_CBFS_SPI_WRAPPER
+	select ELOG
 	select HAVE_HARD_RESET
 	select MAINBOARD_DO_NATIVE_VGA_INIT
-	select MAINBOARD_HAS_CHROMEOS
+	select MAINBOARD_HAS_BOOTBLOCK_INIT
 	select PHYSICAL_REC_SWITCH
 	select RAM_CODE_SUPPORT
+	select RETURN_FROM_VERSTAGE
 	select SOC_ROCKCHIP_RK3288
 	select SPI_FLASH
 	select SPI_FLASH_GIGADEVICE
@@ -48,9 +51,20 @@ config MAINBOARD_VENDOR
 	string
 	default "Google"
 
+# The 'ecrwhash' is removed from FMAP on Rialto, since we don't have EC.
+# As a result, we have to hack RAMSTAGE and ROMSTAGE index until there are
+# better approaches for vboot2 to find right index.
+config VBOOT_RAMSTAGE_INDEX
+	hex
+	default 0x2
+
+config VBOOT_ROMSTAGE_INDEX
+	hex
+	default 0x1
+
 config BOOT_MEDIA_SPI_BUS
-	int
-	default 2
+        hex
+        default 2
 
 config DRIVER_TPM_I2C_BUS
 	hex
@@ -62,7 +76,7 @@ config DRIVER_TPM_I2C_ADDR
 
 config CONSOLE_SERIAL_UART_ADDRESS
 	hex
-	depends on DRIVERS_UART
+	depends on CONSOLE_SERIAL_UART
 	default 0xFF690000
 
 config PMIC_BUS
