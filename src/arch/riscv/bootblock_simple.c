@@ -18,7 +18,6 @@
  * Foundation, Inc.
  */
 
-#include <bootblock_common.h>
 #include <arch/cache.h>
 #include <arch/hlt.h>
 #include <arch/stages.h>

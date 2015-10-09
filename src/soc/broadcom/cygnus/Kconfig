@@ -34,10 +34,6 @@ config SOC_BROADCOM_CYGNUS
 
 if SOC_BROADCOM_CYGNUS
 
-config BOOTBLOCK_CPU_INIT
-	string
-	default "soc/broadcom/cygnus/bootblock.c"
-
 config CONSOLE_SERIAL_UART_ADDRESS
 	hex
 	depends on DRIVERS_UART
