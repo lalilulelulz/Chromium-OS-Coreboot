@@ -228,6 +228,7 @@ void soc_memory_init_params(MEMORY_INIT_UPD *params)
 	params->PcdGttSize = config->PcdGttSize;
 	params->PcdLegacySegDecode = config->PcdLegacySegDecode;
 	params->PcdDvfsEnable = config->PcdDvfsEnable;
+	params->PcdCaMirrorEn = config->PcdCaMirrorEn;
 }
 
 void soc_display_memory_init_params(const MEMORY_INIT_UPD *old,
