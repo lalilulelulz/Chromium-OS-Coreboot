@@ -32,13 +32,8 @@
 		"DMA buffer should be multiple of smallest page size (4K)!");
 
 /* ARM64 stacks need 16-byte alignment. */
-#if !(IS_ENABLED(CONFIG_SOC_NVIDIA_TEGRA132) || \
-      IS_ENABLED(CONFIG_SOC_NVIDIA_TEGRA210))
 #define STACK(addr, size) \
 	REGION(stack, addr, size, 16) \
 	_ = ASSERT(size >= 2K, "stack should be >= 2K, see toolchain.inc");
-#else	/* Hack around old Tegra stage_entry.S implementation. TODO: remove */
-#define STACK(addr, size) REGION(preram_stack, addr, size, 16)
-#endif
 
 #endif /* __ARCH_MEMLAYOUT_H */
