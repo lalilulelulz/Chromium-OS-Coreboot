@@ -27,9 +27,11 @@ config BOARD_SPECIFIC_OPTIONS
 	select MAINBOARD_HAS_CHROMEOS
 
 config CHROMEOS
-	select CHROMEOS_VBNV_EC
+	select CHROMEOS_VBNV_FLASH
 	select EC_SOFTWARE_SYNC
 	select VIRTUAL_DEV_SWITCH
+	select SPI_FLASH
+	select COMMON_CBFS_SPI_WRAPPER
 
 config MAINBOARD_DIR
 	string
@@ -54,5 +56,9 @@ config DRIVER_TPM_I2C_BUS
 config DRIVER_TPM_I2C_ADDR
 	hex
 	default 0x20
+
+config BOOT_MEDIA_SPI_BUS
+	int
+	default 9
 
 endif # BOARD_GOOGLE_OAK
