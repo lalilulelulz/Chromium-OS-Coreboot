@@ -56,18 +56,10 @@ ramstage-y += tz_wrapper.S
 
 ifeq ($(CONFIG_USE_BLOBS),y)
 
-# Add MBN header to allow SBL3 to start coreboot bootblock
-$(objcbfs)/bootblock.mbn: $(objcbfs)/bootblock.raw.bin
-	@printf "    ADD MBN    $(subst $(obj)/,,$(@))\n"
-	./util/ipqheader/ipqheader.py $(call loadaddr,bootblock) $< $@.tmp
-	@mv $@.tmp $@
-
-# Create a complete bootblock which will start up the system
-$(objcbfs)/bootblock.bin: $(call strip_quotes,$(CONFIG_SBL_BLOB)) \
-			   $(objcbfs)/bootblock.mbn
-	@printf "    MBNCAT     $(subst $(obj)/,,$(@))\n"
-	@util/ipqheader/mbncat.py -o $@.tmp $^
-	@mv $@.tmp $@
+$(objcbfs)/bootblock.bin: $(call strip_quotes,$(CONFIG_SBL_ELF)) \
+			   $(objcbfs)/bootblock.elf
+	@printf "    CRXBL      $(subst $(obj)/,,$(^)) $(subst $(obj)/,,$(@))\n"
+	@util/ipqheader/createxbl.py -f $(CONFIG_SBL_ELF) -s $(objcbfs)/bootblock.elf -o $@ -a 32 -b 32
 
 endif
 
