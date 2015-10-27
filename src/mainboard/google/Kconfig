@@ -263,6 +263,14 @@ config BOARD_GOOGLE_STOUT
 	  Stout is a Chrome OS mainboard.
 	  Stout is based on the Intel Ivy Bridge platform.
 
+config BOARD_GOOGLE_TERRA
+	bool "Terra"
+	help
+	  Google Terra mainboard.
+	  Enable this config to select the Google Terra mainboard.
+	  Terra is a Chrome OS mainboard.
+	  Terra is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_ULTIMA
         bool "Ultima"
         help
@@ -389,6 +397,7 @@ source "src/mainboard/google/slippy/Kconfig"
 source "src/mainboard/google/smaug/Kconfig"
 source "src/mainboard/google/storm/Kconfig"
 source "src/mainboard/google/stout/Kconfig"
+source "src/mainboard/google/terra/Kconfig"
 source "src/mainboard/google/urara/Kconfig"
 source "src/mainboard/google/ultima/Kconfig"
 source "src/mainboard/google/veyron_brain/Kconfig"
