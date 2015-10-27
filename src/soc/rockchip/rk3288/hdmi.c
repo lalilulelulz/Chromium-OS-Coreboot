@@ -717,8 +717,7 @@ static int hdmi_ddc_wait_i2c_done(int msec)
 
 static void hdmi_ddc_reset(void)
 {
-	clrsetbits_le32(&hdmi_regs->i2cm_softrstz, HDMI_I2CM_SOFTRSTZ,
-			HDMI_I2CM_SOFTRSTZ);
+	clrbits_le32(&hdmi_regs->i2cm_softrstz, HDMI_I2CM_SOFTRSTZ);
 }
 
 static int hdmi_read_edid(int block, u8 *buff)
