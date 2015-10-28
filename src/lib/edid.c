@@ -643,7 +643,7 @@ cea_hdmi_block(struct edid *out, unsigned char *x)
 {
 	int length = x[0] & 0x1f;
 
-	out->hdmi_monitor_detected = true;
+	out->hdmi_monitor_detected = 1;
 
 	printk(BIOS_SPEW, " (HDMI)\n");
 	printk(BIOS_SPEW,
