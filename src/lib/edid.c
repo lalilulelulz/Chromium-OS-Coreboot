@@ -1102,7 +1102,7 @@ int decode_edid(unsigned char *edid, int size, struct edid *out)
 		}
 	}
 
-	printk(BIOS_SPEW, "EDID version: %hhd.%hhd\n", edid[0x12], edid[0x13]);
+	printk(BIOS_SPEW, "EDID version: %hd.%hd\n", edid[0x12], edid[0x13]);
 	extra_info.version[0] = edid[0x12];
 	extra_info.version[1] = edid[0x13];
 
