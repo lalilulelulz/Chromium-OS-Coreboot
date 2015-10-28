@@ -164,6 +164,7 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	params->PMIC_I2CBus = config->PMIC_I2CBus;
 	params->ISPEnable = config->ISPEnable;
 	params->ISPPciDevConfig = config->ISPPciDevConfig;
+	params->PcdSdDetectChk = config->PcdSdDetectChk;
 }
 
 void soc_display_silicon_init_params(const SILICON_INIT_UPD *old,
@@ -324,6 +325,8 @@ void soc_display_silicon_init_params(const SILICON_INIT_UPD *old,
 		old->ISPEnable, new->ISPEnable);
 	soc_display_upd_value("ISPPciDevConfig", 1,
 		old->ISPPciDevConfig, new->ISPPciDevConfig);
+	soc_display_upd_value("PcdSdDetectChk", 1,
+		old->PcdSdDetectChk, new->PcdSdDetectChk);
 }
 
 /* Called at BS_DEV_INIT_CHIPS time -- very early. Just after BS_PRE_DEVICE. */
