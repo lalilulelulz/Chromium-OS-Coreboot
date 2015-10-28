@@ -227,7 +227,7 @@ int panel_lightup(struct intel_dp *dp, unsigned int init_fb)
 		dp->edidlen++;
 	}
 
-	edid_ok = decode_edid(dp->rawedid, dp->edidlen, &dp->edid);
+	edid_ok = decode_edid(dp->rawedid, dp->edidlen, &dp->edid, 0);
 	printk(BIOS_SPEW, "decode edid returns %d\n", edid_ok);
 
 	compute_display_params(dp);

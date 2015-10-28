@@ -67,6 +67,7 @@ struct edid_context {
 	int warning_excessive_dotclock_correction;
 	int warning_zero_preferred_refresh;
 	int conformant;
+	int max_khz;
 };
 
 /* Stuff that isn't used anywhere but is nice to pretty-print while
@@ -544,6 +545,11 @@ detailed_block(struct edid *result_edid, unsigned char *x, int in_extension,
 	       out->mode.phsync, out->mode.pvsync,
 	       extra_info.syncmethod, x[17] & 0x80 ?" interlaced" : "",
 	       extra_info.stereo);
+
+	if (c->max_khz && out->mode.pixel_clock > c->max_khz) {
+		printk(BIOS_SPEW, "Skipping %d\n", out->mode.pixel_clock);
+		return 1;
+	}
 
 	if (! c->did_detailed_timing) {
 		printk(BIOS_SPEW, "Did detailed timing\n");
@@ -1041,8 +1047,10 @@ int set_display_mode(struct edid *edid, enum edid_modes mode)
  * required to be 128 bytes long, per the standard,
  * but we have no way of checking this minimum length.
  * We accept what we are given.
+ *
+ * We'll filter out modes > max_khz; 0 for no filter
  */
-int decode_edid(unsigned char *edid, int size, struct edid *out)
+int decode_edid(unsigned char *edid, int size, struct edid *out, int max_khz)
 {
 	int analog, i, j;
 	struct edid_context c = {
@@ -1055,6 +1063,7 @@ int decode_edid(unsigned char *edid, int size, struct edid *out)
 	    .has_valid_max_dotclock = 1,
 	    .has_valid_string_termination = 1,
 	    .conformant = 1,
+	    .max_khz = max_khz,
 	};
 
 	dump_breakdown(edid);

@@ -259,7 +259,7 @@ int i915lightup(unsigned int pphysbase, unsigned int piobase,
 
 
 	edid_ok = decode_edid((unsigned char *)&link_edid_data,
-			      sizeof(link_edid_data), &edid);
+			      sizeof(link_edid_data), &edid, 0);
 	printk(BIOS_SPEW, "decode edid returns %d\n", edid_ok);
 	edid.framebuffer_bits_per_pixel = 32;
 

@@ -95,7 +95,7 @@ struct edid {
 };
 
 /* Defined in src/lib/edid.c */
-int decode_edid(unsigned char *edid, int size, struct edid *out);
+int decode_edid(unsigned char *edid, int size, struct edid *out, int max_khz);
 void set_vbe_mode_info_valid(struct edid *edid, uintptr_t fb_addr);
 int set_display_mode(struct edid *edid, enum edid_modes mode);
 

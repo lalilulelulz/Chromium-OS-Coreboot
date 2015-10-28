@@ -789,7 +789,7 @@ static int rk_edp_read_edid(struct rk_edp *edp, struct edid *edid)
 		}
 	}
 
-	if (decode_edid(buf, edid_size, edid)) {
+	if (decode_edid(buf, edid_size, edid, 0)) {
 		printk(BIOS_ERR, "%s: Failed to decode EDID.\n",
 		       __func__);
 		return -1;
