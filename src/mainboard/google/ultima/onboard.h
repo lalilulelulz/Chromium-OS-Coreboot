@@ -43,6 +43,9 @@
 
 #define BOARD_TOUCH_IRQ			184
 
+/* DPTF */
+#define DPTF_CPU_PASSIVE		88
+#define DPTF_CPU_CRITICAL		90
 
 /* Audio: Gpio index in SW bank */
 #define JACK_DETECT_GPIO_INDEX		95
