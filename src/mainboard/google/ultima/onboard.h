@@ -76,4 +76,8 @@
 
 #define PMIC_I2C_BUS		0x01
 
+/* I2C data hold time */
+#define BOARD_I2C1_DATA_HOLD_TIME	0x1E
+#define BOARD_I2C6_DATA_HOLD_TIME	0x1E
+
 #endif
