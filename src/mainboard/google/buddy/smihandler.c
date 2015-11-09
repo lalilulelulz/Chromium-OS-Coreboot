@@ -68,7 +68,7 @@ void mainboard_smi_sleep(u8 slp_typ)
 	/* Disable USB charging if required */
 	switch (slp_typ) {
 	case 3:
-		set_gpio(GPIO_PP3300_CODEC_EN, 0);
+		set_gpio(GPIO_PP3300_CODEC_EN, 1);
 		set_gpio(GPIO_WLAN_DISABLE_L, 0);
 
 		/* Enable wake events */
