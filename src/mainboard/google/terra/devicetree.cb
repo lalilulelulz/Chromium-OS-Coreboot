@@ -27,7 +27,7 @@ chip soc/intel/braswell
 	register "PcdEnableLpe" = "1"
 	register "PcdEnableDma0" = "1"
 	register "PcdEnableDma1" = "1"
-	register "PcdEnableI2C0" = "1"
+	register "PcdEnableI2C0" = "0"
 	register "PcdEnableI2C1" = "1"
 	register "PcdEnableI2C2" = "0"
 	register "PcdEnableI2C3" = "0"
@@ -68,7 +68,7 @@ chip soc/intel/braswell
 	register "PcdSataInterfaceSpeed" = "3"
 	register "PcdPchSsicEnable" = "1"
 	register "PcdRtcLock" = "0"	# Disable RTC access locking to NVRAM
-	register "PMIC_I2CBus" = "0"
+	register "PMIC_I2CBus" = "1"
 	register "ISPEnable" = "0"		# Disable IUNIT
 	register "ISPPciDevConfig" = "3"
 	register "PcdSdDetectChk" = "0"		# Disable SD card detect
@@ -106,7 +106,7 @@ chip soc/intel/braswell
 		device pci 15.0 on end	# 8086 22a8 - LP Engine Audio
 		device pci 16.0 off end	# 8086 22b7 - USB device
 		device pci 18.0 on end	# 8086 22c0 - SIO - DMA
-		device pci 18.1 on end	# 8086 22c1 -   I2C Port 1
+		device pci 18.1 off end	# 8086 22c1 -   I2C Port 1
 		device pci 18.2 on end	# 8086 22c2 -   I2C Port 2
 		device pci 18.3 off end	# 8086 22c3 -   I2C Port 3
 		device pci 18.4 off end	# 8086 22c4 -   I2C Port 4
@@ -116,7 +116,7 @@ chip soc/intel/braswell
 		device pci 1a.0 off end	# 8086 0F18 - Trusted Execution Engine
 		device pci 1b.0 on end	# 8086 0F04 - HD Audio
 		device pci 1c.0 on end	# 8086 0000 - PCIe Root Port 1
-		device pci 1c.1 on end	# 8086 0000 - PCIe Root Port 2
+		device pci 1c.1 off end	# 8086 0000 - PCIe Root Port 2
 		device pci 1c.2 on end	# 8086 0000 - PCIe Root Port 3
 		device pci 1c.3 off end	# 8086 0000 - PCIe Root Port 4
 		device pci 1e.0 on end	# 8086 2286 - SIO - DMA

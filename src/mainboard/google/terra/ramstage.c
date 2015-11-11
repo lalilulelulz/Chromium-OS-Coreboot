@@ -24,5 +24,5 @@
 void mainboard_silicon_init_params(SILICON_INIT_UPD *params)
 {
 	params->ChvSvidConfig = SVID_PMIC_CONFIG;
-	params->PMIC_I2CBus = BCRD2_PMIC_I2C_BUS;
+	params->PMIC_I2CBus = PMIC_I2C_BUS;
 }
