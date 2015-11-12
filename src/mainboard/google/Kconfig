@@ -87,6 +87,14 @@ config BOARD_GOOGLE_DAISY
 	  Daisy is a Chrome OS mainboard.
 	  Daisy is based on the Samsung Exynos 5250 platform.
 
+config BOARD_GOOGLE_EDGAR
+        bool "Edgar"
+        help
+          Google Edgar mainboard.
+          Enable this config to select the Google Edgar mainboard.
+          Edgar is a Chrome OS mainboard.
+          Edgar is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_FALCO
 	bool "Falco"
 	help
@@ -375,6 +383,7 @@ source "src/mainboard/google/celes/Kconfig"
 source "src/mainboard/google/cosmos/Kconfig"
 source "src/mainboard/google/cyan/Kconfig"
 source "src/mainboard/google/daisy/Kconfig"
+source "src/mainboard/google/edgar/Kconfig"
 source "src/mainboard/google/falco/Kconfig"
 source "src/mainboard/google/foster/Kconfig"
 source "src/mainboard/google/glados/Kconfig"
