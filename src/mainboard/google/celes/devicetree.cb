@@ -90,9 +90,6 @@ chip soc/intel/braswell
 	# Allow PCIe devices to wake system from suspend
 	register "pcie_wake_enable" = "1"
 
-	# Override USB2_COMPBG register; HS_DISC vref to 675mV
-	register "usb_comp_bg" = "0x8000"
-
 	device cpu_cluster 0 on
 		device lapic 0 on end
 	end
