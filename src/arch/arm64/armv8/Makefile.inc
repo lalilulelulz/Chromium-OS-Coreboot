@@ -23,8 +23,6 @@ subdirs-y += lib/
 
 armv8_flags = -march=armv8-a -I$(src)/arch/arm64/include/armv8/ -D__COREBOOT_ARM_ARCH__=8
 
-armv8_asm_flags = $(armv8_flags)
-
 ################################################################################
 ## bootblock
 ################################################################################
@@ -40,8 +38,7 @@ bootblock-y += mmu.c
 
 bootblock-$(CONFIG_BOOTBLOCK_CONSOLE) += exception.c
 
-bootblock-c-ccopts += $(armv8_flags)
-bootblock-S-ccopts += $(armv8_asm_flags)
+bootblock-generic-ccopts += $(armv8_flags)
 
 # Required to access unaligned timestamp struct members before MMU is active
 # (TODO: Maybe use explicit unaligned accesses in timestamp code instead, or
@@ -60,10 +57,8 @@ verstage-y += cpu.S
 verstage-y += cache_helpers.S
 verstage-y += exception.c
 
-libverstage-c-ccopts += $(armv8_flags)
-libverstage-S-ccopts += $(armv8_asm_flags)
-verstage-c-ccopts += $(armv8_flags)
-verstage-S-ccopts += $(armv8_asm_flags)
+libverstage-generic-ccopts += $(armv8_flags)
+verstage-generic-ccopts += $(armv8_flags)
 
 endif
 
@@ -78,11 +73,9 @@ romstage-y += cpu.S
 romstage-y += exception.c
 romstage-y += mmu.c
 
-romstage-c-ccopts += $(armv8_flags)
-romstage-S-ccopts += $(armv8_asm_flags)
+romstage-generic-ccopts += $(armv8_flags)
 
-rmodules_arm64-c-ccopts += $(armv8_flags)
-rmodules_arm64-S-ccopts += $(armv8_asm_flags)
+rmodules_arm64-generic-ccopts += $(armv8_flags)
 
 endif
 
@@ -97,10 +90,8 @@ ramstage-y += cpu.S
 ramstage-y += exception.c
 ramstage-y += mmu.c
 
-ramstage-c-ccopts += $(armv8_flags)
-ramstage-S-ccopts += $(armv8_asm_flags)
+ramstage-generic-ccopts += $(armv8_flags)
 
-rmodules_arm64-c-ccopts += $(armv8_flags)
-rmodules_arm64-S-ccopts += $(armv8_asm_flags)
+rmodules_arm64-generic-ccopts += $(armv8_flags)
 
 endif
