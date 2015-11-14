@@ -12,8 +12,17 @@
 #include <smp/node.h>
 #include <stddef.h>
 #include <trace.h>
+#include <vendorcode/google/chromeos/chromeos.h>
 
 DECLARE_SPIN_LOCK(console_lock)
+
+int external_console_enabled(void)
+{
+	if (IS_ENABLED(CONFIG_CHROMEOS))
+		return vboot_enable_external_console();
+	else
+		return 1;
+}
 
 void do_putchar(unsigned char byte)
 {
