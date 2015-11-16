@@ -23,7 +23,7 @@
 #include <console/console.h>
 #include <gpio.h>
 #include <lib.h>
-#include <mainboard/intel/strago/spd/spd.h>
+#include "spd.h"
 #include <memory_info.h>
 #include <smbios.h>
 #include <spd.h>
@@ -76,11 +76,11 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 		break;
 	case 4:
 		spd_index = SPD_INDEX_SAMSUNG_1600MHZ;
-		printk(BIOS_DEBUG, "Samsung K4E8E324EB-EGCE 1600MHz\n");
+		printk(BIOS_DEBUG, "Samsung K4E8E304EE-EGCE 1600MHz\n");
 		break;
 	case 5:
 		spd_index = SPD_INDEX_SAMSUNG_1866MHZ;
-		printk(BIOS_DEBUG, "Samsung K4E8E304EE-EGCE 1866MHz\n");
+		printk(BIOS_DEBUG, "Samsung K4E8E324EB-EGCF 1866MHz\n");
 		break;
 	default:
 		printk(BIOS_DEBUG, "SPD index is not match\n");
