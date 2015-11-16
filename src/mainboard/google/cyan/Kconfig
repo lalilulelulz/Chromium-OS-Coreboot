@@ -17,6 +17,7 @@ config BOARD_SPECIFIC_OPTIONS
 	select VIRTUAL_DEV_SWITCH
 	select HAVE_ACPI_RESUME
 	select LID_SWITCH
+	select PCIEXP_L1_SUB_STATE
 
 config DISPLAY_SPD_DATA
 	bool "Display Memory Serial Presence Detect Data"
