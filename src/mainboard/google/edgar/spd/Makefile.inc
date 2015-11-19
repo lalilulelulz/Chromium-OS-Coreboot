@@ -18,18 +18,25 @@
 ## Foundation, Inc.
 ##
 
-subdirs-y += spd
+romstage-y += spd.c
 
-romstage-$(CONFIG_CHROMEOS) += chromeos.c
-romstage-$(CONFIG_ENABLE_BUILTIN_COM1) += com_init.c
+SPD_BIN = $(obj)/spd.bin
 
-ramstage-$(CONFIG_CHROMEOS) += chromeos.c
-ramstage-y += ec.c
-ramstage-$(CONFIG_CHROMEOS) += gpio.c
-ramstage-y += irqroute.c
-ramstage-y += ramstage.c
-ramstage-y += w25q64.c
-ramstage-y += boardid.c
-romstage-y += boardid.c
+SPD_SOURCES =  samsung_dimm_K4E8E324EB-EGCF
+SPD_SOURCES += hynix_dimm_H9CCNNN8JTBLAR-NUD
+SPD_SOURCES += samsung_dimm_K4E8E324EB-EGCF
+SPD_SOURCES += hynix_dimm_H9CCNNN8JTBLAR-NUD
 
-smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c
+SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
+
+# Include spd rom data
+$(SPD_BIN): $(SPD_DEPS)
+	for f in $+; \
+	  do for c in $$(cat $$f | grep -v ^#); \
+	    do printf $$(printf '\%o' 0x$$c); \
+	  done; \
+	done > $@
+
+cbfs-files-y += spd.bin
+spd.bin-file := $(SPD_BIN)
+spd.bin-type := spd
