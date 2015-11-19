@@ -174,9 +174,7 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	GPIO_NC,
 	/* 19 GPIO_SUS1 */
 	GPIO_NC, /* 20 GPIO_SUS5 */
-	GPI(trig_edge_high, L2, P_20K_H, non_maskable,
-			en_edge_rx_data,	NA , NA),
-	/* 21 SEC_GPIO_SUS11 */
+	GPIO_NC, /* 21 SEC_GPIO_SUS11 */
 	GPIO_NC, /* 22 GPIO_SUS4 */
 	GPIO_NC,
 	/* 23 SEC_GPIO_SUS8 */
