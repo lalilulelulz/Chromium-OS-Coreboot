@@ -56,6 +56,7 @@ static struct param {
 	const char *filename;
 	const char *fmap;
 	const char *region_name;
+	const char *source_region;
 	const char *bootblock;
 	const char *ignore_section;
 	uint64_t u64val;
@@ -63,8 +64,6 @@ static struct param {
 	uint32_t baseaddress;
 	uint32_t baseaddress_assigned;
 	uint32_t loadaddress;
-	uint32_t copyoffset;
-	uint32_t copyoffset_assigned;
 	uint32_t headeroffset;
 	uint32_t headeroffset_assigned;
 	uint32_t entrypoint;
@@ -922,34 +921,25 @@ static int cbfs_update_fit(void)
 
 static int cbfs_copy(void)
 {
-	/* always a valid source region */
 	struct cbfs_image src_image;
+	struct buffer src_buf;
 
-	if (cbfs_image_from_buffer(&src_image, param.image_region,
-							param.headeroffset))
-		return 1;
-
-	struct buffer dst_buffer;
-
-	if (cbfs_is_legacy_cbfs(&src_image)) {
-		if (!param.copyoffset_assigned) {
-			ERROR("You need to specify -D/--copy-offset.\n");
-			return 1;
-		}
-
-		if (!param.size) {
-			ERROR("You need to specify -s/--size.\n");
-			return 1;
-		}
-
-		buffer_splice(&dst_buffer, param.image_region,
-			param.copyoffset, param.size);
-	} else {
-		ERROR("This operation is only valid on legacy images having CBFS master headers\n");
+	if (!param.source_region) {
+		ERROR("You need to specify -R/--source-region.\n");
 		return 1;
 	}
 
-	return cbfs_copy_instance(&src_image, &dst_buffer);
+	/* Obtain the source region and convert it to a cbfs_image. */
+	if (!partitioned_file_read_region(&src_buf, param.image_file,
+						param.source_region)) {
+		ERROR("Region not found in image: %s\n", param.source_region);
+		return 1;
+	}
+
+	if (cbfs_image_from_buffer(&src_image, &src_buf, param.headeroffset))
+		return 1;
+
+	return cbfs_copy_instance(&src_image, param.image_region);
 }
 
 static const struct command commands[] = {
@@ -960,7 +950,7 @@ static const struct command commands[] = {
 	{"add-stage", "a:H:r:f:n:t:c:b:P:S:yvA:h?", cbfs_add_stage, true, true},
 	{"add-int", "H:r:i:n:b:vh?", cbfs_add_integer, true, true},
 	{"add-master-header", "H:r:vh?", cbfs_add_master_header, true, true},
-	{"copy", "H:D:s:h?", cbfs_copy, true, true},
+	{"copy", "r:R:h?", cbfs_copy, true, true},
 	{"create", "M:r:s:B:b:H:o:m:vh?", cbfs_create, true, true},
 	{"extract", "H:r:n:f:vh?", cbfs_extract, true, false},
 	{"layout", "wvh?", cbfs_layout, false, false},
@@ -977,7 +967,6 @@ static struct option long_options[] = {
 	{"bootblock",     required_argument, 0, 'B' },
 	{"cmdline",       required_argument, 0, 'C' },
 	{"compression",   required_argument, 0, 'c' },
-	{"copy-offset",   required_argument, 0, 'D' },
 	{"empty-fits",    required_argument, 0, 'x' },
 	{"entry-point",   required_argument, 0, 'e' },
 	{"file",          required_argument, 0, 'f' },
@@ -985,6 +974,7 @@ static struct option long_options[] = {
 	{"fill-upward",   no_argument,       0, 'u' },
 	{"flashmap",      required_argument, 0, 'M' },
 	{"fmap-regions",  required_argument, 0, 'r' },
+	{"source-region", required_argument, 0, 'R' },
 	{"hash-algorithm",required_argument, 0, 'A' },
 	{"header-offset", required_argument, 0, 'H' },
 	{"help",          no_argument,       0, 'h' },
@@ -1090,9 +1080,8 @@ static void usage(char *name)
 			"Add a legacy CBFS master header\n"
 	     " remove [-r image,regions] -n NAME                           "
 			"Remove a component\n"
-	     " copy -D new_header_offset -s region size \\\n"
-	     "        [-H source header offset]                            "
-			"Create a copy (duplicate) cbfs instance*\n"
+	     " copy -r image,regions -R source-region                      "
+			"Create a copy (duplicate) cbfs instance in fmap\n"
 	     " create -m ARCH -s size [-b bootblock offset] \\\n"
 	     "        [-o CBFS offset] [-H header offset] [-B bootblock]   "
 			"Create a legacy ROM file with CBFS master header*\n"
@@ -1221,6 +1210,9 @@ int main(int argc, char **argv)
 			case 'r':
 				param.region_name = optarg;
 				break;
+			case 'R':
+				param.source_region = optarg;
+				break;
 			case 'b':
 				param.baseaddress = strtoul(optarg, NULL, 0);
 				// baseaddress may be zero on non-x86, so we
@@ -1250,10 +1242,6 @@ int main(int argc, char **argv)
 				param.headeroffset = strtoul(
 						optarg, NULL, 0);
 				param.headeroffset_assigned = 1;
-				break;
-			case 'D':
-				param.copyoffset = strtoul(optarg, NULL, 0);
-				param.copyoffset_assigned = 1;
 				break;
 			case 'a':
 				param.alignment = strtoul(optarg, NULL, 0);
