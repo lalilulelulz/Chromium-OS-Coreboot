@@ -43,6 +43,10 @@ config MAINBOARD_PART_NUMBER
 	string
 	default "Cyan"
 
+config MAINBOARD_FAMILY
+	string
+	default "Intel_Strago"
+
 config VBOOT_RAMSTAGE_INDEX
 	hex
 	default 0x2
