@@ -103,6 +103,7 @@ ramstage-y += lzma.c
 #ramstage-y += lzmadecode.c
 ramstage-y += stack.c
 ramstage-y += libgcc.c
+ramstage-y += wrdd.c
 ramstage-$(CONFIG_ARCH_RAMSTAGE_X86_32) += gcc.c
 ramstage-$(CONFIG_CONSOLE_SERIAL8250) += uart8250.c
 ramstage-$(CONFIG_CONSOLE_SERIAL8250MEM) += uart8250mem.c
