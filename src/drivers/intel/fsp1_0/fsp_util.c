@@ -96,6 +96,7 @@ void __attribute__ ((noreturn)) fsp_early_init (FSP_INFO_HEADER *fsp_ptr)
 	/* Call back to romstage for board specific changes */
 	romstage_fsp_rt_buffer_callback(&FspRtBuffer);
 
+	post_code(POST_FSP_MEMORY_INIT);
 	FspInitApi(&FspInitParams);
 
 	/* Should never return. Control will continue from ContinuationFunc */
@@ -325,6 +326,7 @@ static void fsp_after_pci_enum(void *unused)
 {
 	/* This call needs to be done before resource allocation. */
 	printk(BIOS_DEBUG, "FspNotify(EnumInitPhaseAfterPciEnumeration)\n");
+	post_code(POST_FSP_NOTIFY_BEFORE_ENUMERATE);
 	FspNotify(EnumInitPhaseAfterPciEnumeration);
 	printk(BIOS_DEBUG,
 	       "Returned from FspNotify(EnumInitPhaseAfterPciEnumeration)\n");
@@ -338,6 +340,7 @@ static void fsp_finalize(void *unused)
 {
 	printk(BIOS_DEBUG, "FspNotify(EnumInitPhaseReadyToBoot)\n");
 	print_fsp_info();
+	post_code(POST_FSP_NOTIFY_BEFORE_FINALIZE);
 	FspNotify(EnumInitPhaseReadyToBoot);
 	printk(BIOS_DEBUG, "Returned from FspNotify(EnumInitPhaseReadyToBoot)\n");
 }
