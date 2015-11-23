@@ -54,6 +54,7 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	PPCM,	 8,	/* 0x14 - Maximum P-state usable by OS */
 	PM1I,	 32,	/* 0x15 - System Wake Source - PM1 Index */
 	BDID,	 8,	/* 0x19 - Board ID */
+	CID1,	 16,	/* 0x1A - Wifi Domain Type */
 
 	/* Device Config */
 	Offset (0x20),

@@ -34,7 +34,7 @@
 #include <soc/nvs.h>
 #include <string.h>
 #include <types.h>
-
+#include <wrdd.h>
 extern const unsigned char AmlCode[];
 
 static void acpi_create_gnvs(global_nvs_t *gnvs)
@@ -208,6 +208,9 @@ unsigned long write_acpi_tables(unsigned long start)
 
 	/* And fill it */
 	acpi_create_gnvs(gnvs);
+
+	/* Fill in the Wifi Region id */
+	gnvs->cid1 = wifi_regulatory_domain();
 
 	/* And tell SMI about it */
 #if IS_ENABLED(CONFIG_SMM_MODULES)
