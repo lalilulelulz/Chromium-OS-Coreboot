@@ -47,7 +47,8 @@ typedef struct {
 	u8	ppcm; /* 0x14 - Maximum P-state usable by OS */
 	u32	pm1i; /* 0x15 - System Wake Source - PM1 Index */
 	u8	bdid; /* 0x19 - Board ID */
-	u8	rsvd1[6];
+	u16     cid1; /* 0x1a - Wifi Country Identifier */
+	u8	rsvd1[4];
 
 	/* Device Config */
 	u8	s5u0; /* 0x20 - Enable USB0 in S5 */
