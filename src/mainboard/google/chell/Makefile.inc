@@ -34,7 +34,3 @@ ramstage-y += pei_data.c
 ramstage-y += ramstage.c
 
 smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c
-
-cbfs-files-y += nhlt.bin
-nhlt.bin-file := nhlt.bin
-nhlt.bin-type := raw
