@@ -1,6 +1,7 @@
 ifeq ($(CONFIG_SOC_INTEL_SKYLAKE),y)
 
 subdirs-y += microcode
+subdirs-y += nhlt
 subdirs-y += romstage
 subdirs-y += ../../../cpu/intel/microcode
 subdirs-y += ../../../cpu/intel/turbo
