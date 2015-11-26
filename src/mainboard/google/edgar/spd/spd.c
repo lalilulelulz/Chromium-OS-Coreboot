@@ -32,10 +32,10 @@
 #include <string.h>
 
 /*
- *   0b0000 - 4GiB total - 2 x 2GiB Samsung K4E8E324EB-EGCF 1600MHz
- *   0b0001 - 4GiB total - 2 x 2GiB Hynix H9CCNNN8JTBLAR-NUD 1600MHz
- *   0b0010 - 2GiB total - 1 x 2GiB Samsung K4E8E324EB-EGCF 1600MHz
- *   0b0011 - 2GiB total - 1 x 2GiB Hynix H9CCNNN8JTBLAR-NUD 1600MHz
+ *   0b0000 - 4GiB total - 2 x 2GiB Samsung K4E8E304EE-EGCE
+ *   0b0001 - 4GiB total - 2 x 2GiB Hynix H9CCNNN8JTBLAR-NUD
+ *   0b0010 - 2GiB total - 1 x 2GiB Samsung K4E8E304EE-EGCE
+ *   0b0011 - 2GiB total - 1 x 2GiB Hynix H9CCNNN8JTBLAR-NUD
  */
 static const uint32_t dual_channel_config = (1 << 0) | (1 << 1);
 
@@ -62,16 +62,16 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	/* Display the RAM type */
 	switch (ram_id) {
 	case 0:
-		printk(BIOS_DEBUG, "4GiB Samsung K4E8E324EB-EGCF 1600MHz\n");
+		printk(BIOS_DEBUG, "4GiB Samsung K4E8E304EE-EGCE\n");
 		break;
 	case 1:
-		printk(BIOS_DEBUG, "4GiB Hynix H9CCNNN8JTBLAR-NUD 1600MHz\n");
+		printk(BIOS_DEBUG, "4GiB Hynix H9CCNNN8JTBLAR-NUD\n");
 		break;
 	case 2:
-		printk(BIOS_DEBUG, "2GiB Samsung K4E8E324EB-EGCF 1600MHz\n");
+		printk(BIOS_DEBUG, "2GiB Samsung K4E8E304EE-EGCE\n");
 		break;
 	case 3:
-		printk(BIOS_DEBUG, "2GiB Hynix H9CCNNN8JTBLAR-NUD 1600MHz\n");
+		printk(BIOS_DEBUG, "2GiB Hynix H9CCNNN8JTBLAR-NUD\n");
 		break;
 	}
 
