@@ -32,7 +32,7 @@
 #include <types.h>
 #include <memory_info.h>
 
-#define PEI_VERSION 22
+#define PEI_VERSION 23
 
 #define ABI_X86 __attribute__((regparm(0)))
 
@@ -127,6 +127,13 @@ struct pei_data
 	int disable_self_refresh;
 	/* Disable cmd power/CKEPD */
 	int disable_cmd_pwr;
+
+	/*
+	 * Maximum DIMM RTT_WR to use in power training
+	 * 0 = Off
+	 * 1 = 120 ohms
+	 */
+	int max_rtt_wr;
 
 	/* USB port configuration */
 	struct usb2_port_setting usb2_ports[MAX_USB2_PORTS];
