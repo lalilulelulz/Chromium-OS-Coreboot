@@ -269,6 +269,7 @@ endif
 CPPFLAGS_common := -Isrc -Isrc/include -Isrc/commonlib/include -I$(obj)
 CPPFLAGS_common += -Isrc/device/oprom/include
 CPPFLAGS_common += -include $(src)/include/kconfig.h
+CPPFLAGS_common += -I3rdparty
 
 CFLAGS_common += -pipe -g -nostdinc
 CFLAGS_common += -nostdlib -Wall -Wundef -Wstrict-prototypes -Wmissing-prototypes
