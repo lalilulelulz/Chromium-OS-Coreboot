@@ -373,6 +373,14 @@ config BOARD_GOOGLE_VEYRON_SPEEDY
 	  Enable this config to select the Google Veyron_Speedy mainboard.
 	  Veyron_Speedy is a Chrome OS mainboard.
 	  Veyron_Speedy is based on the Rockchip RK3288 platform.
+
+config BOARD_GOOGLE_WIZPIG
+        bool "Wizpig"
+        help
+          Google Wizpig mainboard.
+          Enable this config to select the Google Wizpig mainboard.
+          Wizpig is a Chrome OS mainboard.
+          Wizpig is based on the Intel Braswell platform.
 endchoice
 
 source "src/mainboard/google/auron/Kconfig"
@@ -419,7 +427,7 @@ source "src/mainboard/google/veyron_rialto/Kconfig"
 source "src/mainboard/google/veyron_romy/Kconfig"
 source "src/mainboard/google/veyron_shark/Kconfig"
 source "src/mainboard/google/veyron_speedy/Kconfig"
-
+source "src/mainboard/google/wizpig/Kconfig"
 config MAINBOARD_VENDOR
 	string "Mainboard Vendor"
 	default "GOOGLE"
