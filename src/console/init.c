@@ -25,7 +25,6 @@
 #include <option.h>
 #include <rules.h>
 #include <version.h>
-#include <vendorcode/google/chromeos/chromeos.h>
 
 /* While in romstage, console loglevel is built-time constant. */
 static ROMSTAGE_CONST int console_loglevel = CONFIG_DEFAULT_CONSOLE_LOGLEVEL;
@@ -47,9 +46,6 @@ void console_init(void)
 #endif
 
 	console_hw_init();
-
-	if (IS_ENABLED(CONFIG_CHROMEOS))
-		vboot_setup_enable_external_console();
 
 	printk(BIOS_INFO, "\n\ncoreboot-%s%s %s %s starting...\n",
 		      coreboot_version, coreboot_extra_version, coreboot_build,

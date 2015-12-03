@@ -18,7 +18,6 @@
  */
 
 #include <console/cbmem_console.h>
-#include <console/console.h>
 #include <console/ne2k.h>
 #include <console/qemu_debugcon.h>
 #include <console/spkmodem.h>
@@ -40,12 +39,7 @@ void console_hw_init(void)
 
 void console_tx_byte(unsigned char byte)
 {
-	/* Always output to the internal cbmem console. */
 	__cbmemc_tx_byte(byte);
-
-	if (!external_console_enabled())
-		return;
-
 	__spkmodem_tx_byte(byte);
 	__qemu_debugcon_tx_byte(byte);
 

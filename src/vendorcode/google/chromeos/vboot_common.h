@@ -45,11 +45,8 @@ int vboot_get_handoff_info(void **addr, uint32_t *size);
 int vboot_skip_display_init(void);
 int vboot_enable_recovery(void);
 int vboot_enable_developer(void);
-int vboot_enable_external_console(void);
 
 void vboot_reboot(void);
-
-void vboot_setup_enable_external_console(void);
 
 /* Main logic for verified boot. verstage() is the stage entry point
  * while the verstage_main() is just the core logic. */

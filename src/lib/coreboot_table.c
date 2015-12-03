@@ -470,8 +470,7 @@ unsigned long write_coreboot_table(
 
 	/* Record the serial ports and consoles */
 #if CONFIG_CONSOLE_SERIAL
-	if (external_console_enabled())
-		uart_fill_lb(head);
+	uart_fill_lb(head);
 #endif
 #if CONFIG_CONSOLE_USB
 	lb_add_console(LB_TAG_CONSOLE_EHCI, head);

@@ -59,7 +59,6 @@ void console_init(void);
 int console_log_level(int msg_level);
 int do_printk(int msg_level, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void do_putchar(unsigned char byte);
-int external_console_enabled(void);
 
 #define printk(LEVEL, fmt, args...)	\
 	do { do_printk(LEVEL, fmt, ##args); } while(0)
@@ -67,7 +66,6 @@ int external_console_enabled(void);
 #else
 static inline void console_init(void) {}
 static inline int console_log_level(int msg_level) { return 0; }
-static inline int external_console_enabled(void) { return 0; }
 static inline void printk(int LEVEL, const char *fmt, ...) {}
 static inline void do_putchar(unsigned char byte) {}
 #endif

@@ -22,19 +22,14 @@
 #include <cbmem.h>
 #include <console/cbmem_console.h>
 #include <console/console.h>
-#include <arch/early_variables.h>
 #include <fmap.h>
 #include <reset.h>
 #include <stddef.h>
 #include <string.h>
 
-#define NEED_VB20_INTERNALS  /* TODO: remove me! */
-#include <vb2_api.h>
 #include "chromeos.h"
 #include "vboot_common.h"
 #include "vboot_handoff.h"
-
-static int gbb_enable_external_console CAR_GLOBAL;
 
 int vboot_named_region_device(const char *name, struct region_device *rdev)
 {
@@ -87,42 +82,10 @@ int vboot_enable_recovery(void)
 	return vboot_handoff_flag(VB_INIT_OUT_ENABLE_RECOVERY);
 }
 
-int vboot_enable_external_console(void)
-{
-	return car_get_var(gbb_enable_external_console);
-}
-
 void vboot_reboot(void)
 {
 	if (IS_ENABLED(CONFIG_CONSOLE_CBMEM_DUMP_TO_UART))
 		cbmem_dump_console();
 	hard_reset();
 	die("failed to reboot");
-}
-
-static int vboot_get_gbb_flags(void)
-{
-	struct region_device rdev;
-	struct vb2_gbb_header *gbb;
-	uint32_t gbb_flags = 0;
-
-	if (vboot_named_region_device("GBB", &rdev))
-		return 0;
-
-	gbb = rdev_mmap(&rdev, 0, EXPECTED_VB2_GBB_HEADER_SIZE);
-
-	/* Check that gbb_header matches gbb signature */
-	if (gbb != NULL && !memcmp(gbb->signature, VB2_GBB_SIGNATURE,
-				   VB2_GBB_SIGNATURE_SIZE))
-		gbb_flags = gbb->flags;
-
-	rdev_munmap(&rdev, gbb);
-
-	return gbb_flags;
-}
-
-void vboot_setup_enable_external_console(void)
-{
-	car_set_var(gbb_enable_external_console,
-		    !!(vboot_get_gbb_flags() & VB2_GBB_FLAG_ENABLE_SERIAL));
 }
