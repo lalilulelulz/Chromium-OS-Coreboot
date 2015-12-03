@@ -69,7 +69,7 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_UNUSED,        /* 43: UNUSED */
 	PCH_GPIO_UNUSED,        /* 44: UNUSED */
 	PCH_GPIO_OUT_HIGH,      /* 45: PP3300_CODEC_EN */
-	PCH_GPIO_OUT_HIGH,      /* 46: WLAN_DISABLE_L */
+	PCH_GPIO_UNUSED,        /* 46: UNUSED */
 	PCH_GPIO_UNUSED,        /* 47: UNUSED */
 	PCH_GPIO_UNUSED,        /* 48: UNUSED */
 	PCH_GPIO_UNUSED,        /* 49: UNUSED */
@@ -95,8 +95,8 @@ static const struct gpio_config mainboard_gpio_config[] = {
 	PCH_GPIO_UNUSED,        /* 69: UNUSED */
 	PCH_GPIO_UNUSED,        /* 70: UNUSED */
 	PCH_GPIO_NATIVE,        /* 71: NATIVE: MODPHY_EN */
-	PCH_GPIO_NATIVE,        /* 72: NATIVE: PCH_BATLOW# */
-	PCH_GPIO_NATIVE,        /* 73: NATIVE: SMB1ALERT# */
+	PCH_GPIO_UNUSED,        /* 72: UNUSED */
+	PCH_GPIO_UNUSED,        /* 73: UNUSED */
 	PCH_GPIO_NATIVE,        /* 74: NATIVE: SMB_ME1_DAT */
 	PCH_GPIO_NATIVE,        /* 75: NATIVE: SMB_ME1_CLK */
 	PCH_GPIO_UNUSED,        /* 76: UNUSED */
