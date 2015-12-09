@@ -53,11 +53,13 @@ static unsigned count_selected_fmap_entries(const struct fmap *fmap,
 	return count;
 }
 
-static partitioned_file_t *reopen_flat_file(const char *filename)
+static partitioned_file_t *reopen_flat_file(const char *filename,
+					    bool write_access)
 {
 	assert(filename);
-
 	struct partitioned_file *file = calloc(1, sizeof(*file));
+	const char *access_mode;
+
 	if (!file) {
 		ERROR("Failed to allocate partitioned file structure\n");
 		return NULL;
@@ -68,7 +70,9 @@ static partitioned_file_t *reopen_flat_file(const char *filename)
 		return NULL;
 	}
 
-	file->stream = fopen(filename, "rb+");
+	access_mode = write_access ?  "rb+" : "rb";
+	file->stream = fopen(filename, access_mode);
+
 	if (!file->stream) {
 		perror(filename);
 		partitioned_file_close(file);
@@ -165,11 +169,12 @@ partitioned_file_t *partitioned_file_create(const char *filename,
 	return file;
 }
 
-partitioned_file_t *partitioned_file_reopen(const char *filename)
+partitioned_file_t *partitioned_file_reopen(const char *filename,
+					    bool write_access)
 {
 	assert(filename);
 
-	partitioned_file_t *file = reopen_flat_file(filename);
+	partitioned_file_t *file = reopen_flat_file(filename, write_access);
 	if (!file)
 		return NULL;
 
