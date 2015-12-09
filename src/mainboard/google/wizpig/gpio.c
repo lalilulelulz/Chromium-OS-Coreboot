@@ -94,7 +94,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	GPIO_NC, /* GPO FST_SPI_CS1_B */
 	Native_M1, /* 05 FST_SPI_D1 */
 	Native_M1, /* 06 FST_SPI_CS0_B */
-	GPIO_NC, /* 07 FST_SPI_CS2_B */
+	GPIO_INPUT_NO_PULL, /* 07 FST_SPI_CS2_B */
 	GPIO_NC, /* 15 UART1_RTS_B */
 	Native_M2, /* 16 UART1_RXD */
 	GPIO_NC, /* 17 UART2_RXD */
@@ -130,11 +130,10 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	NATIVE_PU1K_CSEN_INVTX(1), /* 66  I2C2_SCL */
 	GPIO_INPUT_NO_PULL,/* 67  I2C3_SCL,RAMID1 */
 	GPIO_OUT_HIGH, /* 75 SATA_GP0 */
-	GPIO_NC,
-	/* 76 GPI SATA_GP1 */
+	GPIO_NC, /* 76 GPI SATA_GP1 */
 	GPIO_INPUT_PU_20K, /* 77 SATA_LEDN */
-	GPIO_NC, /* 80 SATA_GP3 */
-	Native_M1, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
+	GPIO_NC, /* 78 SATA_GP2 */
+	Native_M1, /* 79 NFC_DEV_WAKE , MF_SMB_CLK */
 	GPIO_INPUT_NO_PULL, /* 80 SATA_GP3,RAMID0 */
 	Native_M1, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
 	Native_M1, /* 82 NFC_FW_DOWNLOAD, MF_SMB_DATA */
@@ -173,7 +172,7 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	GPI(trig_edge_low, L3, P_1K_H, non_maskable, NA, UNMASK_WAKE, NA),
 	/* 19 GPIO_SUS1 */
 	GPIO_NC, /* 20 GPIO_SUS5 */
-	GPIO_NC, /* 21 SEC_GPIO_SUS11 */
+	GPIO_INPUT_NO_PULL, /* 21 SEC_GPIO_SUS11 */
 	GPIO_NC, /* 22 GPIO_SUS4 */
 	GPIO_NC,
 	/* 23 SEC_GPIO_SUS8 */
