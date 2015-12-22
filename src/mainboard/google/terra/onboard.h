@@ -66,7 +66,7 @@
 #define TERRA2_BOARD_EVT		0x04
 #define TERRA2_BOARD_DVT		0x02
 
-#define DPTF_CPU_PASSIVE	88
+#define DPTF_CPU_PASSIVE	80
 #define DPTF_CPU_CRITICAL	90
 
 #endif
