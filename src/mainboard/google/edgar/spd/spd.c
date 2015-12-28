@@ -36,8 +36,11 @@
  *   0b0001 - 4GiB total - 2 x 2GiB Hynix H9CCNNN8JTBLAR-NUD
  *   0b0010 - 2GiB total - 1 x 2GiB Samsung K4E8E304EE-EGCE
  *   0b0011 - 2GiB total - 1 x 2GiB Hynix H9CCNNN8JTBLAR-NUD
+ *   0b0100 - 4GiB total - 2 x 2GiB Samsung K4E8E324EB-EGCF
+ *   0b0101 - TBD
+ *   0b0110 - 2GiB total - 1 x 2GiB Samsung K4E8E324EB-EGCF
  */
-static const uint32_t dual_channel_config = (1 << 0) | (1 << 1);
+static const uint32_t dual_channel_config = (1 << 0) | (1 << 1) | (1 << 4);
 
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
@@ -72,6 +75,15 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 		break;
 	case 3:
 		printk(BIOS_DEBUG, "2GiB Hynix H9CCNNN8JTBLAR-NUD\n");
+		break;
+	case 4:
+		printk(BIOS_DEBUG, "4GiB Samsung K4E8E324EB-EGCF\n");
+		break;
+	case 5:
+		printk(BIOS_DEBUG, "empty\n");
+		break;
+	case 6:
+		printk(BIOS_DEBUG, "2GiB Samsung K4E8E324EB-EGCF\n");
 		break;
 	}
 
