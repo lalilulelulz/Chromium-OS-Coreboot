@@ -1,7 +1,7 @@
 ##
 ## This file is part of the coreboot project.
 ##
-## Copyright (C) 2013 Google Inc.
+## Copyright 2015 MediaTek Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,5 +17,4 @@
 ## Foundation, Inc.
 ##
 
-subdirs-$(CONFIG_DRIVER_PARADE_PS8625) += ps8625/
-subdirs-$(CONFIG_DRIVER_PARADE_PS8640) += ps8640/
+ramstage-$(CONFIG_DRIVER_PARADE_PS8640) += ps8640.c
