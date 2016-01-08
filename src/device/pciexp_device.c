@@ -197,6 +197,12 @@ static unsigned char pciexp_L1_substate_cal(device_t dev, unsigned int endp_cap,
 	return 1;
 }
 
+__attribute__((weak)) int board_pciedev_l1substates_supported(device_t dev);
+__attribute__((weak)) int board_pciedev_l1substates_supported(device_t dev)
+{
+	return 0xf;
+}
+
 static void pciexp_L1_substate_commit(device_t root, device_t dev,
 	unsigned int root_cap, unsigned int end_cap)
 {
@@ -221,7 +227,7 @@ static void pciexp_L1_substate_commit(device_t root, device_t dev,
 			return;
 	}
 
-	L1SubStateSupport = rp_L1_support & 0xf;
+	L1SubStateSupport = rp_L1_support & board_pciedev_l1substates_supported(dev);
 	comm_mode_rst_time = (rp_L1_support >> 8) & 0xff;
 	power_on_scale = (rp_L1_support >> 16) & 0x3;
 	endp_power_on_value = (rp_L1_support >> 19) & 0x1f;

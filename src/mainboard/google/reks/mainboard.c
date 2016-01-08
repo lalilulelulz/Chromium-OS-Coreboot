@@ -24,6 +24,19 @@
 #include <soc/gpio.h>
 #include "ec.h"
 
+#include <console/console.h>
+#include <device/pci_def.h>
+
+typedef struct {
+  uint8_t bus;
+  uint8_t dev;
+  uint8_t func;
+} DEVICE_PCI_PFA;
+
+#define BIT0   0x00000001
+
+#define PCIE_L1OFF_ENABLE BIT0
+
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
@@ -42,3 +55,25 @@ static void mainboard_enable(device_t dev)
 struct chip_operations mainboard_ops = {
 	.enable_dev = mainboard_enable,
 };
+
+int board_pciedev_l1substates_supported(device_t dev);
+int board_pciedev_l1substates_supported(device_t dev)
+{
+	/* Intel WLAN 7265 Bus#2, Dev#0, Fun#0 */
+	DEVICE_PCI_PFA PCIE_WLAN = {
+		.bus = 0x02,
+		.dev = 0x00,
+		.func = 0x00
+	};
+	if ((dev->bus->secondary == PCIE_WLAN.bus) &&
+	    (PCI_SLOT(dev->path.pci.devfn) == PCIE_WLAN.dev) &&
+	    (PCI_FUNC(dev->path.pci.devfn) == PCIE_WLAN.func)){
+		printk(BIOS_INFO, "Disable PCIE device :%02x %02x %02x L1Sub\n",
+			(PCIE_WLAN.bus & 0xff),
+			(PCIE_WLAN.dev & 0xff),
+			(PCIE_WLAN.func & 0xff));
+		/*clear bit[0] to disable PCIE L1 sub */
+		return 0xf & ~(PCIE_L1OFF_ENABLE);
+	}
+	return 0xf;
+}
