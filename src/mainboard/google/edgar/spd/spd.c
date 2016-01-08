@@ -143,18 +143,31 @@ static void set_dimm_info(uint8_t *spd, struct dimm_info *dimm)
 	const int spd_ranks[8] = {  1,  2,  3,  4, -1, -1, -1, -1 };
 	const int spd_devw[8]  = {  4,  8, 16, 32, -1, -1, -1, -1 };
 	const int spd_busw[8]  = {  8, 16, 32, 64, -1, -1, -1, -1 };
-	uint16_t clock_frequency;
 
 	int capmb = spd_capmb[spd[SPD_DENSITY_BANKS] & 7] * 256;
 	int ranks = spd_ranks[(spd[SPD_ORGANIZATION] >> 3) & 7];
 	int devw  = spd_devw[spd[SPD_ORGANIZATION] & 7];
 	int busw  = spd_busw[spd[SPD_BUS_DEV_WIDTH] & 7];
 
+	void *hob_list_ptr;
+	EFI_HOB_GUID_TYPE *hob_ptr;
+	FSP_SMBIOS_MEMORY_INFO *memory_info_hob;
+	const EFI_GUID memory_info_hob_guid = FSP_SMBIOS_MEMORY_INFO_GUID;
+
+	/* Locate the memory info HOB, presence validated by raminit */
+	hob_list_ptr = fsp_get_hob_list();
+	hob_ptr = get_next_guid_hob(&memory_info_hob_guid, hob_list_ptr);
+	if (hob_ptr != NULL) {
+		memory_info_hob = (FSP_SMBIOS_MEMORY_INFO *)(hob_ptr + 1);
+		dimm->ddr_frequency = memory_info_hob->MemoryFrequencyInMHz;
+	} else {
+		printk(BIOS_ERR, "Can't get memory info hob pointer\n");
+		dimm->ddr_frequency = 0;
+	}
+
 	/* Parse the SPD data to determine the DIMM information */
 	dimm->ddr_type = MEMORY_DEVICE_LPDDR3;
 	dimm->dimm_size = capmb / 8 * busw / devw * ranks;  /* MiB */
-	clock_frequency = 1000 * spd[11] / (spd[10] * spd[12]);	/* MHz */
-	dimm->ddr_frequency = 2 * clock_frequency;	/* Double Data Rate */
 	dimm->mod_type = spd[3] & 0xf;
 	memcpy((char *)&dimm->module_part_number[0], &spd[0x80],
 		sizeof(dimm->module_part_number) - 1);
