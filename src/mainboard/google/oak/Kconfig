@@ -59,10 +59,6 @@ config DRIVER_TPM_I2C_ADDR
 	hex
 	default 0x20
 
-config VBOOT_RAMSTAGE_INDEX
-	hex
-	default 0x3
-
 config BOOT_MEDIA_SPI_BUS
 	int
 	default 9
