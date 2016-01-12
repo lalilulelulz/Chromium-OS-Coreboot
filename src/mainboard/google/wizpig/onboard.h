@@ -41,6 +41,7 @@
 /* ToDo: change kbd irq to gpio bank index */
 #define BOARD_I8042_IRQ			182
 
+#define BOARD_TOUCH_IRQ			184
 /* Audio: Gpio index in SW bank */
 #define JACK_DETECT_GPIO_INDEX		95
 /* SCI: Gpio index in N bank */
@@ -53,6 +54,10 @@
 #define BOARD_TRACKPAD_I2C_BUS          5
 #define BOARD_TRACKPAD_I2C_ADDR         0x15
 
+#define BOARD_TOUCHSCREEN_NAME          "touchscreen"
+#define BOARD_TOUCHSCREEN_WAKE_GPIO     ACPI_ENABLE_WAKE_SUS_GPIO(2)
+#define BOARD_TOUCHSCREEN_I2C_BUS       0
+#define BOARD_TOUCHSCREEN_I2C_ADDR      0x10
 /* SD CARD gpio */
 #define SDCARD_CD			81
 
