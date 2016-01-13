@@ -44,10 +44,10 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	int ram_id = 0;
 
 	gpio_t spd_gpios[] = {
-		GP_SW_80,	/* SATA_GP3, RAMID0 */
-		GP_SW_67,   /* I2C3_SCL, RAMID1 */
-		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
-		GP_SW_64,	/* I2C3_SDA, RAMID3 */
+		GP_SW_64,	/* I2C3_SDA, RAMID0 */
+		GP_SE_02,   /* MF_PLT_CLK1, RAMID1 */
+		GP_SW_67,	/* I2C3_SCL, RAMID2 */
+		GP_SW_80,	/* SATA_GP3, RAMID3 */
 	};
 
 	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
