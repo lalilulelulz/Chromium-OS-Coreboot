@@ -34,6 +34,4 @@
 #define  SPD_PART_LEN		18
 #define SPD_MANU_OFF		148
 
-#define HYNIX_SINGLE_CHAN	0x1
-#define SAMSUNG_SINGLE_CHAN	0x4
 #endif

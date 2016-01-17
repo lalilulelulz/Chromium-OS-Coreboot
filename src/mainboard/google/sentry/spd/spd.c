@@ -109,10 +109,7 @@ void mainboard_fill_spd_data(struct pei_data *pei_data)
 	spd_span = spd_index * SPD_LEN;
 	memcpy(pei_data->spd_data[0][0], spd_file + spd_span, SPD_LEN);
 
-	if (spd_index != HYNIX_SINGLE_CHAN && spd_index != SAMSUNG_SINGLE_CHAN) {
-		memcpy(pei_data->spd_data[1][0], spd_file + spd_span, SPD_LEN);
-		printk(BIOS_INFO, "Dual channel SPD detected writing second channel\n");
-	}
+	memcpy(pei_data->spd_data[1][0], spd_file + spd_span, SPD_LEN);
 
 	/* Make sure a valid SPD was found */
 	if (pei_data->spd_data[0][0][0] == 0)
