@@ -30,24 +30,6 @@
 
 #include <rules.h>
 
-#ifndef CONFIG_FSP_LOC
-# error "CONFIG_FSP_LOC must be set."
-#endif
-
-#ifndef CONFIG_POST_IO
-# error "CONFIG_POST_IO must be set."
-#endif
-
-#if IS_ENABLED(CONFIG_POST_IO)
-# ifndef CONFIG_POST_IO_PORT
-#  error "CONFIG_POST_IO_PORT must be set."
-# endif
-#endif
-
-#ifndef CONFIG_CPU_MICROCODE_CBFS_LOC
-# error "CONFIG_CPU_MICROCODE_CBFS_LOC must be set."
-#endif
-
 #define LHLT_DELAY	0x50000		/* I/O delay between post codes on failure */
 
 	/*
@@ -55,17 +37,22 @@
 	 * mm0:  low 32-bits of TSC value
 	 * mm1:  high 32-bits of TSC value
 	 */
-
-	mov	%eax, %edi
-
+	movl	%eax, %edi
 cache_as_ram:
 	post_code(0x20)
 
+#if IS_ENABLED(CONFIG_SKIP_FSP_CAR)
+
 	/*
-	 * edi:  BIST value
-	 * mm0:  low 32-bits of TSC value
-	 * mm1:  high 32-bits of TSC value
+	 * SOC specific setup
+	 * NOTE: This has to preserve the registers
+	 * mm0, mm1 and edi.
 	 */
+	#include <soc/car_setup.S>
+
+	post_code(0x28)
+
+#endif
 
 	/*
 	 * Find the FSP binary in cbfs.
@@ -165,7 +152,7 @@ CAR_init_done:
 	rep	stosl
 
 before_romstage:
-	post_code(0x23)
+	post_code(0x2A)
 
 	/* Call cache_as_ram_main(struct cache_as_ram_params *) */
 	call	cache_as_ram_main
@@ -240,3 +227,4 @@ CAR_init_params:
 CAR_init_stack:
 	.long	CAR_init_done
 	.long	CAR_init_params
+
