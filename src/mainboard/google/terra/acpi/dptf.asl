@@ -27,10 +27,10 @@
 #define DPTF_TSR2_SENSOR_ID	2
 #define DPTF_TSR2_SENSOR_NAME	"TMP432_CHARGER"
 
-#define DPTF_TERRA2_TSR0_PASSIVE	58
+#define DPTF_TERRA2_TSR0_PASSIVE	62
 #define DPTF_TERRA2_TSR0_CRITICAL	75
 
-#define DPTF_TERRA2_TSR1_PASSIVE	54
+#define DPTF_TERRA2_TSR1_PASSIVE	53
 #define DPTF_TERRA2_TSR1_CRITICAL	75
 
 #define DPTF_TERRA2_TSR2_PASSIVE	53
@@ -72,19 +72,24 @@ Name (MPDL, 8)
 Name (TRT2, Package () {
 	/* CPU Throttle Effect on CPU */
 	Package () { \_SB.PCI0.B0DB, \_SB.PCI0.B0DB, 100, 10, 0, 0, 0, 0 },
-
+#ifdef DPTF_ENABLE_CHARGER
+	/* Charger Effect on Temp Sensor 0 */
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR0, 200, 100, 0, 0, 0, 0 },
+#endif
 	/* CPU Effect on Temp Sensor 0 */
 	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR0, 100, 100, 0, 0, 0, 0 },
 #ifdef DPTF_ENABLE_CHARGER
 	/* Charger Effect on Temp Sensor 1 */
-	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 100, 100, 0, 0, 0, 0 },
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 100, 0, 0, 0, 0 },
 #endif
-
 	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 200, 100, 0, 0, 0, 0 },
-
+	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 100, 100, 0, 0, 0, 0 },
+#ifdef DPTF_ENABLE_CHARGER
 	/* Charger Effect on Temp Sensor 2 */
-	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR2, 100, 100, 0, 0, 0, 0 },
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR2, 200, 100, 0, 0, 0, 0 },
+#endif
+	/* CPU Effect on Temp Sensor 2 */
+	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR2, 100, 100, 0, 0, 0, 0 },
 })
 
 /* Terra3 - Thermal Relationship Table for method _TRT */
