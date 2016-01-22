@@ -72,3 +72,7 @@
 #define DPTF_TERRA3_CPU_PASSIVE		80
 #define DPTF_TERRA3_CPU_CRITICAL	90
 #endif
+
+/* I2C data hold time */
+#define BOARD_I2C5_DATA_HOLD_TIME	0x1E
+#define BOARD_I2C6_DATA_HOLD_TIME	0x1E
