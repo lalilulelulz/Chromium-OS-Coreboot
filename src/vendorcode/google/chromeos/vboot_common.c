@@ -24,6 +24,7 @@
 #include <console/console.h>
 #include <fmap.h>
 #include <reset.h>
+#include <rules.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -58,6 +59,12 @@ int vboot_get_handoff_info(void **addr, uint32_t *size)
 static int vboot_handoff_flag(uint32_t flag)
 {
 	struct vboot_handoff *vbho;
+
+	/* No flags are available in a separate verstage or bootblock because
+	 * cbmem only comes online when dram does. */
+	if ((ENV_VERSTAGE && IS_ENABLED(CONFIG_VBOOT_STARTS_IN_BOOTBLOCK)) ||
+		ENV_BOOTBLOCK)
+		return 0;
 
 	vbho = cbmem_find(CBMEM_ID_VBOOT_HANDOFF);
 
