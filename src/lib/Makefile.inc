@@ -174,6 +174,7 @@ $(obj)/lib/version.verstage.o : $(obj)/build.h
 
 romstage-y += bootmode.c
 ramstage-y += bootmode.c
+verstage-y += bootmode.c
 
 bootblock-y += halt.c
 romstage-y += halt.c
