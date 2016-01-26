@@ -77,6 +77,7 @@ static struct param {
 	bool fill_partial_downward;
 	bool show_immutable;
 	bool stage_xip;
+	bool machine_parseable;
 	int fit_empty_entries;
 	enum comp_algo compression;
 	enum vb2_hash_algorithm hash;
@@ -784,8 +785,10 @@ static int cbfs_print(void)
 	if (cbfs_image_from_buffer(&image, param.image_region,
 							param.headeroffset))
 		return 1;
-	cbfs_print_directory(&image);
-	return 0;
+	if (param.machine_parseable)
+		return cbfs_print_parseable_directory(&image);
+	else
+		return cbfs_print_directory(&image);
 }
 
 /* Forward declared so there aren't type collisions with cbfstool proper
@@ -1016,7 +1019,7 @@ static const struct command commands[] = {
 	{"hashcbfs", "r:R:A:vh?", cbfs_hash, true, true},
 	{"extract", "H:r:n:f:vh?", cbfs_extract, true, false},
 	{"layout", "wvh?", cbfs_layout, false, false},
-	{"print", "H:r:vh?", cbfs_print, true, false},
+	{"print", "H:r:vkh?", cbfs_print, true, false},
 	{"read", "r:f:vh?", cbfs_read, true, false},
 	{"remove", "H:r:n:vh?", cbfs_remove, true, true},
 	{"update-fit", "H:r:n:x:vh?", cbfs_update_fit, true, true},
@@ -1054,6 +1057,7 @@ static struct option long_options[] = {
 	{"verbose",       no_argument,       0, 'v' },
 	{"with-readonly", no_argument,       0, 'w' },
 	{"xip",           no_argument,       0, 'y' },
+	{"mach-parseable",no_argument,       0, 'k' },
 	{NULL,            0,                 0,  0  }
 };
 
@@ -1352,6 +1356,9 @@ int main(int argc, char **argv)
 				break;
 			case 'y':
 				param.stage_xip = true;
+				break;
+			case 'k':
+				param.machine_parseable = true;
 				break;
 			case 'h':
 			case '?':
