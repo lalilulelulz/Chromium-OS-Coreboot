@@ -47,60 +47,65 @@ Scope (\_SB.PCI0.LPCB)
 {
 	#include <drivers/pc80/tpm/acpi/tpm.asl>
 }
+
 Scope (\_SB.I2C1)
 {
-	Device (ATSB)
+	Device (STSA)
 	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
+		Name (_HID, "SYN7508")
+		Name (_CID, "PNP0C50")
 		Name (_UID, 4)
 		Name (ISTP, 0) /* TouchScreen */
 
-		Method(_CRS, 0x0, NotSerialized)
+		/* Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
 		{
-			Name (BUF0, ResourceTemplate ()
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
 			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				// DSM Revision
+				If (LEqual (Arg2, Zero))
 				{
-					BOARD_TOUCH_IRQ
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
 				}
-			})
-			Return (BUF0)
-		}
-
-		Method (_STA)
-		{
-			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
+				// HID Function
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
 			}
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
 		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (ISTP, 0) /* TouchScreen */
 
 		Method(_CRS, 0x0, NotSerialized)
 		{
 			Name (BUF0, ResourceTemplate ()
 			{
 				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
+					0x20,                     /* SlaveAddress */
 					ControllerInitiated,      /* SlaveMode */
 					400000,                   /* ConnectionSpeed */
 					AddressingMode7Bit,       /* AddressingMode */
