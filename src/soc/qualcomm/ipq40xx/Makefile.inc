@@ -74,7 +74,7 @@ endif
 CPPFLAGS_common += -Isrc/soc/qualcomm/ipq40xx/include
 
 # List of binary blobs coreboot needs in CBFS to be able to boot up this SOC
-mbn-files := cdt.mbn  ddr.mbn  rpm.mbn tz.mbn
+mbn-files := $(CONFIG_CDT_MBN) $(CONFIG_DDR_MBN) $(CONFIG_TZ_MBN)
 
 # Location of the binary blobs
 mbn-root := 3rdparty/blobs/cpu/qualcomm/ipq40xx
