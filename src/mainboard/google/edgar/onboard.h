@@ -63,7 +63,7 @@
 #define BCRD2_PMIC_I2C_BUS		0x01
 
 /* I2C data hold time */
-#define BOARD_I2C6_DATA_HOLD_TIME	0x1E
+#define BOARD_I2C6_DATA_HOLD_TIME	0x2F
 
 #define DPTF_CPU_PASSIVE	88
 #define DPTF_CPU_CRITICAL	90
