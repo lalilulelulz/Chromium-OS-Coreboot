@@ -27,12 +27,12 @@
 #define DPTF_TSR1_SENSOR_ID	3
 #define DPTF_TSR1_SENSOR_NAME	"R4303_CPU"
 #define DPTF_TSR1_PASSIVE	49
-#define DPTF_TSR1_CRITICAL	75
+#define DPTF_TSR1_CRITICAL	70
 
 #define DPTF_TSR2_SENSOR_ID	2
 #define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	50
-#define DPTF_TSR2_CRITICAL	75
+#define DPTF_TSR2_PASSIVE	49
+#define DPTF_TSR2_CRITICAL	70
 
 
 #define DPTF_ENABLE_CHARGER
@@ -53,18 +53,11 @@ Name (DTRT, Package () {
 	/* CPU Throttle Effect on CPU */
 	Package () { \_SB.PCI0.B0DB, \_SB.PCI0.B0DB, 100, 50, 0, 0, 0, 0 },
 
-	/* CPU Effect on Temp Sensor 0 */
-	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR0, 100, 100, 0, 0, 0, 0 },
-#ifdef DPTF_ENABLE_CHARGER
-	/* Charger Effect on Temp Sensor 1 */
-	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 600, 0, 0, 0, 0 },
-#endif
-
 	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 100, 300, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 2 */
-	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR2, 100, 300, 0, 0, 0, 0 },
 })
 
 Name (MPPC, Package ()
