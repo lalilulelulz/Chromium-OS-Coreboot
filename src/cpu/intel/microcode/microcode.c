@@ -23,7 +23,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #if !defined(__ROMCC__)
+#include <cbfs.h>
 #include <console/console.h>
+#else
+#include <arch/cbfs.h>
 #endif
 #include <cpu/cpu.h>
 #include <cpu/x86/msr.h>
@@ -31,11 +34,8 @@
 #include <rules.h>
 
 #if !defined(__PRE_RAM__)
-#include <cbfs.h>
 #include <smp/spinlock.h>
 DECLARE_SPIN_LOCK(microcode_lock)
-#else
-#include <arch/cbfs.h>
 #endif
 
 struct microcode {
@@ -125,7 +125,7 @@ const void *intel_microcode_find(void)
 	unsigned int x86_model, x86_family;
 	msr_t msr;
 
-#ifdef __PRE_RAM__
+#ifdef __ROMCC__
 	struct cbfs_file *microcode_file;
 
 	microcode_file = walkcbfs_head((char *) MICROCODE_CBFS_FILE);
