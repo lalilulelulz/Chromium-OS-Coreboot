@@ -37,7 +37,10 @@
 #include "ec.h"
 #include "onboard.h"
 #include <baytrail/gpio.h>
+#include <baytrail/pcie.h>
 #include <bootstate.h>
+#include <vendorcode/google/chromeos/fmap.h>
+#define GPIO_SSUS_41_PAD 53
 
 void mainboard_suspend_resume(void)
 {
@@ -129,9 +132,93 @@ static int int15_handler(void)
 }
 #endif
 
+static unsigned int search(char *p, char *a, unsigned int lengthp,
+			   unsigned int lengtha)
+{
+	int i, j;
+
+	/* Searching */
+	for (j = 0; j <= lengtha - lengthp; j++) {
+		for (i = 0; i < lengthp && p[i] == a[i + j]; i++) ;
+		if (i >= lengthp)
+			return j;
+	}
+	return lengtha;
+}
+
+/*
+ * Search "customization_id" entry and value is "HP-KIP14"; return 1 if found.
+ */
+static int search_kip14_custom_id(void)
+{
+	char key[] = "customization_id";
+	char custom_id[] =  "HP-KIP14";
+	unsigned int offset;
+
+	char **vpd_region_ptr = NULL;
+	u32 search_length = find_fmap_entry("RO_VPD", (void **)vpd_region_ptr);
+	u32 search_address = (unsigned long)(*vpd_region_ptr);
+
+
+	if (search_length != -1) {
+
+		/*
+		 * Search for "customization_id" identifier which is used to distinguish kip11 and kip14 board
+		 * "HP-KIP14" is for kip14 board;"HP-KIP" for kip11 board
+		 */
+		offset = search(key, (char *)search_address, sizeof(key) - 1,
+				search_length);
+		if (offset != search_length) {
+			printk(BIOS_DEBUG, "Located '%s' in VPD\n", key);
+
+			offset += sizeof(key);	/* move to next character */
+			search_length = sizeof(custom_id);
+			offset = search(custom_id, (char *)(search_address + offset),
+					sizeof(custom_id) - 1, search_length);
+			if (offset != search_length) {
+				printk(BIOS_DEBUG, "Located '%s' in VPD\n", custom_id);
+				return 1;
+			} else
+				printk(BIOS_DEBUG, "Could not found '%s' in VPD\n", custom_id);
+
+		} else
+			printk(BIOS_DEBUG, "Could not found '%s' in VPD\n", key);
+	} else
+		printk(BIOS_DEBUG, "Error: Could not locate VPD area\n");
+  return 0;
+}
+
+/*
+ * Disable wifi ASPM according to the GPIO_S5_41
+ * High: disable aspm
+ * Low: Keep aspm setting
+ */
+static void disable_wifi_aspm(void)
+{
+	/*
+	 * GPIO_S5_41 is board id pin to identify new kip-14 board
+	 * 0: is new board
+	 */
+	if(ssus_get_gpio(GPIO_SSUS_41_PAD)) {
+		/* Wifi is Bus 1 Device 0 function: 0*/
+		device_t dev = dev_find_slot(1, PCI_DEVFN(0,0));
+		if(!dev) {
+			printk(BIOS_DEBUG,"wifi device not found!!!\n");
+			return;
+		}
+
+	/* 0x40 is ASPM disable */
+	pci_write_config8(dev, LCTL, 0x40);
+	}
+}
+
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
+
+	if(search_kip14_custom_id()){
+		disable_wifi_aspm();
+	}
 }
 
 static int mainboard_smbios_data(device_t dev, int *handle,
