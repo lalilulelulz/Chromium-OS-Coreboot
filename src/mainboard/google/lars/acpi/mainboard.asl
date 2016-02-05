@@ -23,13 +23,8 @@
 #define BOARD_TOUCHPAD_I2C_ADDR			0x15
 #define BOARD_TOUCHPAD_IRQ			TOUCHPAD_INT_L
 
-#define BOARD_TOUCHSCREEN_I2C_ADDR		0x10
-#define BOARD_TOUCHSCREEN_IRQ			TOUCHSCREEN_INT_L
-
 #define BOARD_HP_MIC_CODEC_I2C_ADDR		0x1a
 #define BOARD_HP_MIC_CODEC_IRQ			MIC_INT_L
-#define BOARD_LEFT_SPEAKER_AMP_I2C_ADDR		0x34
-#define BOARD_RIGHT_SPEAKER_AMP_I2C_ADDR	0x35
 
 Scope (\_SB)
 {
@@ -108,38 +103,6 @@ Scope (\_SB.PCI0.RP01)
 		Name (_ADR, 0x00000000)
 		Name (_DDN, "Wireless LAN")
 		Name (_PRW, Package () { GPE_WLAN_WAKE, 3 })
-	}
-}
-
-Scope (\_SB.PCI0.I2C0)
-{
-	/* Touchscreen */
-	Device (ELTS)
-	{
-		Name (_HID, "ELAN0001")
-		Name (_DDN, "Elan Touchscreen")
-		Name (_UID, 1)
-		Name (_S0W, 4)
-
-		Name (_CRS, ResourceTemplate ()
-		{
-			I2cSerialBus (
-				BOARD_TOUCHSCREEN_I2C_ADDR,
-				ControllerInitiated,
-				400000,
-				AddressingMode7Bit,
-				"\\_SB.PCI0.I2C0",
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				BOARD_TOUCHSCREEN_IRQ
-			}
-		})
-
-		Method (_STA)
-		{
-			Return (0xF)
-		}
 	}
 }
 
