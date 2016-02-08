@@ -293,7 +293,7 @@ int rmodule_stage_load(struct rmod_stage_load *rsl)
 		if (map == NULL)
 			return -1;
 
-		fsize = ulzma(map, rmod_loc);
+		fsize = ulzman(map, stage.len, rmod_loc, stage.memlen);
 
 		rdev_munmap(fh, map);
 
