@@ -66,3 +66,7 @@ void write_tables(void)
 {
 	wtf_write_tables();
 }
+
+void lb_arch_add_records(struct lb_header *header)
+{
+}
