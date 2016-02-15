@@ -295,6 +295,14 @@ config BOARD_GOOGLE_ULTIMA
           Ultima is a Chrome OS mainboard.
           Ultima is based on the Intel Braswell platform.
 
+config BOARD_GOOGLE_UMARO
+	bool "Umaro"
+	help
+	  Google Umaro mainboard.
+	  Enable this config to select the Google Umaro mainboard.
+	  Umaro is a Chrome OS mainboard.
+	  Umaro is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_URARA
 	bool "Urara"
 	help
@@ -426,6 +434,7 @@ source "src/mainboard/google/stout/Kconfig"
 source "src/mainboard/google/terra/Kconfig"
 source "src/mainboard/google/urara/Kconfig"
 source "src/mainboard/google/ultima/Kconfig"
+source "src/mainboard/google/umaro/Kconfig"
 source "src/mainboard/google/veyron_brain/Kconfig"
 source "src/mainboard/google/veyron_danger/Kconfig"
 source "src/mainboard/google/veyron_jerry/Kconfig"
