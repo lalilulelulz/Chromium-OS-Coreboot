@@ -29,6 +29,11 @@
 #define SRAM_L2C_START(addr) SYMBOL(sram_l2c, addr)
 #define SRAM_L2C_END(addr) SYMBOL(esram_l2c, addr)
 
+#define DRAM_DMA(addr, size) \
+	REGION(dram_dma, addr, size, 4K) \
+	_ = ASSERT(size % 4K == 0, \
+		"DRAM DMA buffer should be multiple of smallest page size (4K)!");
+
 SECTIONS
 {
 	SRAM_L2C_START(0x000C0000)
@@ -48,6 +53,7 @@ SECTIONS
 	SRAM_END(0x00130000)
 
 	DRAM_START(0x40000000)
+	DRAM_DMA(0x40000000, 1M)
 	POSTRAM_CBFS_CACHE(0x40100000, 1M)
 	RAMSTAGE(0x40200000, 256K)
 }
