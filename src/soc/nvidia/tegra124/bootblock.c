@@ -28,6 +28,7 @@
 #include <soc/nvidia/tegra/apbmisc.h>
 #include <soc/pinmux.h>
 #include <soc/power.h>
+#include <timestamp.h>
 #include <vendorcode/google/chromeos/chromeos.h>
 
 static void run_next_stage(void *entry)
@@ -84,6 +85,8 @@ void main(void)
 	pinmux_set_config(PINMUX_PWR_INT_N_INDEX,
 			  PINMUX_PWR_INT_N_FUNC_PMICINTR |
 			  PINMUX_INPUT_ENABLE);
+
+	timestamp_init(0);
 
 	run_romstage();
 }
