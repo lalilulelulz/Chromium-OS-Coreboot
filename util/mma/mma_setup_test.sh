@@ -94,7 +94,7 @@ show_usage() {
 
 write_flash() {
 	printf "Writing back flash contents "${flashrom_temp_image}"\n"
-	flashrom -p host -w "${flashrom_temp_image}" -i BOOT_STUB --fast-verify || \
+	flashrom -p host -w "${flashrom_temp_image}" --fast-verify || \
 		{
 			printf "failed to read flash\n" ;
 			exit -1;
@@ -184,7 +184,7 @@ main() {
 	remove_file_if_exists "${flashrom_temp_image}"
 
 	printf "Reading flash contents to "${flashrom_temp_image}"\n"
-	flashrom -p host -r "${flashrom_temp_image}" -i BOOT_STUB || \
+	flashrom -p host -r "${flashrom_temp_image}" || \
 		{
 			printf "failed to read flash\n" ;
 			exit -1;
