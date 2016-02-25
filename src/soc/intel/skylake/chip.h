@@ -332,6 +332,9 @@ struct soc_intel_skylake_config {
 	u8 PmTimerDisabled;
 	/* Intel Speed Shift Technology */
 	u8 speed_shift_enable;
+
+	/* Statically clock gate 8254 PIT. */
+	u8 clock_gate_8254;
 };
 
 typedef struct soc_intel_skylake_config config_t;
