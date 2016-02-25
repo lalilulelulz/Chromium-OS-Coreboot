@@ -45,6 +45,7 @@
 #include <string.h>
 #include <types.h>
 #include <vendorcode/google/chromeos/gnvs.h>
+#include <wrdd.h>
 
 /*
  * List of suported C-states in this processor.
@@ -197,6 +198,9 @@ static void acpi_create_gnvs(global_nvs_t *gnvs)
 
 	/* Enable DPTF based on mainboard configuration */
 	gnvs->dpte = config->dptf_enable;
+
+	/* Fill in the Wifi Region id */
+	gnvs->cid1 = wifi_regulatory_domain();
 }
 
 unsigned long acpi_fill_mcfg(unsigned long current)
