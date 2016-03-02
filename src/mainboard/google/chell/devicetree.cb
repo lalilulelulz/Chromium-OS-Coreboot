@@ -174,8 +174,6 @@ chip soc/intel/skylake
 	# PL2 override 15W
 	register "tdp_pl2_override" = "15"
 
-	register "clock_gate_8254" = "1"
-
 	device cpu_cluster 0 on
 		device lapic 0 on end
 	end
