@@ -49,37 +49,21 @@
 #define clrsetbits_le32_i(addr, clear, set)  \
 	clrsetbits_le32(((void *)(addr)), (clear), (set))
 
-#define MSM_CLK_CTL_BASE    ((void *)0x00900000)
+/*
+ * FIXME:
+ *	Temporary define to escape compiler errors
+ *	Should be removed once things are cleaned up
+ */
+#define MSM_CLK_CTL_BASE	((void *)0x00900000)
 
-#define MSM_TMR_BASE        ((void *)0x0200A000)
-#define MSM_GPT_BASE        (MSM_TMR_BASE + 0x04)
-#define MSM_DGT_BASE        (MSM_TMR_BASE + 0x24)
+#define GCNT_GLOBAL_CTRL_BASE	((void *)0x004a0000u)
+#define GCNT_CNTCR		(GCNT_GLOBAL_CTRL_BASE + 0x1000)
+#define GCNT_GLB_CNTCV_LO	(GCNT_GLOBAL_CTRL_BASE + 0x1008)
+#define GCNT_GLB_CNTCV_HI	(GCNT_GLOBAL_CTRL_BASE + 0x100c)
+#define GCNT_CNTCV_LO		(GCNT_GLOBAL_CTRL_BASE + 0x2000)
+#define GCNT_CNTCV_HI		(GCNT_GLOBAL_CTRL_BASE + 0x2004)
 
-#define GPT_REG(off)        (MSM_GPT_BASE + (off))
-#define DGT_REG(off)        (MSM_DGT_BASE + (off))
-
-#define APCS_WDT0_EN        (MSM_TMR_BASE + 0x0040)
-#define APCS_WDT0_RST       (MSM_TMR_BASE + 0x0038)
-#define APCS_WDT0_BARK_TIME (MSM_TMR_BASE + 0x004C)
-#define APCS_WDT0_BITE_TIME (MSM_TMR_BASE + 0x005C)
-
-#define APCS_WDT0_CPU0_WDOG_EXPIRED_ENABLE (MSM_CLK_CTL_BASE + 0x3820)
-
-#define GPT_MATCH_VAL        GPT_REG(0x0000)
-#define GPT_COUNT_VAL        GPT_REG(0x0004)
-#define GPT_ENABLE           GPT_REG(0x0008)
-#define GPT_CLEAR            GPT_REG(0x000C)
-
-#define GPT1_MATCH_VAL       GPT_REG(0x00010)
-#define GPT1_COUNT_VAL       GPT_REG(0x00014)
-#define GPT1_ENABLE          GPT_REG(0x00018)
-#define GPT1_CLEAR           GPT_REG(0x0001C)
-
-#define DGT_MATCH_VAL        DGT_REG(0x0000)
-#define DGT_COUNT_VAL        DGT_REG(0x0004)
-#define DGT_ENABLE           DGT_REG(0x0008)
-#define DGT_CLEAR            DGT_REG(0x000C)
-#define DGT_CLK_CTL          DGT_REG(0x0010)
+#define GCNT_PSHOLD		((void *)0x004AB000u)
 
 /* RPM interface constants */
 #define RPM_INT           ((void *)0x63020)
@@ -88,8 +72,8 @@
 #define RPM_SIGNAL_ENTRY  ((void *)0x47C24)
 #define RPM_FW_MAGIC_NUM 0x4D505242
 
-#define TLMM_BASE_ADDR      ((void *)0x00800000)
-#define GPIO_CONFIG_ADDR(x) (TLMM_BASE_ADDR + 0x1000 + (x)*0x10)
+#define TLMM_BASE_ADDR      ((void *)0x01000000)
+#define GPIO_CONFIG_ADDR(x) (TLMM_BASE_ADDR + 0x1000 * (x))
 #define GPIO_IN_OUT_ADDR(x) (GPIO_CONFIG_ADDR(x) + 4)
 
 /* Yes, this is not a typo... host2 is actually mapped before host1. */
@@ -100,16 +84,8 @@
 #define USB_HOST1_DWC3_BASE	0x1100C100
 #define USB_HOST1_PHY_BASE	0x110F8800
 
-#define GSBI_4			4
 #define UART1_DM_BASE         	0x12450000
-#define UART_GSBI1_BASE       	0x12440000
 #define UART2_DM_BASE		0x12490000
-#define UART_GSBI2_BASE		0x12480000
-#define UART4_DM_BASE         	0x16340000
-#define UART_GSBI4_BASE       	0x16300000
-
-#define UART2_DM_BASE           0x12490000
-#define UART_GSBI2_BASE         0x12480000
 
 #define GSBI1_BASE		((void *)0x12440000)
 #define GSBI2_BASE		((void *)0x12480000)
