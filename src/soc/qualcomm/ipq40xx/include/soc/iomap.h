@@ -49,12 +49,27 @@
 #define clrsetbits_le32_i(addr, clear, set)  \
 	clrsetbits_le32(((void *)(addr)), (clear), (set))
 
-/*
- * FIXME:
- *	Temporary define to escape compiler errors
- *	Should be removed once things are cleaned up
- */
-#define MSM_CLK_CTL_BASE	((void *)0x00900000)
+#define GCC_CLK_CTL_REG			((void *)0x01800000u)
+#define MSM_CLK_CTL_BASE		GCC_CLK_CTL_REG
+#define GCC_CLK_BRANCH_ENA		(GCC_CLK_CTL_REG + 0x6000)
+#define		IMEM_AXI		(1 << 17)
+#define		SYS_NOC_APSS_AHB	(1 << 16)
+#define		BIMC_AXI_M0		(1 << 15)
+#define		APSS_AHB		(1 << 14)
+#define		APSS_AXI		(1 << 13)
+#define		MPM_AHB			(1 << 12)
+#define		GMEM_SYS_NOC_AXI	(1 << 11)
+#define		BLSP1_AHB		(1 << 10)
+#define		BLSP1_SLEEP		(1 << 9)
+#define		PRNG_AHB		(1 << 8)
+#define		BOOT_ROM_AHB		(1 << 7)
+#define		MSG_RAM_AHB		(1 << 6)
+#define		TLMM_AHB		(1 << 5)
+#define		TLMM			(1 << 4)
+#define		SPMI_PCNOC_AHB		(1 << 3)
+#define		CRYPTO			(1 << 2)
+#define		CRYPTO_AXI		(1 << 1)
+#define		CRYPTO_AHB		(1 << 0)
 
 #define GCNT_GLOBAL_CTRL_BASE	((void *)0x004a0000u)
 #define GCNT_CNTCR		(GCNT_GLOBAL_CTRL_BASE + 0x1000)
@@ -84,8 +99,23 @@
 #define USB_HOST1_DWC3_BASE	0x1100C100
 #define USB_HOST1_PHY_BASE	0x110F8800
 
-#define UART1_DM_BASE         	0x12450000
-#define UART2_DM_BASE		0x12490000
+#define UART1_DM_BASE		((void *)0x078af000)
+#define UART2_DM_BASE		((void *)0x078b0000)
+
+enum {
+	BLSP1_UART1,
+	BLSP1_UART2,
+};
+
+#define GCC_BLSP1_UART_BCR_BASE		(GCC_CLK_CTL_REG + 0x2038)
+#define GCC_BLSP1_UART_BCR(x)		(GCC_BLSP1_UART_BCR_BASE + (x) * 0xff0)
+#define GCC_BLSP1_UART_APPS_CBCR(x)	(GCC_BLSP1_UART_BCR(x) + 4)
+#define GCC_BLSP1_UART_APPS_CMD_RCGR(x)	(GCC_BLSP1_UART_APPS_CBCR(x) + 8)
+#define GCC_BLSP1_UART_APPS_CFG_RCGR(x)	(GCC_BLSP1_UART_APPS_CMD_RCGR(x) + 4)
+#define GCC_BLSP1_UART_APPS_M(x)	(GCC_BLSP1_UART_APPS_CFG_RCGR(x) + 4)
+#define GCC_BLSP1_UART_APPS_N(x)	(GCC_BLSP1_UART_APPS_M(x) + 4)
+#define GCC_BLSP1_UART_APPS_D(x)	(GCC_BLSP1_UART_APPS_N(x) + 4)
+#define GCC_BLSP1_UART_MISC(x)		(GCC_BLSP1_UART_APPS_D(x) + 4)
 
 #define GSBI1_BASE		((void *)0x12440000)
 #define GSBI2_BASE		((void *)0x12480000)
