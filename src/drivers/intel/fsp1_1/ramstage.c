@@ -18,6 +18,7 @@
  * Foundation, Inc.
  */
 
+#include <bootmode.h>
 #include <arch/acpi.h>
 #include <cbmem.h>
 #include <cbfs.h>
@@ -107,6 +108,11 @@ static void fsp_run_silicon_init(int is_s3_wakeup)
 	status = fsp_silicon_init(&silicon_init_params);
 	timestamp_add_now(TS_FSP_SILICON_INIT_END);
 	printk(BIOS_DEBUG, "FspSiliconInit returned 0x%08x\n", status);
+
+	/* Mark graphics init done after SiliconInit if VBT was provided */
+	if (IS_ENABLED(CONFIG_GOP_SUPPORT) &&
+	    silicon_init_params.GraphicsConfigPtr)
+		gfx_set_init_done(1);
 
 #if IS_ENABLED(CONFIG_DISPLAY_HOBS)
 	/* Verify the HOBs */
