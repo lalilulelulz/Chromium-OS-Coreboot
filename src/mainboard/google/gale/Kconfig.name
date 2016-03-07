@@ -1,2 +1,2 @@
-config BOARD_GOOGLE_STORM
-	bool "Storm"
+config BOARD_GOOGLE_GALE
+	bool "Gale"

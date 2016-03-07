@@ -17,11 +17,11 @@
 ## Foundation, Inc.
 ##
 
-if BOARD_GOOGLE_STORM
+if BOARD_GOOGLE_GALE
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
-	select SOC_QC_IPQ806X
+	select SOC_QC_IPQ40XX
 	select BOARD_ID_AUTO
 	select BOARD_ROMSIZE_KB_8192
 	select COMMON_CBFS_SPI_WRAPPER
@@ -37,23 +37,23 @@ config BOARD_SPECIFIC_OPTIONS
 	select DRIVERS_UART
 	select CONSOLE_CBMEM_DUMP_TO_UART
 
-config BOARD_VARIANT_AP148
-	bool "pick this to build an image for ap148"
+config BOARD_VARIANT_DK01
+	bool "pick this to build an image for DK01"
 	default n
 
 config MAINBOARD_DIR
 	string
-	default google/storm
+	default google/gale
 
 config MAINBOARD_PART_NUMBER
 	string
-	default "AP148" if BOARD_VARIANT_AP148
-	default "Storm"
+	default "DK01" if BOARD_VARIANT_DK01
+	default "Gale"
 
 config DRAM_SIZE_MB
 	int
-	default 512 if BOARD_VARIANT_AP148
-	default 1024
+	default 512 if BOARD_VARIANT_DK01
+	default 512
 
 config DRIVER_TPM_I2C_BUS
 	hex
@@ -63,4 +63,4 @@ config DRIVER_TPM_I2C_ADDR
 	hex
 	default 0x20
 
-endif # BOARD_GOOGLE_STORM
+endif # BOARD_GOOGLE_GALE

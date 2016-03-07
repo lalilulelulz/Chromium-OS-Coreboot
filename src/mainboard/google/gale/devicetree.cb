@@ -17,6 +17,6 @@
 ## Foundation, Inc.
 ##
 
-chip soc/qualcomm/ipq806x
+chip soc/qualcomm/ipq40xx
 	device cpu_cluster 0 on end
 end
