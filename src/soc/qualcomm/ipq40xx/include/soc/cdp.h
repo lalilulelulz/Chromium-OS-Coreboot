@@ -28,8 +28,8 @@
  */
 
 
-#ifndef _IPQ806X_CDP_H_
-#define _IPQ806X_CDP_H_
+#ifndef _IPQ40XX_CDP_H_
+#define _IPQ40XX_CDP_H_
 
 #include <types.h>
 
@@ -133,7 +133,7 @@ typedef struct {
 
 #define IPQ_GMAC_NMACS		4
 
-enum storm_board_id {
+enum gale_board_id {
 	BOARD_ID_PROTO_0 = 0,
 	BOARD_ID_PROTO_0_2 = 1,
 	BOARD_ID_WHIRLWIND = 2,
@@ -150,9 +150,9 @@ typedef struct {
 	flash_desc flashdesc;
 	spinorflash_params_t flash_param;
 #endif
-} __attribute__ ((__packed__)) board_ipq806x_params_t;
+} __attribute__ ((__packed__)) board_ipq40xx_params_t;
 
-extern board_ipq806x_params_t *gboard_param;
+extern board_ipq40xx_params_t *gboard_param;
 
 #if 0
 static inline int gmac_cfg_is_valid(ipq_gmac_board_cfg_t *cfg)
@@ -161,7 +161,7 @@ static inline int gmac_cfg_is_valid(ipq_gmac_board_cfg_t *cfg)
 	 * 'cfg' is valid if and only if
 	 *	unit number is non-negative and less than IPQ_GMAC_NMACS.
 	 *	'cfg' pointer lies within the array range of
-	 *		board_ipq806x_params_t->gmac_cfg[]
+	 *		board_ipq40xx_params_t->gmac_cfg[]
 	 */
 	return ((cfg >= &gboard_param->gmac_cfg[0]) &&
 		(cfg < &gboard_param->gmac_cfg[IPQ_GMAC_NMACS]) &&
@@ -174,4 +174,4 @@ void ipq_configure_gpio(const gpio_func_data_t *gpio, unsigned count);
 
 void board_nand_init(void);
 
-#endif	/* _IPQ806X_CDP_H_ */
+#endif	/* _IPQ40XX_CDP_H_ */

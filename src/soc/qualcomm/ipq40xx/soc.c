@@ -40,9 +40,9 @@ static void soc_init(device_t dev)
 	 * Do this in case console is not enabled: kernel's earlyprintk()
 	 * should work no matter what the firmware console configuration is.
 	 */
-	ipq806x_uart_init();
+	ipq40xx_uart_init();
 
-	printk(BIOS_INFO, "CPU: Qualcomm 8064\n");
+	printk(BIOS_INFO, "CPU: QCA 40xx\n");
 }
 
 static struct device_operations soc_ops = {
@@ -55,7 +55,7 @@ static void enable_soc_dev(device_t dev)
 	dev->ops = &soc_ops;
 }
 
-struct chip_operations soc_qualcomm_ipq806x_ops = {
-	CHIP_NAME("SOC Qualcomm 8064")
+struct chip_operations soc_qualcomm_ipq40xx_ops = {
+	CHIP_NAME("SOC QCA 40xx")
 	.enable_dev = enable_soc_dev,
 };

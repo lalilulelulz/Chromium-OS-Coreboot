@@ -33,8 +33,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __SOC_QUALCOMM_IPQ806X_IOMAP_H_
-#define __SOC_QUALCOMM_IPQ806X_IOMAP_H_
+#ifndef __SOC_QUALCOMM_IPQ40XX_IOMAP_H_
+#define __SOC_QUALCOMM_IPQ40XX_IOMAP_H_
 
 #include <arch/io.h>
 #include <soc/cdp.h>
@@ -162,4 +162,4 @@
 							(32*(gsbi_n-1)))
 #define GSBI_HCLK_CTL(n)		((MSM_CLK_CTL_BASE + 0x29C0) + \
 							(32*(n-1)))
-#endif // __SOC_QUALCOMM_IPQ806X_IOMAP_H_
+#endif // __SOC_QUALCOMM_IPQ40XX_IOMAP_H_

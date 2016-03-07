@@ -28,8 +28,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SOC_QUALCOMM_IPQ806X_GPIO_H_
-#define __SOC_QUALCOMM_IPQ806X_GPIO_H_
+#ifndef __SOC_QUALCOMM_IPQ40XX_GPIO_H_
+#define __SOC_QUALCOMM_IPQ40XX_GPIO_H_
 
 #include <types.h>
 
@@ -107,4 +107,4 @@ static inline void gpio_tlmm_config(unsigned int gpio, unsigned int func,
 {
 	gpio_tlmm_config_set(gpio, func, pull, drvstr, enable);
 }
-#endif // __SOC_QUALCOMM_IPQ806X_GPIO_H_
+#endif // __SOC_QUALCOMM_IPQ40XX_GPIO_H_

@@ -28,8 +28,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __IPQ860X_CLOCK_H_
-#define __IPQ860X_CLOCK_H_
+#ifndef __IPQ40XX_CLOCK_H_
+#define __IPQ40XX_CLOCK_H_
 
 #include <soc/iomap.h>
 
@@ -211,4 +211,4 @@ void nand_clock_config(void);
 void usb_clock_config(void);
 int audio_clock_config(unsigned frequency);
 
-#endif  /*  __PLATFORM_IPQ860X_CLOCK_H_ */
+#endif  /*  __PLATFORM_IPQ40XX_CLOCK_H_ */

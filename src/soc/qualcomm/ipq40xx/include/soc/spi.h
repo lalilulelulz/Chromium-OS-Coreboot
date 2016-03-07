@@ -29,8 +29,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _IPQ806X_SPI_H_
-#define _IPQ806X_SPI_H_
+#ifndef _IPQ40XX_SPI_H_
+#define _IPQ40XX_SPI_H_
 
 #include <spi_flash.h>
 #include <soc/iomap.h>
@@ -302,4 +302,4 @@ static inline struct ipq_spi_slave *to_ipq_spi(struct spi_slave *slave)
 	return container_of(slave, struct ipq_spi_slave, slave);
 }
 
-#endif /* _IPQ_SPI_H_ */
+#endif /* _IPQ40XX_SPI_H_ */

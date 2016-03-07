@@ -17,7 +17,7 @@
 ## Foundation, Inc.
 ##
 
-ifeq ($(CONFIG_SOC_QC_IPQ806X),y)
+ifeq ($(CONFIG_SOC_QC_IPQ40XX),y)
 
 bootblock-y += clock.c
 bootblock-y += gpio.c
@@ -71,13 +71,13 @@ $(objcbfs)/bootblock.bin: $(call strip_quotes,$(CONFIG_SBL_BLOB)) \
 
 endif
 
-CPPFLAGS_common += -Isrc/soc/qualcomm/ipq806x/include
+CPPFLAGS_common += -Isrc/soc/qualcomm/ipq40xx/include
 
 # List of binary blobs coreboot needs in CBFS to be able to boot up this SOC
 mbn-files := cdt.mbn  ddr.mbn  rpm.mbn tz.mbn
 
 # Location of the binary blobs
-mbn-root := 3rdparty/blobs/cpu/qualcomm/ipq806x
+mbn-root := 3rdparty/blobs/cpu/qualcomm/ipq40xx
 
 # Create make variables to aid cbfs-files-handler in processing the blobs (add
 # them all as raw binaries at the root level).

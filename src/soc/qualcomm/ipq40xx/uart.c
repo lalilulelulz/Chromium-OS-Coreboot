@@ -52,7 +52,7 @@ typedef struct {
 
 /*
  * All constants lifted from u-boot's
- * board/qcom/ipq806x_cdp/ipq806x_board_param.h
+ * board/qcom/ipq40xx_cdp/ipq40xx_board_param.h
  */
 static const uart_params_t uart_board_param = {
 	.uart_dm_base = (void *)UART4_DM_BASE,
@@ -295,7 +295,7 @@ static unsigned int msm_boot_uart_dm_init(void  *uart_dm_base)
 }
 
 /**
- * ipq806x_uart_init - initializes UART
+ * ipq40xx_uart_init - initializes UART
  *
  * Initializes clocks, GPIO and UART controller.
  */
@@ -330,7 +330,7 @@ void uart_init(int idx)
 }
 
 /* for the benefit of non-console uart init */
-void ipq806x_uart_init(void)
+void ipq40xx_uart_init(void)
 {
 	uart_init(0);
 }
@@ -378,7 +378,7 @@ int uart_can_rx_byte(void)
 
 #if IS_ENABLED(CONFIG_DRIVERS_UART)
 /**
- * ipq806x_serial_getc - reads a character
+ * ipq40xx_serial_getc - reads a character
  *
  * Returns the character read from serial port.
  */

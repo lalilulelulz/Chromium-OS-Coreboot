@@ -17,12 +17,12 @@
  * Foundation, Inc.
  */
 
-#ifndef __SOC_QUALCOMM_IPQ806X_MBN_HEADER_H__
-#define __SOC_QUALCOMM_IPQ806X_MBN_HEADER_H__
+#ifndef __SOC_QCA_IPQ40XX_MBN_HEADER_H__
+#define __SOC_QCA_IPQ40XX_MBN_HEADER_H__
 
 #include <types.h>
 
-/* Qualcomm firmware blob header gleaned from util/ipqheader/ipqheader.py */
+/* QCA firmware blob header gleaned from util/ipqheader/ipqheader.py */
 
 struct mbn_header {
 	u32	mbn_type;
