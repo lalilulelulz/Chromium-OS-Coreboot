@@ -62,6 +62,9 @@
  */
 #define AUDIO_DB_ID		GPP_E3
 
+/* SD controller needs additional card detect GPIO to support RTD3 */
+#define GPIO_SD_CARD_DETECT	GPP_G5
+
 #ifndef __ACPI__
 /* Pad configuration in ramstage. */
 static const struct pad_config gpio_table[] = {
