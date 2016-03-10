@@ -202,7 +202,7 @@ static const struct pad_config gpio_table[] = {
 /* EMMC_DATA7 */	PAD_CFG_NF(GPP_F20, NONE, DEEP, NF1),
 /* EMMC_RCLK */		PAD_CFG_NF(GPP_F21, NONE, DEEP, NF1),
 /* EMMC_CLK */		PAD_CFG_NF(GPP_F22, NONE, DEEP, NF1),
-/* BOOT_BEEP */		PAD_CFG_NC(GPP_F23),
+/* BOOT_BEEP */		PAD_CFG_GPO(GPP_F23, 0, DEEP),
 /* SD_CMD */		PAD_CFG_NC(GPP_G0),
 /* SD_DATA0 */		PAD_CFG_NC(GPP_G1),
 /* SD_DATA1 */		PAD_CFG_NC(GPP_G2),
