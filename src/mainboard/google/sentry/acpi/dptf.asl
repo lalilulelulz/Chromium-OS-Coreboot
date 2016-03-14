@@ -48,6 +48,8 @@
 #define DPTF_ENABLE_CHARGER
 #define DPTF_ENABLE_FAN_CONTROL
 
+#undef DPTF_ENABLE_FAN_CONTROL	/*Disable DPTF Active policy*/
+
 /* Charger performance states, board-specific values from charger and EC */
 Name (CHPS, Package () {
 	Package () { 0, 0, 0, 0, 255, 0x6a4, "mA", 0 },	/* 1.7A (MAX) */
