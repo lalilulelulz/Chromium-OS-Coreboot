@@ -132,7 +132,7 @@ void mainboard_fill_spd_data(struct pei_data *pei_data)
 
 	/* CH1 not used in 2GB configurations */
 	if (!((spd_index == 0b0000) || (spd_index == 0b0011) ||
-	      (spd_index == 0b1010))) {
+	      (spd_index == 0b0100) || (spd_index == 0b1010))) {
 		memcpy(pei_data->spd_data[1][0],
 			((char *)CBFS_SUBHEADER(spd_file)) +
 			(spd_index * SPD_LEN), SPD_LEN);
