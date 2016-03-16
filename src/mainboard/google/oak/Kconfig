@@ -70,6 +70,6 @@ config BOOT_MEDIA_SPI_BUS
 config BOARD_ID_ADJUSTMENT
 	int
 	default 0 if BOARD_GOOGLE_OAK
-	default 6
+	default 7
 
 endif # BOARD_GOOGLE_OAK
