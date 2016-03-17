@@ -42,6 +42,10 @@
 #include <baytrail/spi.h>
 #include "chip.h"
 
+#if IS_ENABLED(CONFIG_CHROMEOS)
+#include <vendorcode/google/chromeos/chromeos.h>
+#endif
+
 static inline void
 add_mmio_resource(device_t dev, int i, unsigned long addr, unsigned long size)
 {
@@ -125,6 +129,25 @@ static void sc_read_resources(device_t dev)
 	sc_add_io_resources(dev);
 }
 
+#if IS_ENABLED(CONFIG_CHROMEOS)
+/*
+ * Preserve Vboot NV data when clearing CMOS as it will
+ * have been re-initialized already by Vboot firmware init.
+ */
+static void sc_cmos_init_preserve(int reset)
+{
+	uint8_t vbnv[CONFIG_VBNV_SIZE];
+
+	if (reset)
+		read_vbnv(vbnv);
+
+	rtc_init(reset);
+
+	if (reset)
+		save_vbnv(vbnv);
+}
+#endif
+
 static void sc_rtc_init(void)
 {
 	uint32_t gen_pmcon1;
@@ -143,7 +166,11 @@ static void sc_rtc_init(void)
 		printk(BIOS_DEBUG, "RTC failure.\n");
 	}
 
+#if IS_ENABLED(CONFIG_CHROMEOS)
+	sc_cmos_init_preserve(rtc_fail);
+#else
 	rtc_init(rtc_fail);
+#endif
 }
 
 /*
