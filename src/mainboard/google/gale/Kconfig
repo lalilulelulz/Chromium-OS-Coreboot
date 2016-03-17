@@ -35,7 +35,6 @@ config BOARD_SPECIFIC_OPTIONS
 	select VIRTUAL_DEV_SWITCH
 	select WIPEOUT_SUPPORTED
 	select DRIVERS_UART
-	select CONSOLE_CBMEM_DUMP_TO_UART
 
 config BOARD_VARIANT_DK01
 	bool "pick this to build an image for DK01"
