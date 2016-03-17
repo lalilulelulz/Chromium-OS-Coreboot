@@ -45,14 +45,19 @@ void setup_mmu(enum dram_state dram)
 {
 	dcache_mmu_disable();
 
+	mmu_init();
+
 	/* start with mapping everything as strongly ordered. */
 	mmu_config_range(0, 4096, DCACHE_OFF);
 
 	/* Map Device memory. */
-	mmu_config_range_kb(RPM_START, RPM_SIZE, DCACHE_OFF);
+	mmu_config_range_kb(WIFI_IMEM_0_START,
+				WIFI_IMEM_0_END - WIFI_IMEM_0_START,
+				DCACHE_WRITEBACK);
 
-	mmu_config_range_kb(SRAM_START, SRAM_END - SRAM_START,
-		DCACHE_WRITEBACK);
+	mmu_config_range_kb(WIFI_IMEM_1_START,
+				WIFI_IMEM_1_END - WIFI_IMEM_1_START,
+				DCACHE_WRITEBACK);
 
 	/* Map DRAM memory */
 	setup_dram_mappings(dram);
@@ -61,8 +66,6 @@ void setup_mmu(enum dram_state dram)
 
 	/* disable Page 0 for trapping NULL pointer references. */
 	mmu_disable_range_kb(0, 1);
-
-	mmu_init();
 
 	dcache_mmu_enable();
 }
