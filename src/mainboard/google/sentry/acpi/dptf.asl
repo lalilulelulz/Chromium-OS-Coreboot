@@ -18,8 +18,8 @@
  * Foundation, Inc.
  */
 
-#define DPTF_CPU_PASSIVE	95
-#define DPTF_CPU_CRITICAL	99
+#define DPTF_CPU_PASSIVE	90
+#define DPTF_CPU_CRITICAL	98
 #define DPTF_CPU_ACTIVE_AC0	90
 #define DPTF_CPU_ACTIVE_AC1	77
 
@@ -37,13 +37,13 @@
 
 #define DPTF_TSR1_SENSOR_ID	1
 #define DPTF_TSR1_SENSOR_NAME	"TMP432_Power_top"
-#define DPTF_TSR1_PASSIVE	63
-#define DPTF_TSR1_CRITICAL	68
+#define DPTF_TSR1_PASSIVE	70
+#define DPTF_TSR1_CRITICAL	75
 
 #define DPTF_TSR2_SENSOR_ID	2
 #define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	64
-#define DPTF_TSR2_CRITICAL	69
+#define DPTF_TSR2_PASSIVE	70
+#define DPTF_TSR2_CRITICAL	75
 
 #define DPTF_ENABLE_CHARGER
 #define DPTF_ENABLE_FAN_CONTROL
@@ -99,10 +99,10 @@ Name (DART, Package () {
 
 Name (DTRT, Package () {
 	/* CPU Throttle Effect on CPU */
-	Package () { \_SB.PCI0.B0D4, \_SB.PCI0.B0D4, 100, 50, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.PCI0.B0D4, 100, 20, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 0 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 20, 0, 0, 0, 0 },
 
 #ifdef DPTF_ENABLE_CHARGER
 	/* Charger Effect on Temp Sensor 1 */
@@ -110,10 +110,10 @@ Name (DTRT, Package () {
 #endif
 
 	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 20, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 2 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 20, 0, 0, 0, 0 },
 })
 
 Name (MPPC, Package ()
@@ -125,12 +125,12 @@ Name (MPPC, Package ()
 		15000,	/* PowerLimitMaximum */
 		1000,	/* TimeWindowMinimum */
 		1000,	/* TimeWindowMaximum */
-		200	/* StepSize */
+		5000	/* StepSize */
 	},
 	Package () {	/* Power Limit 2 */
 		1,	/* PowerLimitIndex, 1 for Power Limit 2 */
-		25000,	/* PowerLimitMinimum */
-		25000,	/* PowerLimitMaximum */
+		18700,	/* PowerLimitMinimum */
+		18700,	/* PowerLimitMaximum */
 		1000,	/* TimeWindowMinimum */
 		1000,	/* TimeWindowMaximum */
 		1000	/* StepSize */
