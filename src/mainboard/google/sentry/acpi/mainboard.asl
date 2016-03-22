@@ -23,7 +23,7 @@
 #define BOARD_TOUCHPAD_I2C_ADDR			0x15
 #define BOARD_TOUCHPAD_IRQ			TOUCHPAD_INT_L
 
-#define BOARD_TOUCHSCREEN_I2C_ADDR		0x10
+#define BOARD_TOUCHSCREEN_I2C_ADDR		0x39
 #define BOARD_TOUCHSCREEN_IRQ			TOUCHSCREEN_INT_L
 
 #define BOARD_HP_MIC_CODEC_I2C_ADDR		0x1a
@@ -120,10 +120,10 @@ Scope (\_SB.PCI0.RP01)
 Scope (\_SB.PCI0.I2C0)
 {
 	/* Touchscreen */
-	Device (ELTS)
+	Device (RAYD)
 	{
-		Name (_HID, "ELAN0001")
-		Name (_DDN, "Elan Touchscreen")
+		Name (_HID, "RAYD0001")
+		Name (_DDN, "Raydium Touchscreen")
 		Name (_UID, 1)
 		Name (_S0W, 4)
 
