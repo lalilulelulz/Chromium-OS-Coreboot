@@ -54,6 +54,7 @@ ramstage-y += clock.c
 ramstage-y += ../common/gpio.c
 ramstage-y += gpio.c
 ramstage-y += ../common/i2c.c
+ramstage-y += saradc.c
 ramstage-y += soc.c
 ramstage-y += timer.c
 
