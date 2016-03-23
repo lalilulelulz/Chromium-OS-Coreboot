@@ -49,64 +49,69 @@ Scope (\_SB.PCI0.LPCB)
 }
 Scope (\_SB.I2C1)
 {
-	Device (ATSB)
+	Device (STSA)
 	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen Bootloader")
+		Name (_HID, "SYTS7508")
+		Name (_DDN, "Synaptics Touchscreen")
+		Name (_CID, "PNP0C50")
 		Name (_UID, 4)
 		Name (ISTP, 0) /* TouchScreen */
 
-		Method(_CRS, 0x0, NotSerialized)
+		/* Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
 		{
-			Name (BUF0, ResourceTemplate ()
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
 			{
-				I2cSerialBus(
-					0x26,                     /* SlaveAddress */
-					ControllerInitiated,      /* SlaveMode */
-					400000,                   /* ConnectionSpeed */
-					AddressingMode7Bit,       /* AddressingMode */
-					"\\_SB.I2C1",             /* ResourceSource */
-				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				// DSM Revision
+				If (LEqual (Arg2, Zero))
 				{
-					BOARD_TOUCH_IRQ
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
 				}
-			})
-			Return (BUF0)
-		}
-
-		Method (_STA)
-		{
-			If (LEqual (\S1EN, 1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
+				// HID Function
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
 			}
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
 		}
-
-		/* Allow device to power off in S0 */
-		Name (_S0W, 4)
-	}
-
-	Device (ATSA)
-	{
-		Name (_HID, "ATML0001")
-		Name (_DDN, "Atmel Touchscreen")
-		Name (_UID, 5)
-		Name (ISTP, 0) /* TouchScreen */
 
 		Method(_CRS, 0x0, NotSerialized)
 		{
 			Name (BUF0, ResourceTemplate ()
 			{
 				I2cSerialBus(
-					0x4b,                     /* SlaveAddress */
+					0x20,                     /* SlaveAddress */
 					ControllerInitiated,      /* SlaveMode */
 					400000,                   /* ConnectionSpeed */
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				Interrupt (ResourceConsumer, Level, ActiveLow)
 				{
 					BOARD_TOUCH_IRQ
 				}
@@ -169,23 +174,66 @@ Scope (\_SB.I2C5)
 
 Scope (\_SB.I2C6)
 {
-	Device (ETPA)
+	Device (STPA)
 	{
-		Name (_HID, "ELAN0000")
-		Name (_DDN, "Elan Touchpad")
+		Name (_HID, "SYNA9431")
+		Name (_DDN, "Synaptics TouchPad")
+		Name (_CID, "PNP0C50")
 		Name (_UID, 3)
 		Name (ISTP, 1) /* Touchpad */
+		/* Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
+		{
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
+			{
+				// DSM Revision
+				If (LEqual (Arg2, Zero))
+				{
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
+				}
+				// HID Function
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
+			}
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
+		}
 
 		Name (_CRS, ResourceTemplate()
 		{
 			I2cSerialBus (
-				0x15,                     /* SlaveAddress */
+				0x2C,                     /* SlaveAddress */
 				ControllerInitiated,      /* SlaveMode */
 				400000,                   /* ConnectionSpeed */
 				AddressingMode7Bit,       /* AddressingMode */
 				"\\_SB.I2C6",             /* ResourceSource */
 			)
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Level, ActiveLow, ExclusiveAndWake, PullUp,,
 				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
