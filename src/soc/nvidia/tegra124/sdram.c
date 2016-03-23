@@ -243,7 +243,12 @@ static void sdram_init_emc(const struct sdram_params *param,
 	writel(param->EmcAutoCalConfig2, &regs->auto_cal_config2);
 	writel(param->EmcAutoCalConfig3, &regs->auto_cal_config3);
 	writel(param->EmcAutoCalConfig, &regs->auto_cal_config);
+	(void)readl(&regs->auto_cal_config);	 /* to flush */
 	udelay(param->EmcAutoCalWait);
+
+	/* check if auto_cal is still active after delay */
+	if (readl(&regs->auto_cal_status) & EMC_AUTO_CAL_ACTIVE)
+		printk(BIOS_ERR, "ERROR: auto_cal is still active\n");
 }
 
 static void sdram_set_emc_timing(const struct sdram_params *param,
