@@ -69,8 +69,10 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
-					 "\\_SB.GPSW") { BOARD_TOUCH_GPIO_INDEX }
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_PRE_EVT_TOUCH_IRQ
+				}
 
 			} )
 			Name(BUF1,ResourceTemplate ()
@@ -82,8 +84,10 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
-					 "\\_SB.GPNC") { BOARD_EVT_TOUCH_GPIO_INDEX }
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_TOUCH_IRQ
+				}
 
 			} )
 			If (LEqual (\BDID, BOARD_PRE_EVT)) {
