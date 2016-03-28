@@ -41,6 +41,9 @@
 #include <spi-generic.h>
 #include <stdint.h>
 #include <uart8250.h>
+#if IS_ENABLED(CONFIG_CHROMEOS)
+#include <vendorcode/google/chromeos/chromeos.h>
+#endif
 
 static inline void
 add_mmio_resource(device_t dev, int i, unsigned long addr, unsigned long size)
@@ -138,6 +141,25 @@ static void sc_read_resources(device_t dev)
 	sc_add_io_resources(dev);
 }
 
+#if IS_ENABLED(CONFIG_CHROMEOS_VBNV_CMOS)
+/*
+ * Preserve Vboot NV data when clearing CMOS as it will
+ * have been re-initialized already by Vboot firmware init.
+ */
+static void sc_cmos_init_preserve(int reset)
+{
+	uint8_t vbnv[CONFIG_VBNV_SIZE];
+
+	if (reset)
+		read_vbnv(vbnv);
+
+	cmos_init(reset);
+
+	if (reset)
+		save_vbnv(vbnv);
+}
+#endif
+
 static void sc_rtc_init(void)
 {
 	uint32_t gen_pmcon1;
@@ -156,7 +178,11 @@ static void sc_rtc_init(void)
 	if (rtc_fail)
 		printk(BIOS_DEBUG, "RTC failure.\n");
 
+#if IS_ENABLED(CONFIG_CHROMEOS_VBNV_CMOS)
+	sc_cmos_init_preserve(rtc_fail);
+#else
 	cmos_init(rtc_fail);
+#endif
 }
 
 static void sc_init(device_t dev)
