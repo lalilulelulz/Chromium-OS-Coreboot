@@ -18,25 +18,38 @@
  * Foundation, Inc.
  */
 
+#include <boardid.h>
 #include <cbfs.h>
+#include <chip.h>
 #include <console/console.h>
+#include <gpio.h>
 #include <lib.h>
+#include "onboard.h"
 #include <soc/gpio.h>
 #include <soc/pci_devs.h>
 #include <soc/romstage.h>
 #include <string.h>
-#include <chip.h>
-#include "onboard.h"
-#include <boardid.h>
+
 
 /* All FSP specific code goes in this block */
 void mainboard_romstage_entry(struct romstage_params *rp)
 {
 	struct pei_data *ps = rp->pei_data;
 
-	mainboard_fill_spd_data(ps);
+	int single_channel = 0;
 
-	printk(BIOS_DEBUG, "Channel .. mainboard_fill_spd_data OK\n");
+	gpio_t spd_gpios[] = {
+		GP_SW_64,	/* I2C3_SDA RAMID3 */
+	};
+
+	single_channel = gpio_get(spd_gpios[0]);
+
+	ps->spd_ch0_config = 1;
+	if (single_channel) {
+		ps->spd_ch1_config = 2;
+	} else {
+		ps->spd_ch1_config = 1;
+	}
 
 	/* Call back into chipset code with platform values updated. */
 	romstage_common(rp);
@@ -47,4 +60,8 @@ void mainboard_memory_init_params(struct romstage_params *params,
 	MEMORY_INIT_UPD *memory_params)
 {
 	memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
+
+	memory_params->PcdMemChannel0Config = params->pei_data->spd_ch0_config;
+	memory_params->PcdMemChannel1Config = params->pei_data->spd_ch1_config;
+
 }

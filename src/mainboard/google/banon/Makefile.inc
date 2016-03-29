@@ -18,8 +18,6 @@
 ## Foundation, Inc.
 ##
 
-subdirs-y += spd
-
 romstage-$(CONFIG_CHROMEOS) += chromeos.c
 romstage-$(CONFIG_ENABLE_BUILTIN_COM1) += com_init.c
 
