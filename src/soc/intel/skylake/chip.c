@@ -315,7 +315,7 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	params->ScsEmmcEnabled = config->ScsEmmcEnabled;
 	params->ScsEmmcHs400Enabled = config->ScsEmmcHs400Enabled;
 	params->ScsSdCardEnabled = config->ScsSdCardEnabled;
-	params->IshEnable = 0;
+	params->IshEnable = config->IshEnable;
 	params->EnableAzalia = config->EnableAzalia;
 	params->IoBufferOwnership = config->IoBufferOwnership;
 	params->DspEnable = config->DspEnable;
