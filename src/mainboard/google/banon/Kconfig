@@ -24,13 +24,13 @@ config DYNAMIC_VNN_SUPPORT
 	default n
 config MAINBOARD_DIR
 	string
-	default intel/strago
+	default google/banon
 config MAINBOARD_PART_NUMBER
 	string
 	default "Banon"
 config MAINBOARD_FAMILY
 	string
-	default "Google_Banon"
+	default "Intel_Strago"
 config VBOOT_RAMSTAGE_INDEX
 	hex
 	default 0x2

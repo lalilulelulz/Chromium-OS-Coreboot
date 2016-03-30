@@ -34,6 +34,14 @@ config BOARD_GOOGLE_AURON
 	  Auron is a Chrome OS mainboard.
 	  Auron is based on the Intel Broadwell platform.
 
+config BOARD_GOOGLE_BANON
+	bool "Banon"
+	help
+	  Google Banon mainboard.
+	  Enable this config to select the Google Banon mainboard.
+	  Banon is a Chrome OS mainboard.
+	  Banon is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_BELTINO
 	bool "Beltino"
 	help
@@ -400,6 +408,7 @@ config BOARD_GOOGLE_WIZPIG
 endchoice
 
 source "src/mainboard/google/auron/Kconfig"
+source "src/mainboard/google/banon/Kconfig"
 source "src/mainboard/google/beltino/Kconfig"
 source "src/mainboard/google/bolt/Kconfig"
 source "src/mainboard/google/butterfly/Kconfig"
