@@ -108,7 +108,8 @@ void soc_memory_init_params(struct romstage_params *params,
 	else
 		upd->SaGv = config->SaGv;
 	upd->RMT = config->Rmt;
-	upd->DdrFreqLimit = config->DdrFreqLimit;
+	if (config->DdrFreqLimit)
+		upd->DdrFreqLimit = config->DdrFreqLimit;
 	if (IS_ENABLED(CONFIG_SKIP_FSP_CAR)) {
 		upd->FspCarBase = CONFIG_DCACHE_RAM_BASE;
 		upd->FspCarSize = CONFIG_DCACHE_RAM_SIZE_TOTAL;
