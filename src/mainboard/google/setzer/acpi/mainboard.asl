@@ -52,7 +52,7 @@ Scope (\_SB.I2C1)
 {
 	Device (STSA)
 	{
-		Name (_HID, "SYN7508")
+		Name (_HID, "SYTS7508")
 		Name (_CID, "PNP0C50")
 		Name (_UID, 4)
 		Name (ISTP, 0) /* TouchScreen */
