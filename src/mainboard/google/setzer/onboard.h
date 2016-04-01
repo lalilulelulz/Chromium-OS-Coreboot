@@ -69,7 +69,7 @@
 #define AUDIO_CODEC_I2C_ADDR		0x1A
 #define BCRD2_PMIC_I2C_BUS		0x01
 
-#define DPTF_CPU_PASSIVE	84
+#define DPTF_CPU_PASSIVE	83
 #define DPTF_CPU_CRITICAL	89
 
 /* I2C data hold time */
