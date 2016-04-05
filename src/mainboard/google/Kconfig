@@ -328,6 +328,13 @@ config BOARD_GOOGLE_VEYRON_THEA
 	  Enable this config to select the Google Veyron_Thea mainboard.
 	  Veyron_Thea is a Chrome OS mainboard.
 	  Veyron_Thea is based on the Rockchip RK3288 platform.
+config BOARD_GOOGLE_VEYRON_TIGER
+	bool "Veyron_Tiger"
+	help
+	  Google Veyron_Tiger mainboard.
+	  Enable this config to select the Google Veyron_Tiger mainboard.
+	  Veyron_Tiger is a Chrome OS mainboard.
+	  Veyron_Tiger is based on the Rockchip RK3288 platform.
 endchoice
 
 source "src/mainboard/google/auron/Kconfig"
@@ -368,6 +375,7 @@ source "src/mainboard/google/veyron_romy/Kconfig"
 source "src/mainboard/google/veyron_speedy/Kconfig"
 source "src/mainboard/google/veyron_minnie/Kconfig"
 source "src/mainboard/google/veyron_thea/Kconfig"
+source "src/mainboard/google/veyron_tiger/Kconfig"
 
 config MAINBOARD_VENDOR
 	string "Mainboard Vendor"
