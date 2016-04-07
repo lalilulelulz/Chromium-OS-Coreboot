@@ -75,6 +75,11 @@ Scope (\_SB)
 								^MAXM, 0, 0, 0
 							}
 				},
+				Package () {
+					/* Delay before enabling SDMODE pin */
+
+					"sdmode-delay", 5
+				},
 			}
 		})
 
