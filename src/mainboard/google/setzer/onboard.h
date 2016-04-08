@@ -72,4 +72,7 @@
 #define DPTF_CPU_PASSIVE	84
 #define DPTF_CPU_CRITICAL	89
 
+/* I2C data hold time */
+#define BOARD_I2C6_DATA_HOLD_TIME	0x1E
+
 #endif
