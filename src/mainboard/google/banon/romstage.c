@@ -36,20 +36,7 @@ void mainboard_romstage_entry(struct romstage_params *rp)
 {
 	struct pei_data *ps = rp->pei_data;
 
-	int single_channel = 0;
-
-	gpio_t spd_gpios[] = {
-		GP_SW_64,	/* I2C3_SDA RAMID3 */
-	};
-
-	single_channel = gpio_get(spd_gpios[0]);
-
-	ps->spd_ch0_config = 1;
-	if (single_channel) {
-		ps->spd_ch1_config = 2;
-	} else {
-		ps->spd_ch1_config = 1;
-	}
+	mainboard_fill_spd_data(ps);
 
 	/* Call back into chipset code with platform values updated. */
 	romstage_common(rp);
