@@ -43,7 +43,12 @@
 
 static void configure_usb(void)
 {
-	gpio_output(GPIO(0, B, 4), 1);			/* USBOTG_PWREN_H */
+	gpio_output(GPIO(0, B, 4), 1);			/* USB_OTG_PWR_EN */
+	gpio_output(GPIO(5, C, 2), 1);			/* HUB_USB1_PWR_EN */
+	gpio_output(GPIO(5, B, 6), 1);			/* HUB_USB2_PWR_EN */
+	gpio_output(GPIO(5, B, 4), 1);			/* USB_OTG_CTL1 */
+	gpio_output(GPIO(5, C, 1), 1);			/* HUB_USB1_CTL1 */
+	gpio_output(GPIO(5, B, 5), 1);			/* HUB_USB2_CTL1 */
 }
 
 static void configure_emmc(void)
@@ -77,9 +82,14 @@ static void configure_vop(void)
 	/* lcdc(vop) iodomain select 1.8V */
 	writel(RK_SETBITS(1 << 0), &rk3288_grf->io_vsel);
 
-	rk808_configure_switch(2, 1);	/* VCC18_LCD (HDMI_AVDD_1V8) */
-	rk808_configure_ldo(7, 1000);	/* VDD10_LCD (HDMI_AVDD_1V0) */
-	rk808_configure_switch(1, 1);	/* VCC33_LCD */
+	rk808_configure_ldo(2, 1800);	/* VCC18_LCD */
+	rk808_configure_ldo(7, 1000);	/* VDD10_LCD */
+	rk808_configure_switch(1, 1);	/* LCDC33_VDD */
+	gpio_output(GPIO(7, B, 6), 1);	/* LCD_EN */
+
+	/* enable edp HPD */
+	gpio_input_pulldown(GPIO(7, B, 3));
+	writel(IOMUX_EDP_HOTPLUG, &rk3288_grf->iomux_edp_hotplug);
 }
 
 static void mainboard_init(device_t dev)
@@ -118,5 +128,9 @@ void lb_board(struct lb_header *header)
 
 void mainboard_power_on_backlight(void)
 {
-	return;
+	gpio_output(GPIO(2, B, 4), 1);  /* BL_PWR_EN */
+	mdelay(20);
+	gpio_output(GPIO(7, A, 0), 1);  /* LCD_BL_PWM */
+	mdelay(10);
+	gpio_output(GPIO_BACKLIGHT, 1); /* BL_EN */
 }

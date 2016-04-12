@@ -24,6 +24,7 @@
 #include <gpio.h>
 
 #define GPIO_RESET	GPIO(0, B, 5)
+#define GPIO_BACKLIGHT  GPIO(7, A, 2)
 
 void setup_chromeos_gpios(void);
 
