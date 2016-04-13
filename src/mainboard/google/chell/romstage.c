@@ -33,9 +33,8 @@ void mainboard_romstage_entry(struct romstage_params *params)
 		google_chromeec_kbbacklight(25);
 
 	/* Fill out PEI DATA */
-	mainboard_fill_spd_data(params->pei_data);
 	mainboard_fill_pei_data(params->pei_data);
-
+	mainboard_fill_spd_data(params->pei_data);
 	/* Initliaze memory */
 	romstage_common(params);
 }
@@ -63,8 +62,4 @@ void mainboard_memory_init_params(struct romstage_params *params,
 			sizeof(params->pei_data->RcompTarget));
 	memory_params->MemorySpdDataLen = SPD_LEN;
 	memory_params->DqPinsInterleaved = FALSE;
-
-	/* Limit hynix_dimm_H9CCNNNCLTMLAR (ID 4) to 1600mhz */
-	if (params->pei_data->mem_cfg_id == 4)
-		memory_params->DdrFreqLimit = 1600;
 }
