@@ -45,12 +45,12 @@ static const struct soc_gpio_map gpse_gpio_map[] = {
 	NATIVE_PU20K(1), /* 24 SDMMC1_D1 */
 	GPIO_NC, /* 25 SDMMC2_D0 */
 	NATIVE_PU20K(1), /* 26 SDMMC1_D3_CD_B */
-	NATIVE_PU20K(1), /* 30 SDMMC3_D1 */
-	Native_M1, /* 31 SDMMC3_CLK */
-	NATIVE_PU20K(1), /* 32 SDMMC3_D3 */
-	NATIVE_PU20K(1), /* 33 SDMMC3_D2 */
-	NATIVE_PU20K(1), /* 34 SDMMC3_CMD */
-	NATIVE_PU20K(1), /* 35 SDMMC3_D0 */
+	GPIO_NC, /* 30 SDMMC3_D1 */
+	GPIO_NC, /* 31 SDMMC3_CLK */
+	GPIO_NC, /* 32 SDMMC3_D3 */
+	GPIO_NC, /* 33 SDMMC3_D2 */
+	GPIO_NC, /* 34 SDMMC3_CMD */
+	GPIO_NC, /* 35 SDMMC3_D0 */
 	NATIVE_PU20K(1), /* 45 MF_LPC_AD2 */
 	NATIVE_PU20K(1), /* 46 LPC_CLKRUNB */
 	NATIVE_PU20K(1), /* 47 MF_LPC_AD0 */
@@ -73,14 +73,14 @@ static const struct soc_gpio_map gpse_gpio_map[] = {
 	Native_M1, /* 76  PMU_RESETBUTTON_B */
 	GPI(trig_edge_both, L0, NA, non_maskable, en_edge_detect, NA , NA),
 	/* GPIO_ALERT 77   */
-	Native_M1, /* 78  SDMMC3_PWR_EN_B */
+	GPIO_NC, /* 78  SDMMC3_PWR_EN_B */
 	GPIO_NC, /* 79  GPI ILB_SERIRQ */
 	Native_M1, /* 80  USB_OC0_B */
 	NATIVE_INT_PU20K(1, L1), /* 81  SDMMC3_CD_B */
 	GPIO_NC,  /* 82  spkr	 asummed gpio number */
 	Native_M1, /* 83 SUSPWRDNACK */
 	SPARE_PIN,/* 84 spare pin */
-	Native_M1, /* 85 SDMMC3_1P8_EN */
+	GPIO_NC, /* 85 SDMMC3_1P8_EN */
 	GPIO_END
 };
 
@@ -107,27 +107,25 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	GPIO_NC, /* 31 GPIO_SW31/MF_HDA_RSTB */
 	GPIO_NC, /* 32 GPIO_SW32 /MF_HDA_SDI0 */
 	GPIO_NC, /* 33 MF_HDA_SDO */
-	GPI(trig_edge_both, L3, P_1K_H, non_maskable, en_edge_detect, NA, NA),
-		/* 34 MF_HDA_DOCKRSTB */
+	GPIO_NC, /* 34 MF_HDA_DOCKRSTB */
 	GPIO_NC, /* 35 MF_HDA_SYNC */
 	GPIO_NC, /* 36 GPIO_SW36 MF_HDA_SDI1 */
-	GPI(trig_edge_both, L2, P_1K_H, non_maskable, en_edge_detect, NA, NA),
-		/* 37 MF_HDA_DOCKENB */
+	GPIO_NC, /* 37 MF_HDA_DOCKENB */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 45 I2C5_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 46 I2C4_SDA */
-	NATIVE_PU1K_CSEN_INVTX(1), /* 47 I2C6_SDA */
+	GPIO_NC, /* 47 I2C6_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 48 I2C5_SCL */
 	GPIO_NC, /* 49 I2C_NFC_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 50 I2C4_SCL */
-	NATIVE_PU1K_CSEN_INVTX(1), /* 51 I2C6_SCL */
+	GPIO_NC, /* 51 I2C6_SCL */
 	GPIO_NC, /* 52 I2C_NFC_SCL */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 60 I2C1_SDA */
-	NATIVE_PU1K_CSEN_INVTX(1), /* 61 I2C0_SDA */
-	NATIVE_PU1K_CSEN_INVTX(1), /* 62 I2C2_SDA */
+	GPIO_NC, /* 61 I2C0_SDA */
+	GPIO_NC, /* 62 I2C2_SDA */
 	NATIVE_PU1K_CSEN_INVTX(1), /* 63 I2C1_SCL */
 	GPIO_INPUT_NO_PULL, /* 64 I2C3_SDA RAMID3*/
-	NATIVE_PU1K_CSEN_INVTX(1), /* 65 I2C0_SCL */
-	NATIVE_PU1K_CSEN_INVTX(1), /* 66  I2C2_SCL */
+	GPIO_NC, /* 65 I2C0_SCL */
+	GPIO_NC, /* 66  I2C2_SCL */
 	GPIO_INPUT_NO_PULL,/* 67  I2C3_SCL,RAMID1 */
 	GPIO_OUT_HIGH, /* 75 SATA_GP0 */
 	GPIO_NC,
@@ -140,7 +138,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	Native_M1, /* 82 NFC_FW_DOWNLOAD, MF_SMB_DATA */
 	/* Per DE request, change PCIE_CLKREQ0123B to GPIO_INPUT */
 	Native_M1, /* 90 PCIE_CLKREQ0B */
-	GPIO_INPUT_PU_20K, /* 91 GPI PCIE_CLKREQ1B/LTE_WAKE# */
+	GPIO_NC, /* 91 GPI PCIE_CLKREQ1B/LTE_WAKE# */
 	Native_M1, /* 92 GP_SSP_2_CLK */
 	NATIVE_PU20K(1), /* 93 PCIE_CLKREQ2B/PCIE_CLKREQ_WLAN# */
 	Native_M1, /* 94 GP_SSP_2_RXD */
