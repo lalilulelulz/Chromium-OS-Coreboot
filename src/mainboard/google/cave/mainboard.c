@@ -49,13 +49,9 @@ static unsigned long mainboard_write_acpi_tables(
 	if (nhlt_soc_add_dmic_array(nhlt, 2))
 		printk(BIOS_ERR, "Couldn't add 2CH DMIC array.\n");
 
-	/* 4 Channel DMIC array. */
-	if (nhlt_soc_add_dmic_array(nhlt, 4))
-		printk(BIOS_ERR, "Couldn't add 4CH DMIC arrays.\n");
-
-	/* ADI Smart Amps for left and right. */
-	if (nhlt_soc_add_ssm4567(nhlt, AUDIO_LINK_SSP0))
-		printk(BIOS_ERR, "Couldn't add ssm4567.\n");
+	/* MAXIM Smart Amps for left and right. */
+	if (nhlt_soc_add_max98357(nhlt, AUDIO_LINK_SSP0))
+		printk(BIOS_ERR, "Couldn't add max98357.\n");
 
 	/* NAU88l25 Headset codec. */
 	if (nhlt_soc_add_nau88l25(nhlt, AUDIO_LINK_SSP1))

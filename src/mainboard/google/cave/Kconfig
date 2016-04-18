@@ -61,8 +61,7 @@ config TPM_PIRQ
 config INCLUDE_NHLT_BLOBS
 	bool "Include blobs for audio."
 	select NHLT_DMIC_2CH
-	select NHLT_DMIC_4CH
 	select NHLT_NAU88L25
-	select NHLT_SSM4567
+	select NHLT_MAX98357
 
 endif
