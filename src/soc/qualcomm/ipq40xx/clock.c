@@ -69,6 +69,7 @@ void uart_clock_config(unsigned int blsp_uart, unsigned int m,
 		udelay(1);
 	}
 
+	/* Please refer to the comments in blsp_i2c_clock_config() */
 	setbits_le32(GCC_CLK_BRANCH_ENA, BLSP1_AHB | BLSP1_SLEEP);
 }
 
@@ -140,7 +141,18 @@ int blsp_i2c_clock_config(blsp_qup_id_t id)
 		},
 	};
 
-	/* uart_clock_config() does this, duplication should be ok... */
+	/*
+	 * uart_clock_config() does this. Ideally, setting these bits once
+	 * should suffice. However, if for some reason the order of invocation
+	 * of uart_clock_config and blsp_i2c_clock_config gets changed or
+	 * something, then one of the functions might not work. Hence, to steer
+	 * clear of such dependencies, just replicating the setting of this
+	 * bits.
+	 *
+	 * Moreover, they are read-modify-write and HW wise repeated setting of
+	 * the same bits is harmless. Hence repeating them here should be ok.
+	 * This will ensure root and branch clocks remain on.
+	 */
 	setbits_le32(GCC_CLK_BRANCH_ENA, BLSP1_AHB | BLSP1_SLEEP);
 
 	/* Src Sel 1 (fepll 200), Src Div 10.5 */
