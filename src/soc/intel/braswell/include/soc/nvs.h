@@ -53,13 +53,15 @@ typedef struct {
 	/* Device Config */
 	u8	s5u0; /* 0x20 - Enable USB0 in S5 */
 	u8	s5u1; /* 0x21 - Enable USB1 in S5 */
-	u8	s3u0; /* 0x22 - Enable USB0 in S3 */
-	u8	s3u1; /* 0x23 - Enable USB1 in S3 */
-	u8	tact; /* 0x24 - Thermal Active trip point */
-	u8	tpsv; /* 0x25 - Thermal Passive trip point */
-	u8	tcrt; /* 0x26 - Thermal Critical trip point */
-	u8	dpte; /* 0x27 - Enable DPTF */
-	u8	rsvd2[8];
+	u8	s5u2; /* 0x22 - Enable USB2 in S5 */
+	u8	s3u0; /* 0x23 - Enable USB0 in S3 */
+	u8	s3u1; /* 0x24 - Enable USB1 in S3 */
+	u8	s3u2; /* 0x25 - Enable USB2 in S3 */
+	u8	tact; /* 0x26 - Thermal Active trip point */
+	u8	tpsv; /* 0x27 - Thermal Passive trip point */
+	u8	tcrt; /* 0x28 - Thermal Critical trip point */
+	u8	dpte; /* 0x29 - Enable DPTF */
+	u8	rsvd2[6];
 
 	/* Base Addresses */
 	u32	cmem; /* 0x30 - CBMEM TOC */

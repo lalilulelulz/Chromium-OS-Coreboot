@@ -116,6 +116,9 @@ void mainboard_smi_sleep(uint8_t slp_typ)
 		if (smm_get_gnvs()->s3u1 == 0)
 			google_chromeec_set_usb_charge_mode(
 				1, USB_CHARGE_MODE_DISABLED);
+		if (smm_get_gnvs()->s3u2 == 0)
+			google_chromeec_set_usb_charge_mode(
+				2, USB_CHARGE_MODE_DISABLED);
 
 		/* Enable wake events */
 		google_chromeec_set_wake_mask(MAINBOARD_EC_S3_WAKE_EVENTS);
@@ -131,6 +134,9 @@ void mainboard_smi_sleep(uint8_t slp_typ)
 		if (smm_get_gnvs()->s5u1 == 0)
 			google_chromeec_set_usb_charge_mode(
 				1, USB_CHARGE_MODE_DISABLED);
+		if (smm_get_gnvs()->s5u2 == 0)
+			google_chromeec_set_usb_charge_mode(
+				2, USB_CHARGE_MODE_DISABLED);
 
 		/* Enable wake events */
 		google_chromeec_set_wake_mask(MAINBOARD_EC_S5_WAKE_EVENTS);
