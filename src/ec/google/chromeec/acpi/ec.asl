@@ -447,6 +447,7 @@ Device (EC0)
 
 	#include "ac.asl"
 	#include "battery.asl"
+	#include "cros_ec.asl"
 
 #ifdef EC_ENABLE_ALS_DEVICE
 	#include "als.asl"
