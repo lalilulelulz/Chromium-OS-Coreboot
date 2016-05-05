@@ -223,6 +223,14 @@ config BOARD_GOOGLE_REKS
 	  Reks is a Chrome OS mainboard.
 	  Reks is based on the Intel Braswell platform.
 
+config BOARD_GOOGLE_RELM
+	bool "Relm"
+	help
+	  Google Relm mainboard.
+	  Enable this config to select the Google Relm mainboard.
+	  Relm is a Chrome OS mainboard.
+	  Relm is based on the Intel Braswell platform.
+
 config BOARD_GOOGLE_RUSH
 	bool "Rush"
 	help
