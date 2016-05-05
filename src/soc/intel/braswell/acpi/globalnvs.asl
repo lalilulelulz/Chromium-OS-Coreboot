@@ -60,12 +60,14 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	Offset (0x20),
 	S5U0,	 8,	/* 0x20 - Enable USB0 in S5 */
 	S5U1,	 8,	/* 0x21 - Enable USB1 in S5 */
-	S3U0,	 8,	/* 0x22 - Enable USB0 in S3 */
-	S3U1,	 8,	/* 0x23 - Enable USB1 in S3 */
-	TACT,	 8,	/* 0x24 - Thermal Active trip point */
-	TPSV,	 8,	/* 0x25 - Thermal Passive trip point */
-	TCRT,	 8,	/* 0x26 - Thermal Critical trip point */
-	DPTE,	 8,	/* 0x27 - Enable DPTF */
+	S5U2,    8,	/* 0x22 - Enable USB2 in S5 */
+	S3U0,	 8,	/* 0x23 - Enable USB0 in S3 */
+	S3U1,	 8,	/* 0x24 - Enable USB1 in S3 */
+	S3U2,	 8,	/* 0x25 - Enable USB2 in S3 */
+	TACT,	 8,	/* 0x26 - Thermal Active trip point */
+	TPSV,	 8,	/* 0x27 - Thermal Passive trip point */
+	TCRT,	 8,	/* 0x28 - Thermal Critical trip point */
+	DPTE,	 8,	/* 0x29 - Enable DPTF */
 
 	/* Base addresses */
 	Offset (0x30),
