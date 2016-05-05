@@ -49,7 +49,7 @@ config MAINBOARD_VENDOR
 
 config DRAM_SIZE_MB
 	int
-	default 2048
+	default 4096
 
 config EC_GOOGLE_CHROMEEC_SPI_BUS
 	hex
