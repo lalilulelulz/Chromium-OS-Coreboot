@@ -46,7 +46,7 @@ chip soc/intel/braswell
 	register "Usb2Port0IUsbTxEmphasisEn" = "2"
 	register "Usb2Port0PerPortTxPeHalf" = "1"
 	register "Usb2Port1PerPortPeTxiSet" = "7"
-	register "Usb2Port1PerPortTxiSet" = "3"
+	register "Usb2Port1PerPortTxiSet" = "7"
 	register "Usb2Port1IUsbTxEmphasisEn" = "2"
 	register "Usb2Port1PerPortTxPeHalf" = "1"
 	register "Usb2Port2PerPortPeTxiSet" = "7"
