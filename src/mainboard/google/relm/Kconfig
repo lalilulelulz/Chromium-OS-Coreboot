@@ -35,7 +35,7 @@ config MAINBOARD_PART_NUMBER
 	default "Relm"
 config MAINBOARD_FAMILY
 	string
-	default "Google_Relm"
+	default "Intel_Strago"
 config VBOOT_RAMSTAGE_INDEX
 	hex
 	default 0x2

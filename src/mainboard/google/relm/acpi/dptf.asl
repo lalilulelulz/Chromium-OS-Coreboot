@@ -19,20 +19,20 @@
  */
 
 #define DPTF_TSR0_SENSOR_ID	0
-#define DPTF_TSR0_SENSOR_NAME	"TMP432_Internal"
+#define DPTF_TSR0_SENSOR_NAME	"TMP432_PMIC"
 #define DPTF_TSR0_PASSIVE	49
-#define DPTF_TSR0_CRITICAL	75
+#define DPTF_TSR0_CRITICAL	70
 
 
 #define DPTF_TSR1_SENSOR_ID	1
-#define DPTF_TSR1_SENSOR_NAME	"TMP432_Power_top"
+#define DPTF_TSR1_SENSOR_NAME	"TMP432_Charger"
 #define DPTF_TSR1_PASSIVE	65
-#define DPTF_TSR1_CRITICAL	85
+#define DPTF_TSR1_CRITICAL	70
 
 #define DPTF_TSR2_SENSOR_ID	2
-#define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	49
-#define DPTF_TSR2_CRITICAL	75
+#define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_Vcore"
+#define DPTF_TSR2_PASSIVE	48
+#define DPTF_TSR2_CRITICAL	70
 
 
 #define DPTF_ENABLE_CHARGER
@@ -72,8 +72,8 @@ Name (MPPC, Package ()
 	0x2,		/* Revision */
 	Package () {	/* Power Limit 1 */
 		0,	/* PowerLimitIndex, 0 for Power Limit 1 */
-		2000,	/* PowerLimitMinimum */
-		6200,	/* PowerLimitMaximum */
+		2600,	/* PowerLimitMinimum */
+		5000,	/* PowerLimitMaximum */
 		1000,	/* TimeWindowMinimum */
 		1000,	/* TimeWindowMaximum */
 		200	/* StepSize */

@@ -123,13 +123,13 @@ chip soc/intel/braswell
 		device pci 1a.0 off end	# 8086 0F18 - Trusted Execution Engine
 		device pci 1b.0 on end	# 8086 0F04 - HD Audio
 		device pci 1c.0 on end	# 8086 0000 - PCIe Root Port 1
-		device pci 1c.1 on end	# 8086 0000 - PCIe Root Port 2
+		device pci 1c.1 off end	# 8086 0000 - PCIe Root Port 2
 		device pci 1c.2 on end	# 8086 0000 - PCIe Root Port 3
 		device pci 1c.3 off end	# 8086 0000 - PCIe Root Port 4
 		device pci 1e.0 on end	# 8086 2286 - SIO - DMA
 		device pci 1e.1 off end	# 8086 0F08 -   PWM 1
 		device pci 1e.2 off end	# 8086 0F09 -   PWM 2
-		device pci 1e.3 on end	# 8086 228a -   HSUART 1
+		device pci 1e.3 off end	# 8086 228a -   HSUART 1
 		device pci 1e.4 off end	# 8086 228c -   HSUART 2
 		device pci 1e.5 on end	# 8086 228e -   SPI 1
 		device pci 1e.6 off end	# 8086 2290 -   SPI 2
