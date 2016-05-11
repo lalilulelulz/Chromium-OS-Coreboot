@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <soc/gpio_defs.h>
+#include <soc/gpe.h>
 #include <soc/pci_devs.h>
 #include <soc/pmc.h>
 #include <soc/serialio.h>
