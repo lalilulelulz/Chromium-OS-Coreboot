@@ -28,8 +28,6 @@
 
 #define BOARD_HP_MIC_CODEC_I2C_ADDR		0x1a
 #define BOARD_HP_MIC_CODEC_IRQ			MIC_INT_L
-#define BOARD_LEFT_SPEAKER_AMP_I2C_ADDR		0x34
-#define BOARD_RIGHT_SPEAKER_AMP_I2C_ADDR	0x35
 
 Scope (\_SB)
 {
@@ -89,12 +87,7 @@ Scope (\_SB)
 
 		Method (_STA)
 		{
-			/* AUDIO_DB_ID = 0 If MAXIM Codec Present */
-			If (LEqual (\_SB.PCI0.GRXS (AUDIO_DB_ID), 0x0)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
+			Return (0xF)
 		}
 	}
 }
@@ -258,81 +251,4 @@ Scope (\_SB.PCI0.I2C4)
 			Return (0xF)
 		}
 	}
-
-	/* Left Speaker Amp */
-	Device (SPKL)
-	{
-		Name (_HID, "INT343B")
-		Name (_DDN, "SSM4567 Speaker Amp")
-		Name (_UID, 0)
-
-		Name (_CRS, ResourceTemplate()
-		{
-			I2cSerialBus (
-				BOARD_LEFT_SPEAKER_AMP_I2C_ADDR,
-				ControllerInitiated,
-				400000,
-				AddressingMode7Bit,
-				"\\_SB.PCI0.I2C4",
-			)
-		})
-
-		Method (_STA)
-		{
-			/* AUDIO_DB_ID = 1 If ADI Codec Present */
-			If (LEqual (GRXS (AUDIO_DB_ID), 0x1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-	}
-
-	/* Right Speaker Amp */
-	Device (SPKR)
-	{
-		Name (_HID, "INT343B")
-		Name (_DDN, "SSM4567 Speaker Amp")
-		Name (_UID, 1)
-
-		Name (_CRS, ResourceTemplate()
-		{
-			I2cSerialBus (
-				BOARD_RIGHT_SPEAKER_AMP_I2C_ADDR,
-				ControllerInitiated,
-				400000,
-				AddressingMode7Bit,
-				"\\_SB.PCI0.I2C4",
-			)
-		})
-
-		Method (_STA)
-		{
-			/* AUDIO_DB_ID = 1 If ADI Codec Present */
-			If (LEqual (GRXS (AUDIO_DB_ID), 0x1)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-	}
-}
-
-Scope (\_SB.PCI0.SDXC)
-{
-	Name (_CRS, ResourceTemplate () {
-		GpioInt (Edge, ActiveBoth, SharedAndWake, PullNone, 10000,
-			 "\\_SB.PCI0.GPIO", 0, ResourceConsumer)
-		{
-			GPIO_SD_CARD_DETECT
-		}
-	})
-
-	Name (_DSD, Package () {
-		ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-		Package ()
-		{
-			Package () { "cd-gpio", Package () { ^SDXC, 0, 0, 1 } },
-		}
-	})
 }

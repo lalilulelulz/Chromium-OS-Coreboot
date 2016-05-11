@@ -22,12 +22,9 @@
 #include <arch/acpi.h>
 #include <console/console.h>
 #include <device/device.h>
-#include <gpio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <soc/nhlt.h>
 #include "ec.h"
-#include "gpio.h"
 
 static const char *oem_id_maxim = "INTEL";
 static const char *oem_table_id_maxim = "SCRDMAX";
@@ -35,13 +32,6 @@ static const char *oem_table_id_maxim = "SCRDMAX";
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
-}
-
-static uint8_t select_audio_codec(void)
-{
-	int audio_db_sel = gpio_get(AUDIO_DB_ID);
-
-	return audio_db_sel;
 }
 
 static unsigned long mainboard_write_acpi_tables(
@@ -64,24 +54,12 @@ static unsigned long mainboard_write_acpi_tables(
 		if (nhlt_soc_add_dmic_array(nhlt, 2))
 			printk(BIOS_ERR, "Couldn't add 2CH DMIC array.\n");
 
+		/* MAXIM Smart Amps for left and right. */
+		if (nhlt_soc_add_max98357(nhlt, AUDIO_LINK_SSP0))
+			printk(BIOS_ERR, "Couldn't add max98357.\n");
 
-		/* 4 Channel DMIC array. */
-		if (nhlt_soc_add_dmic_array(nhlt, 4))
-			printk(BIOS_ERR, "Couldn't add 4CH DMIC arrays.\n");
-
-		if (select_audio_codec()) {
-			/* ADI Smart Amps for left and right. */
-			if (nhlt_soc_add_ssm4567(nhlt, AUDIO_LINK_SSP0))
-				printk(BIOS_ERR, "Couldn't add ssm4567.\n");
-		}
-		else {
-			/* MAXIM Smart Amps for left and right. */
-			if (nhlt_soc_add_max98357(nhlt, AUDIO_LINK_SSP0))
-				printk(BIOS_ERR, "Couldn't add max98357.\n");
-
-			oem_id = oem_id_maxim;
-			oem_table_id = oem_table_id_maxim;
-		}
+		oem_id = oem_id_maxim;
+		oem_table_id = oem_table_id_maxim;
 
 		/* NAU88l25 Headset codec. */
 		if (nhlt_soc_add_nau88l25(nhlt, AUDIO_LINK_SSP1))

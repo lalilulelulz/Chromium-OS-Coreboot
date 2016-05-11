@@ -62,9 +62,6 @@
  */
 #define AUDIO_DB_ID		GPP_E3
 
-/* SD controller needs additional card detect GPIO to support RTD3 */
-#define GPIO_SD_CARD_DETECT	GPP_A7
-
 #ifndef __ACPI__
 /* Pad configuration in ramstage. */
 static const struct pad_config gpio_table[] = {
@@ -84,8 +81,8 @@ static const struct pad_config gpio_table[] = {
 /* PCH_SUSPWRACB */	PAD_CFG_NF(GPP_A13, NONE, DEEP, NF1),
 /* PM_SUS_STAT */	PAD_CFG_NC(GPP_A14),
 /* PCH_SUSACK */	PAD_CFG_NF(GPP_A15, NONE, DEEP, NF1),
-/* SD_1P8_SEL */	PAD_CFG_NF(GPP_A16, NONE, DEEP, NF1),
-/* SD_PWR_EN */  	PAD_CFG_NF(GPP_A17, NONE, DEEP, NF1),
+/* SD_1P8_SEL */	PAD_CFG_NC(GPP_A16),
+/* SD_PWR_EN */  	PAD_CFG_NC(GPP_A17),
 /* ACCEL INTERRUPT */	PAD_CFG_NC(GPP_A18),
 /* ISH_GP1 */		PAD_CFG_NC(GPP_A19),
 /* GYRO_DRDY */ 	PAD_CFG_NC(GPP_A20),
@@ -99,7 +96,7 @@ static const struct pad_config gpio_table[] = {
 /* BT_RF_KILL */	PAD_CFG_NC(GPP_B4),
 /* SRCCLKREQ0# */	PAD_CFG_GPI_ACPI_SCI(GPP_B5, NONE, DEEP, YES), /* TOUCHPAD WAKE */
 /* WIFI_CLK_REQ */	PAD_CFG_NF(GPP_B6, NONE, DEEP, NF1),
-/* KEPLR_CLK_REQ */	PAD_CFG_NF(GPP_B7, NONE, DEEP, NF1),
+/* SRCCLKREQ2 */	PAD_CFG_NC(GPP_B7),
 /* AUDIO_INT_WAK */	PAD_CFG_GPI_ACPI_SCI(GPP_B8, NONE, DEEP, YES),
 /* SSD_CLK_REQ */	PAD_CFG_NF(GPP_B9, NONE, DEEP, NF1),
 /* SRCCLKREQ5# */	PAD_CFG_NC(GPP_B10),
@@ -127,7 +124,7 @@ static const struct pad_config gpio_table[] = {
 /* UART0_RXD */		PAD_CFG_NC(GPP_C8),
 /* UART0_TXD */		PAD_CFG_NC(GPP_C9),
 /* NFC_RST* */		PAD_CFG_NC(GPP_C10),
-/* EN_PP3300_KEPLER */	PAD_CFG_TERM_GPO(GPP_C11, 0, 20K_PD, DEEP),
+/* EN_PP3300_KEPLER */	PAD_CFG_NC(GPP_C11),
 /* PCH_MEM_CFG0 */	PAD_CFG_GPI(GPP_C12, NONE, DEEP),
 /* PCH_MEM_CFG1 */	PAD_CFG_GPI(GPP_C13, NONE, DEEP),
 /* PCH_MEM_CFG2 */	PAD_CFG_GPI(GPP_C14, NONE, DEEP),
@@ -157,8 +154,8 @@ static const struct pad_config gpio_table[] = {
 /* ISH_UART0_TXD */	PAD_CFG_NC(GPP_D14),
 /* ISH_UART0_RTS */	PAD_CFG_NC(GPP_D15),
 /* ISH_UART0_CTS */	PAD_CFG_NC(GPP_D16),
-/* DMIC_CLK_1 */	PAD_CFG_NF(GPP_D17, NONE, DEEP, NF1),
-/* DMIC_DATA_1 */	PAD_CFG_NF(GPP_D18, NONE, DEEP, NF1),
+/* DMIC_CLK_1 */	PAD_CFG_NC(GPP_D17),
+/* DMIC_DATA_1 */	PAD_CFG_NC(GPP_D18),
 /* DMIC_CLK_0 */	PAD_CFG_NF(GPP_D19, NONE, DEEP, NF1),
 /* DMIC_DATA_0 */	PAD_CFG_NF(GPP_D20, NONE, DEEP, NF1),
 /* ITCH_SPI_D2 */	PAD_CFG_NC(GPP_D21),
@@ -213,14 +210,14 @@ static const struct pad_config gpio_table[] = {
 /* EMMC_RCLK */		PAD_CFG_NF(GPP_F21, NONE, DEEP, NF1),
 /* EMMC_CLK */		PAD_CFG_NF(GPP_F22, NONE, DEEP, NF1),
 /* BOOT_BEEP */		PAD_CFG_GPO(GPP_F23, 0, DEEP),
-/* SD_CMD */		PAD_CFG_NF(GPP_G0, NONE, DEEP, NF1),
-/* SD_DATA0 */		PAD_CFG_NF(GPP_G1, NONE, DEEP, NF1),
-/* SD_DATA1 */		PAD_CFG_NF(GPP_G2, NONE, DEEP, NF1),
-/* SD_DATA2 */		PAD_CFG_NF(GPP_G3, NONE, DEEP, NF1),
-/* SD_DATA3 */		PAD_CFG_NF(GPP_G4, NONE, DEEP, NF1),
-/* SD_CD# */		PAD_CFG_NF(GPP_G5, NONE, DEEP, NF1),
-/* SD_CLK */		PAD_CFG_NF(GPP_G6, NONE, DEEP, NF1),
-/* SD_WP */		PAD_CFG_NF(GPP_G7, NONE, DEEP, NF1),
+/* SD_CMD */		PAD_CFG_NC(GPP_G0),
+/* SD_DATA0 */		PAD_CFG_NC(GPP_G1),
+/* SD_DATA1 */		PAD_CFG_NC(GPP_G2),
+/* SD_DATA2 */		PAD_CFG_NC(GPP_G3),
+/* SD_DATA3 */		PAD_CFG_NC(GPP_G4),
+/* SD_CD# */		PAD_CFG_NC(GPP_G5),
+/* SD_CLK */		PAD_CFG_NC(GPP_G6),
+/* SD_WP */		PAD_CFG_NC(GPP_G7),
 /* PCH_BATLOW */	PAD_CFG_NF(GPD0, NONE, DEEP, NF1),
 /* EC_PCH_ACPRESENT */	PAD_CFG_NF(GPD1, NONE, DEEP, NF1),
 /* EC_PCH_WAKE */	PAD_CFG_NF(GPD2, NONE, DEEP, NF1),
@@ -237,9 +234,7 @@ static const struct pad_config gpio_table[] = {
 
 /* Early pad configuration in romstage. */
 static const struct pad_config early_gpio_table[] = {
-/* SRCCLKREQ2# */	PAD_CFG_NF(GPP_B7, NONE, DEEP, NF1), /* KEPLER */
 /* SPI_WP_STATUS */	PAD_CFG_GPI(GPP_C23, 20K_PU, DEEP),
-/* UART0_CTS# */	PAD_CFG_GPO(GPP_C11, 0, DEEP), /* EN_PP3300_KEPLER */
 };
 
 #endif
