@@ -233,6 +233,14 @@ config BOARD_GOOGLE_VEYRON_DANGER
 	  Veyron_Danger is a Chrome OS mainboard.
 	  Veyron_Danger is based on the Rockchip RK3288 platform.
 
+config BOARD_GOOGLE_VEYRON_FIEVEL
+	bool "Veyron_Fievel"
+	help
+	  Google Veyron_Fievel mainboard.
+	  Enable this config to select the Google Veyron_Fievel mainboard.
+	  Veyron_Fievel is a Chrome OS mainboard.
+	  Veyron_Fievel is based on the Rockchip RK3288 platform.
+
 config BOARD_GOOGLE_VEYRON_GUS
 	bool "Veyron_Gus"
 	help
@@ -363,6 +371,7 @@ source "src/mainboard/google/stout/Kconfig"
 source "src/mainboard/google/urara/Kconfig"
 source "src/mainboard/google/veyron_brain/Kconfig"
 source "src/mainboard/google/veyron_danger/Kconfig"
+source "src/mainboard/google/veyron_fievel/Kconfig"
 source "src/mainboard/google/veyron_gus/Kconfig"
 source "src/mainboard/google/veyron_jaq/Kconfig"
 source "src/mainboard/google/veyron_jerry/Kconfig"
