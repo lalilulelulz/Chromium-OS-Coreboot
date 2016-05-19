@@ -41,6 +41,12 @@
 
 #include "board.h"
 
+static void enable_5v_drv(void)
+{
+	/* EN pin of NB679 for USB, Speaker, HDMI, TouchScreen*/
+	gpio_output(GPIO(7, C, 5), 1);
+}
+
 static void configure_usb(void)
 {
 	gpio_output(GPIO(0, B, 4), 1);			/* USB_OTG_PWR_EN */
@@ -92,14 +98,25 @@ static void configure_vop(void)
 	writel(IOMUX_EDP_HOTPLUG, &rk3288_grf->iomux_edp_hotplug);
 }
 
+static void configure_hdmi(void)
+{
+	/* HDMI I2C */
+	writel(IOMUX_HDMI_EDP_I2C_SDA, &rk3288_grf->iomux_i2c5sda);
+	writel(IOMUX_HDMI_EDP_I2C_SCL, &rk3288_grf->iomux_i2c5scl);
+
+	gpio_output(GPIO(5, C, 3), 1);	/* VCC50_HDMI_EN */
+}
+
 static void mainboard_init(device_t dev)
 {
 	gpio_output(GPIO_RESET, 0);
 
+	enable_5v_drv();
 	configure_usb();
 	configure_emmc();
 	configure_codec();
 	configure_vop();
+	configure_hdmi();
 
 	elog_init();
 	elog_add_watchdog_reset();
