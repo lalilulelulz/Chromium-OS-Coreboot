@@ -26,7 +26,6 @@ Device (I2C0)
 	Name (_DDN, "Serial IO I2C Controller 0")
 
 	Name (SSCN, Package () { 432, 507, 30 })
-	Name (FMCN, Package () { 72, 160, 30 })
 }
 
 Device (I2C1)
@@ -35,7 +34,6 @@ Device (I2C1)
 	Name (_DDN, "Serial IO I2C Controller 1")
 
 	Name (SSCN, Package () { 528, 640, 30 })
-	Name (FMCN, Package () { 128, 160, 30 })
 	Name (FPCN, Package () { 48, 64, 30})
 }
 
@@ -45,7 +43,6 @@ Device (I2C2)
 	Name (_DDN, "Serial IO I2C Controller 2")
 
 	Name (SSCN, Package () { 432, 507, 30 })
-	Name (FMCN, Package () { 72, 160, 30 })
 }
 
 Device (I2C3)
@@ -54,7 +51,6 @@ Device (I2C3)
 	Name (_DDN, "Serial IO I2C Controller 3")
 
 	Name (SSCN, Package () { 432, 507, 30 })
-	Name (FMCN, Package () { 72, 160, 30 })
 }
 
 Device (I2C4)
@@ -63,7 +59,6 @@ Device (I2C4)
 	Name (_DDN, "Serial IO I2C Controller 4")
 
 	Name (SSCN, Package () { 432, 507, 30 })
-	Name (FMCN, Package () { 72, 160, 30 })
 }
 
 Device (I2C5)
@@ -72,7 +67,6 @@ Device (I2C5)
 	Name (_DDN, "Serial IO I2C Controller 5")
 
 	Name (SSCN, Package () { 432, 507, 30 })
-	Name (FMCN, Package () { 72, 160, 30 })
 }
 
 Device (SPI0)
