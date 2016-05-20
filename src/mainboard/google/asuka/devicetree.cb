@@ -140,15 +140,16 @@ chip soc/intel/skylake
 	register "PcieRpClkReqNumber[0]" = "1"
 
 	register "usb2_ports[0]" = "USB2_PORT_TYPE_C"  # Type-C Port 1
-	register "usb2_ports[1]" = "USB2_PORT_TYPE_C"  # Type-C Port 2
-	register "usb2_ports[2]" = "USB2_PORT_MID"     # Bluetooth
-	register "usb2_ports[4]" = "USB2_PORT_MID"     # Type-A Port (card)
+	register "usb2_ports[1]" = "USB2_PORT_MID"     # Card Reader
+	register "usb2_ports[2]" = "USB2_PORT_SHORT"   # Bluetooth
+	register "usb2_ports[4]" = "USB2_PORT_MID"     # Type-A Port (board)
 	register "usb2_ports[6]" = "USB2_PORT_FLEX"    # Camera
-	register "usb2_ports[8]" = "USB2_PORT_LONG"    # Type-A Port (board)
+	register "usb2_ports[7]" = "USB2_PORT_MID"     # PIC MCU
+	register "usb2_ports[8]" = "USB2_PORT_MID"     # Type-A Port (board)
 
 	register "usb3_ports[0]" = "USB3_PORT_DEFAULT" # Type-C Port 1
-	register "usb3_ports[1]" = "USB3_PORT_DEFAULT" # Type-C Port 2
-	register "usb3_ports[2]" = "USB3_PORT_DEFAULT" # Type-A Port (card)
+	register "usb3_ports[1]" = "USB3_PORT_DEFAULT" # Card Reader
+	register "usb3_ports[2]" = "USB3_PORT_DEFAULT" # Type-A Port (board)
 	register "usb3_ports[3]" = "USB3_PORT_DEFAULT" # Type-A Port (board)
 	register "SerialIoI2cVoltage[4]" = "1"         # I2C4 is 1.8V
 
