@@ -22,8 +22,8 @@ romstage-y += spd.c
 
 SPD_BIN = $(obj)/spd.bin
 
-SPD_SOURCES  = hynix_dimm_H9CCNNN8JTBLAR-NUD-1G-1866    # 0b0000 Single Channel 2GB
-SPD_SOURCES += hynix_dimm_H9CCNNN8JTBLAR-NUD-1G-1866    # 0b0001 Dual Channel 4GB
+SPD_SOURCES  = hynix_dimm_H9CCNNN8GTMLAR-NUD            # 0b0000 Single Channel 2GB
+SPD_SOURCES += hynix_dimm_H9CCNNN8GTMLAR-NUD            # 0b0001 Dual Channel 4GB
 SPD_SOURCES += samsung_dimm_K4E8E324EB-EGCF             # 0b0010 Single Channel 2GB
 SPD_SOURCES += samsung_dimm_K4E8E324EB-EGCF             # 0b0011 Dual Channel 4GB
 SPD_SOURCES += micron_dimm_MT52L256M32D1PF-107          # 0b0100 Single Channel 2GB
