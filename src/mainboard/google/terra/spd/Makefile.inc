@@ -25,6 +25,7 @@ SPD_BIN = $(obj)/spd.bin
 SPD_SOURCES =  samsung_2GiB_dimm_K4E8E304EE-EGCE
 SPD_SOURCES += samsung_2GiB_dimm_K4E8E324EB-EGCF
 SPD_SOURCES += micron_2GiB_dimm_EDF8132A3MA-GD-F-R
+SPD_SOURCES += micron_2GiB_dimm_MT52L256M32D1PF-107WT
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 

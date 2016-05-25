@@ -34,14 +34,17 @@
 #define SPD_INDEX_SAMSUNG_1600MHZ 0
 #define SPD_INDEX_SAMSUNG_1866MHZ 1
 #define SPD_INDEX_MICRON_1600MHZ  2
+#define SPD_INDEX_MICRON_1866MHZ  3
 
 /*
  * RAMID3 -1: Dual channel SKU, 0: Single channel SKU
  * 0b1010 - 4GiB total - 2 x 2GiB Micron  EDF8132A3MA-GD-F-R	1600MHz
+ * 0b1011 - 4GiB total - 2 x 2GiB Micron  MT52L256M32D1PF-107WT	1866MHz
  * 0b1100 - 4GiB total - 2 x 2GiB Samsung K4E8E304EE-EGCE	1600MHz
  * 0b1101 - 4GiB total - 2 x 2GiB Samsung K4E8E324EB-EGCF	1866MHz
  *
  * 0b0010 - 2GiB total - 1 x 2GiB Micron  EDF8132A3MA-GD-F-R	1600MHz
+ * 0b0011 - 2GiB total - 1 x 2GiB Micron  MT52L256M32D1PF-107WT	1866MHz
  * 0b0100 - 2GiB total - 1 x 2GiB Samsung K4E8E304EE-EGCE	1600MHz
  * 0b0101 - 2GiB total - 1 x 2GiB Samsung K4E8E324EB-EGCF	1866MHz
 */
@@ -73,6 +76,10 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 	case 2:
 		spd_index = SPD_INDEX_MICRON_1600MHZ;
 		printk(BIOS_DEBUG, "Micron EDF8132A3MA-GD-F-R 1600MHz\n");
+		break;
+	case 3:
+		spd_index = SPD_INDEX_MICRON_1866MHZ;
+		printk(BIOS_DEBUG, "Micron MT52L256M32D1PF-107WT 1866MHz\n");
 		break;
 	case 4:
 		spd_index = SPD_INDEX_SAMSUNG_1600MHZ;
