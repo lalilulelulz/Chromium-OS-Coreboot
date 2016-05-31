@@ -55,15 +55,15 @@ static const struct soc_gpio_map gpse_gpio_map[] = {
 	NATIVE_PU20K(1), /* 46 LPC_CLKRUNB */
 	NATIVE_PU20K(1), /* 47 MF_LPC_AD0 */
 	Native_M1, /* 48 LPC_FRAMEB */
-	Native_M1, /* 49 MF_LPC_CLKOUT1 */
+	GPIO_NC,          /* 49 MF_LPC_CLKOUT1 */
 	NATIVE_PU20K(1), /* 50 MF_LPC_AD3 */
 	Native_M1, /* 51 MF_LPC_CLKOUT0 */
 	NATIVE_PU20K(1), /* 52 MF_LPC_AD1 */
-	Native_M1,/* SPI1_MISO */
-	Native_M1, /* 61 SPI1_CS0_B */
-	Native_M1, /* SPI1_CLK */
+	GPIO_NC,/* SPI1_MISO */
+	GPIO_NC, /* 61 SPI1_CS0_B */
+	GPIO_NC,  /* SPI1_CLK */
 	NATIVE_PU20K(1), /* 63 MMC1_D6 */
-	Native_M1, /* 62 SPI1_MOSI */
+	GPIO_NC, /* 62 SPI1_MOSI */
 	NATIVE_PU20K(1), /* 65 MMC1_D5 */
 	GPIO_NC, /* SPI1_CS1_B  66 */
 	NATIVE_PU20K(1), /* 67 MMC1_D4_SD_WE */
@@ -132,7 +132,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	/* 76 GPI SATA_GP1 */
 	GPIO_INPUT_PU_20K, /* 77 SATA_LEDN */
 	GPIO_NC, /* 78 SATA_GP2 */
-	Native_M1, /* 79 NFC_DEV_WAKE , MF_SMB_CLK */
+	GPIO_NC, /* 79 NFC_DEV_WAKE , MF_SMB_ALERT */
 	GPIO_INPUT_NO_PULL, /* 80 SATA_GP3,RAMID3 */
 	Native_M1, /* 81 NFC_DEV_WAKE , MF_SMB_CLK */
 	Native_M1, /* 82 NFC_FW_DOWNLOAD, MF_SMB_DATA */

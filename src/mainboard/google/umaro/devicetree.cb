@@ -131,7 +131,7 @@ chip soc/intel/braswell
 		device pci 1e.2 off end	# 8086 0F09 -   PWM 2
 		device pci 1e.3 on end	# 8086 228a -   HSUART 1
 		device pci 1e.4 off end	# 8086 228c -   HSUART 2
-		device pci 1e.5 on end	# 8086 228e -   SPI 1
+		device pci 1e.5 off end	# 8086 228e -   SPI 1
 		device pci 1e.6 off end	# 8086 2290 -   SPI 2
 		device pci 1e.7 off end	# 8086 22ac -   SPI 3
 		device pci 1f.0 on	# 8086 229c - LPC bridge
