@@ -141,6 +141,9 @@ void lb_board(struct lb_header *header)
 	dma->size = sizeof(*dma);
 	dma->range_start = (uintptr_t)_dma_coherent;
 	dma->range_size = _dma_coherent_size;
+
+	/* Retrieve the on-board Ethernet MAC address. */
+	lb_table_add_macs_from_vpd(header);
 }
 
 void mainboard_power_on_backlight(void)
