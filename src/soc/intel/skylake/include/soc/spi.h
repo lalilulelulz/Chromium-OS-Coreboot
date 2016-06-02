@@ -44,6 +44,17 @@
 /* STRAP Data Register*/
 #define SPIBAR_RESET_DATA 0xF8
 
+#define SPI_PRR_MAX		5
+#define SPI_PRR_SHIFT		12
+#define SPI_PRR_MASK		0x7fff
+#define SPI_PRR_BASE_SHIFT	0
+#define SPI_PRR_LIMIT_SHIFT	16
+#define SPI_PRR_RPE		(1 << 15) /* Read Protect */
+#define SPI_PRR_WPE		(1 << 31) /* Write Protect */
+#define SPI_PRR(base, limit)	\
+	(((((limit) >> SPI_PRR_SHIFT) & SPI_PRR_MASK) << SPI_PRR_LIMIT_SHIFT) |\
+	 ((((base) >> SPI_PRR_SHIFT) & SPI_PRR_MASK) << SPI_PRR_BASE_SHIFT))
+
 #define SPI_OPMENU_0 0x01 /* WRSR: Write Status Register */
 #define SPI_OPTYPE_0 0x01 /* Write, no address */
 
@@ -123,6 +134,7 @@
 #define  SPIBAR_BC_EISS		(1 << 5)
 #define  SPIBAR_BC_LE           (1 << 2)
 
-
 void *get_spi_bar(void);
+int spi_flash_protect(u32 start, u32 size);
+
 #endif
