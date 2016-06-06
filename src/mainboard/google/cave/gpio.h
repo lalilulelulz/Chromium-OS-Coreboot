@@ -44,6 +44,9 @@
 /* GPP_B16 is WLAN_WAKE. GPP_B group is routed to DW0 in the GPE0 block */
 #define GPE_WLAN_WAKE		GPE0_DW0_16
 
+/* GPP_B5 is TOUCHPAD WAKE. GPP_B group is routed to DW0 in the GPE0 block */
+#define GPE_TOUCHPAD_WAKE	GPE0_DW0_05
+
 /* Input device interrupt configuration */
 #define TOUCHPAD_INT_L		GPP_B3_IRQ
 #define TOUCHSCREEN_INT_L	GPP_E7_IRQ
