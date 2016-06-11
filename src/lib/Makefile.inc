@@ -69,6 +69,7 @@ romstage-$(CONFIG_ARCH_ROMSTAGE_X86_32) += gcc.c
 romstage-$(CONFIG_GENERIC_UDELAY) += timer.c
 romstage-$(CONFIG_GENERIC_GPIO_LIB) += gpio.c
 
+ramstage-y += rtc.c
 ramstage-y += hardwaremain.c
 ramstage-y += selfboot.c
 ramstage-y += coreboot_table.c
