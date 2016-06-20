@@ -431,8 +431,11 @@ enum host_event_code {
 	/* Keyboard fastboot combo has been pressed */
 	EC_HOST_EVENT_KEYBOARD_FASTBOOT = 25,
 
+	/* EC RTC event occurred */
+	EC_HOST_EVENT_RTC = 26,
+
 	/* Emulate MKBP event */
-	EC_HOST_EVENT_MKBP = 26,
+	EC_HOST_EVENT_MKBP = 27,
 
 	/*
 	 * The high bit of the event mask is not used as a host event code.  If
@@ -1087,6 +1090,7 @@ struct ec_params_pwm_set_fan_target_rpm_v1 {
 } __packed;
 
 /* Get keyboard backlight */
+/* OBSOLETE - Use EC_CMD_PWM_SET_DUTY */
 #define EC_CMD_PWM_GET_KEYBOARD_BACKLIGHT 0x22
 
 struct ec_response_pwm_get_keyboard_backlight {
@@ -1095,6 +1099,7 @@ struct ec_response_pwm_get_keyboard_backlight {
 } __packed;
 
 /* Set keyboard backlight */
+/* OBSOLETE - Use EC_CMD_PWM_SET_DUTY */
 #define EC_CMD_PWM_SET_KEYBOARD_BACKLIGHT 0x23
 
 struct ec_params_pwm_set_keyboard_backlight {
@@ -1113,6 +1118,37 @@ struct ec_params_pwm_set_fan_duty_v0 {
 struct ec_params_pwm_set_fan_duty_v1 {
 	uint32_t percent;
 	uint8_t fan_idx;
+} __packed;
+
+#define EC_CMD_PWM_SET_DUTY 0x25
+/* 16 bit duty cycle, 65535 = 100% */
+#define EC_PWM_MAX_DUTY 65535
+
+enum ec_pwm_type {
+	/* All types, indexed by board-specific enum pwm_channel */
+	EC_PWM_TYPE_GENERIC = 0,
+	/* Keyboard backlight */
+	EC_PWM_TYPE_KB_LIGHT,
+	/* Display backlight */
+	EC_PWM_TYPE_DISPLAY_LIGHT,
+	EC_PWM_TYPE_COUNT,
+};
+
+struct ec_params_pwm_set_duty {
+	uint16_t duty;     /* Duty cycle, EC_PWM_MAX_DUTY = 100% */
+	uint8_t pwm_type;  /* ec_pwm_type */
+	uint8_t index;     /* Type-specific index, or 0 if unique */
+} __packed;
+
+#define EC_CMD_PWM_GET_DUTY 0x26
+
+struct ec_params_pwm_get_duty {
+	uint8_t pwm_type;  /* ec_pwm_type */
+	uint8_t index;     /* Type-specific index, or 0 if unique */
+} __packed;
+
+struct ec_response_pwm_get_duty {
+	uint16_t duty;     /* Duty cycle, EC_PWM_MAX_DUTY = 100% */
 } __packed;
 
 /*****************************************************************************/
@@ -2019,6 +2055,13 @@ struct ec_response_get_next_event {
 	/* Followed by event data if any */
 } __packed;
 
+/* Run keyboard factory test scanning */
+#define EC_CMD_KEYBOARD_FACTORY_TEST 0x68
+
+struct ec_response_keyboard_factory_test {
+	uint16_t shorted;	/* Keyboard pins are shorted */
+} __packed;
+
 /*****************************************************************************/
 /* Temperature sensor commands */
 
@@ -2631,6 +2674,27 @@ struct ec_params_entering_mode {
 #define VBOOT_MODE_NORMAL    0
 #define VBOOT_MODE_DEVELOPER 1
 #define VBOOT_MODE_RECOVERY  2
+
+/*****************************************************************************/
+/*
+ * I2C passthru protection command: Protects I2C tunnels against access on
+ * certain addresses (board-specific).
+ */
+#define EC_CMD_I2C_PASSTHRU_PROTECT 0xb7
+
+enum ec_i2c_passthru_protect_subcmd {
+	EC_CMD_I2C_PASSTHRU_PROTECT_STATUS = 0x0,
+	EC_CMD_I2C_PASSTHRU_PROTECT_ENABLE = 0x1,
+};
+
+struct ec_params_i2c_passthru_protect {
+	uint8_t subcmd;
+	uint8_t port;		/* I2C port number */
+} __packed;
+
+struct ec_response_i2c_passthru_protect {
+	uint8_t status;		/* Status flags (0: unlocked, 1: locked) */
+} __packed;
 
 /*****************************************************************************/
 /* System commands */
