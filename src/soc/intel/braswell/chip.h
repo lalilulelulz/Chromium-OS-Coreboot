@@ -116,22 +116,27 @@ struct soc_intel_braswell_config {
 	UINT8  Usb2Port0PerPortTxiSet;
 	UINT8  Usb2Port0IUsbTxEmphasisEn;
 	UINT8  Usb2Port0PerPortTxPeHalf;
+	UINT8  D0Usb2Port0PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  Usb2Port1PerPortPeTxiSet;
 	UINT8  Usb2Port1PerPortTxiSet;
 	UINT8  Usb2Port1IUsbTxEmphasisEn;
 	UINT8  Usb2Port1PerPortTxPeHalf;
+	UINT8  D0Usb2Port1PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  Usb2Port2PerPortPeTxiSet;
 	UINT8  Usb2Port2PerPortTxiSet;
 	UINT8  Usb2Port2IUsbTxEmphasisEn;
 	UINT8  Usb2Port2PerPortTxPeHalf;
+	UINT8  D0Usb2Port2PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  Usb2Port3PerPortPeTxiSet;
 	UINT8  Usb2Port3PerPortTxiSet;
 	UINT8  Usb2Port3IUsbTxEmphasisEn;
 	UINT8  Usb2Port3PerPortTxPeHalf;
+	UINT8  D0Usb2Port3PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  Usb2Port4PerPortPeTxiSet;
 	UINT8  Usb2Port4PerPortTxiSet;
 	UINT8  Usb2Port4IUsbTxEmphasisEn;
 	UINT8  Usb2Port4PerPortTxPeHalf;
+	UINT8  D0Usb2Port4PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  Usb3Lane0Ow2tapgen2deemph3p5;
 	UINT8  Usb3Lane1Ow2tapgen2deemph3p5;
 	UINT8  Usb3Lane2Ow2tapgen2deemph3p5;
