@@ -159,6 +159,11 @@ uint32_t tpm_clear_and_reenable(void)
 	return TPM_SUCCESS;
 }
 
+uint32_t antirollback_lock_space_firmware(void)
+{
+	return tlcl_lock_nv_write(FIRMWARE_NV_INDEX);
+}
+
 #else
 
 uint32_t tpm_clear_and_reenable(void)
@@ -264,6 +269,11 @@ static uint32_t _factory_initialize_tpm(struct vb2_context *ctx)
 					ctx->secdata,
 					VB2_SECDATA_SIZE));
 	return TPM_SUCCESS;
+}
+
+uint32_t antirollback_lock_space_firmware(void)
+{
+	return tlcl_set_global_lock();
 }
 #endif
 
@@ -425,9 +435,4 @@ uint32_t antirollback_read_space_firmware(struct vb2_context *ctx)
 uint32_t antirollback_write_space_firmware(struct vb2_context *ctx)
 {
 	return write_secdata(FIRMWARE_NV_INDEX, ctx->secdata, VB2_SECDATA_SIZE);
-}
-
-uint32_t antirollback_lock_space_firmware()
-{
-	return tlcl_set_global_lock();
 }
