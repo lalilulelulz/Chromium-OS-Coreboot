@@ -66,7 +66,8 @@ chip soc/intel/braswell
 	register "Usb3Lane2Ow2tapgen2deemph3p5" = "0x64"
 	register "Usb3Lane3Ow2tapgen2deemph3p5" = "0x3a"
 	register "PcdSataInterfaceSpeed" = "3"
-	register "PcdPchSsicEnable" = "1"
+	register "PcdPchSsicEnable" = "0"
+	register "PcdPchUsbHsicPort" = "0"
 	register "PcdRtcLock" = "0"	# Disable RTC access locking to NVRAM
 	register "PMIC_I2CBus" = "0"
 	register "ISPEnable" = "0"		# Disable IUNIT
