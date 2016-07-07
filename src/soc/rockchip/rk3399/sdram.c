@@ -343,10 +343,10 @@ static void phy_io_config(u32 channel,
 	if (sdram_params->dramtype == LPDDR4)
 		vref_mode = 0x6;
 	else if (sdram_params->dramtype == LPDDR3)
-		vref_mode = 0x2;
+		vref_mode = 0x5;
 	else if (sdram_params->dramtype == DDR3)
 		vref_mode = 0x1;
-	vref_value = 0x1f;
+	vref_value = 0x18;
 
 	reg_value = (vref_mode << 9) | (0x1 << 8) | vref_value;
 	/* PHY_913 PHY_PAD_VREF_CTRL_DQ_0 12bits offset_8 */
@@ -359,6 +359,9 @@ static void phy_io_config(u32 channel,
 			reg_value << 16);
 	/* PHY_915 PHY_PAD_VREF_CTRL_DQ_3 12bits offset_0 */
 	clrsetbits_le32(&ddr_publ_regs->denali_phy[915], 0xfff, reg_value);
+
+	reg_value = (vref_mode << 9) | (0x1 << 8) | 0x0b;
+
 	/* PHY_915 PHY_PAD_VREF_CTRL_AC 12bits offset_16 */
 	clrsetbits_le32(&ddr_publ_regs->denali_phy[915], 0xfff << 16,
 			reg_value << 16);
