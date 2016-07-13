@@ -27,12 +27,12 @@
 #define DPTF_CPU_ACTIVE_AC4     50
 
 #define DPTF_TSR0_SENSOR_ID	1
-#define DPTF_TSR0_SENSOR_NAME	"Ambient"
+#define DPTF_TSR0_SENSOR_NAME	"WiFi"
 #define DPTF_TSR0_PASSIVE	55
 #define DPTF_TSR0_CRITICAL	70
 
 #define DPTF_TSR1_SENSOR_ID	2
-#define DPTF_TSR1_SENSOR_NAME	"Charger"
+#define DPTF_TSR1_SENSOR_NAME	"PD"
 #define DPTF_TSR1_PASSIVE	55
 #define DPTF_TSR1_CRITICAL	70
 
@@ -42,9 +42,9 @@
 #define DPTF_TSR2_CRITICAL	70
 
 #define DPTF_TSR3_SENSOR_ID	4
-#define DPTF_TSR3_SENSOR_NAME	"WiFi"
-#define DPTF_TSR3_PASSIVE	55
-#define DPTF_TSR3_CRITICAL	70
+#define DPTF_TSR3_SENSOR_NAME	"Charger"
+#define DPTF_TSR3_PASSIVE	75
+#define DPTF_TSR3_CRITICAL	85
 
 /* SKL-Y EC already has a custom charge profile based on temperature. */
 #undef DPTF_ENABLE_CHARGER
