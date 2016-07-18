@@ -18,15 +18,18 @@
  * Foundation, Inc.
  */
 
-#define DPTF_CPU_PASSIVE	95
-#define DPTF_CPU_CRITICAL	99
-#define DPTF_CPU_ACTIVE_AC0	90
-#define DPTF_CPU_ACTIVE_AC1	77
+#define DPTF_CPU_PASSIVE	97
+#define DPTF_CPU_CRITICAL	100
+#define DPTF_CPU_ACTIVE_AC0	66
+#define DPTF_CPU_ACTIVE_AC1	62
+#define DPTF_CPU_ACTIVE_AC2	58
+#define DPTF_CPU_ACTIVE_AC3	54
+#define DPTF_CPU_ACTIVE_AC4	50
 
 #define DPTF_TSR0_SENSOR_ID	0
-#define DPTF_TSR0_SENSOR_NAME	"TMP432_Internal"
-#define DPTF_TSR0_PASSIVE	65
-#define DPTF_TSR0_CRITICAL	70
+#define DPTF_TSR0_SENSOR_NAME	"TMP432_Memory"
+#define DPTF_TSR0_PASSIVE	86
+#define DPTF_TSR0_CRITICAL	90
 #define DPTF_TSR0_ACTIVE_AC0	120
 #define DPTF_TSR0_ACTIVE_AC1	110
 #define DPTF_TSR0_ACTIVE_AC2	47
@@ -36,14 +39,14 @@
 #define DPTF_TSR0_ACTIVE_AC6	35
 
 #define DPTF_TSR1_SENSOR_ID	1
-#define DPTF_TSR1_SENSOR_NAME	"TMP432_Power_top"
-#define DPTF_TSR1_PASSIVE	63
-#define DPTF_TSR1_CRITICAL	68
+#define DPTF_TSR1_SENSOR_NAME	"TMP432_PCH"
+#define DPTF_TSR1_PASSIVE	78
+#define DPTF_TSR1_CRITICAL	82
 
 #define DPTF_TSR2_SENSOR_ID	2
-#define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	64
-#define DPTF_TSR2_CRITICAL	69
+#define DPTF_TSR2_SENSOR_NAME	"TMP432_Battery"
+#define DPTF_TSR2_PASSIVE	88
+#define DPTF_TSR2_CRITICAL	92
 
 #define DPTF_ENABLE_CHARGER
 #define DPTF_ENABLE_FAN_CONTROL
@@ -87,12 +90,12 @@ Name (DART, Package () {
 		 * Source, Target, Weight, AC0, AC1, AC2, AC3, AC4, AC5, AC6,
 		 *	AC7, AC8, AC9
 		 */
-		\_SB.DPTF.TFN1, \_SB.PCI0.B0D4, 100, 100, 81, 0, 0, 0, 0, 0,
+		\_SB.DPTF.TFN1, \_SB.PCI0.B0D4, 100, 81, 66, 53, 47, 41, 0, 0,
 			0, 0, 0
 	},
 	Package () {
-		\_SB.DPTF.TFN1, \_SB.DPTF.TSR0, 100, 100, 81, 68, 56, 48, 40,
-			35, 0, 0, 0
+		\_SB.DPTF.TFN1, \_SB.DPTF.TSR0, 100, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0
 	}
 })
 #endif
@@ -121,7 +124,7 @@ Name (MPPC, Package ()
 	0x2,		/* Revision */
 	Package () {	/* Power Limit 1 */
 		0,	/* PowerLimitIndex, 0 for Power Limit 1 */
-		1600,	/* PowerLimitMinimum */
+		800,	/* PowerLimitMinimum */
 		15000,	/* PowerLimitMaximum */
 		1000,	/* TimeWindowMinimum */
 		1000,	/* TimeWindowMaximum */
@@ -129,8 +132,8 @@ Name (MPPC, Package ()
 	},
 	Package () {	/* Power Limit 2 */
 		1,	/* PowerLimitIndex, 1 for Power Limit 2 */
-		8000,	/* PowerLimitMinimum */
-		8000,	/* PowerLimitMaximum */
+		25000,	/* PowerLimitMinimum */
+		25000,	/* PowerLimitMaximum */
 		1000,	/* TimeWindowMinimum */
 		1000,	/* TimeWindowMaximum */
 		1000	/* StepSize */
