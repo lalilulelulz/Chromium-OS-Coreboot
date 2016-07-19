@@ -23,6 +23,7 @@
 #include <device/device.h>
 #include <device/pci.h>
 #include <fsp_util.h>
+#include <soc/lpc.h>
 #include <soc/pci_devs.h>
 #include <soc/ramstage.h>
 
@@ -165,6 +166,20 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	params->ISPEnable = config->ISPEnable;
 	params->ISPPciDevConfig = config->ISPPciDevConfig;
 	params->PcdSdDetectChk = config->PcdSdDetectChk;
+
+	if ( SocStepping() >= SocD0 )
+	{
+		params->Usb2Port0PerPortTxiSet = config->D0Usb2Port0PerPortTxiSet;		 /*D-stepping Braswell USB Portx TxiSet & TxEmphasisEn */
+		params->Usb2Port0IUsbTxEmphasisEn = config->D0Usb2Port0IUsbTxEmphasisEn;
+		params->Usb2Port1PerPortTxiSet = config->D0Usb2Port1PerPortTxiSet;
+		params->Usb2Port1IUsbTxEmphasisEn = config->D0Usb2Port1IUsbTxEmphasisEn;
+		params->Usb2Port2PerPortTxiSet = config->D0Usb2Port2PerPortTxiSet;
+		params->Usb2Port2IUsbTxEmphasisEn = config->D0Usb2Port2IUsbTxEmphasisEn;
+		params->Usb2Port3PerPortTxiSet = config->D0Usb2Port3PerPortTxiSet;
+		params->Usb2Port3IUsbTxEmphasisEn = config->D0Usb2Port3IUsbTxEmphasisEn;
+		params->Usb2Port4PerPortTxiSet = config->D0Usb2Port4PerPortTxiSet;
+		params->Usb2Port4IUsbTxEmphasisEn = config->D0Usb2Port4IUsbTxEmphasisEn;
+	}
 }
 
 void soc_display_silicon_init_params(const SILICON_INIT_UPD *old,

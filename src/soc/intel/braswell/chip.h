@@ -141,6 +141,17 @@ struct soc_intel_braswell_config {
 	UINT8  ISPEnable;
 	UINT8  ISPPciDevConfig;
 	UINT8  PcdSdDetectChk; /*Enable\Disable SD Card Detect Simulation*/
+
+	UINT8  D0Usb2Port0PerPortTxiSet;	/* D-stepping Braswell USB Portx TxiSet & TxEmphasisEn */
+	UINT8  D0Usb2Port0IUsbTxEmphasisEn;
+	UINT8  D0Usb2Port1PerPortTxiSet;
+	UINT8  D0Usb2Port1IUsbTxEmphasisEn;
+	UINT8  D0Usb2Port2PerPortTxiSet;
+	UINT8  D0Usb2Port2IUsbTxEmphasisEn;
+	UINT8  D0Usb2Port3PerPortTxiSet;
+	UINT8  D0Usb2Port3IUsbTxEmphasisEn;
+	UINT8  D0Usb2Port4PerPortTxiSet;
+	UINT8  D0Usb2Port4IUsbTxEmphasisEn;
 };
 
 extern struct chip_operations soc_intel_braswell_ops;

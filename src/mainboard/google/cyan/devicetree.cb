@@ -73,6 +73,18 @@ chip soc/intel/braswell
 	register "ISPPciDevConfig" = "3"
 	register "PcdSdDetectChk" = "0" # Disable SD card detect
 
+	# D-stepping Braswell SOC need to use differ USB portx TxiSet & TxEmphasisEn
+	register "D0Usb2Port0PerPortTxiSet" = "2"
+	register "D0Usb2Port0IUsbTxEmphasisEn" = "2"
+	register "D0Usb2Port1PerPortTxiSet" = "3"
+	register "D0Usb2Port1IUsbTxEmphasisEn" = "2"
+	register "D0Usb2Port2PerPortTxiSet" = "3"
+	register "D0Usb2Port2IUsbTxEmphasisEn" = "3"
+	register "D0Usb2Port3PerPortTxiSet" = "3"
+	register "D0Usb2Port3IUsbTxEmphasisEn" = "3"
+	register "D0Usb2Port4PerPortTxiSet" = "3"
+	register "D0Usb2Port4IUsbTxEmphasisEn" = "2"
+
 	# LPE audio codec settings
 	register "lpe_codec_clk_src" = '0' # 19.2MHz clock
 	register "lpe_codec_clk_num" = "0"   # PMC_PLT_CLK[0]
