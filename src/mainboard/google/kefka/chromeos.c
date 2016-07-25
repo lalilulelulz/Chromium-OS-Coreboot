@@ -94,14 +94,7 @@ int get_developer_mode_switch(void)
 int get_recovery_mode_switch(void)
 {
 #if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC)
-	u8 ec_switches;
 	u32 ec_events;
-	mec_io_bytes(0, EC_LPC_ADDR_MEMMAP + EC_MEMMAP_SWITCHES, 1,
-		     &ec_switches, NULL);
-
-	/* If a switch is set, we don't need to look at events. */
-	if (ec_switches & (EC_SWITCH_DEDICATED_RECOVERY))
-		return 1;
 
 	/* Else check if the EC has posted the keyboard recovery event. */
 	ec_events = google_chromeec_get_events_b();
