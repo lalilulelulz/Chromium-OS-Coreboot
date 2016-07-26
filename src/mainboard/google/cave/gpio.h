@@ -63,6 +63,9 @@
 #define EN_PP1800_DX_EMMC	GPP_D6
 #define EN_PP3300_DX_CAM	GPP_D12
 
+/* SD controller needs additional card detect GPIO to support RTD3 */
+#define GPIO_SD_CARD_DETECT	GPP_A7
+
 #ifndef __ACPI__
 /* Pad configuration in ramstage. */
 static const struct pad_config gpio_table[] = {
