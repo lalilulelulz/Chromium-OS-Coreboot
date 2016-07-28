@@ -27,6 +27,7 @@
 External (\_TZ.THRT, MethodObj)
 External (\_SB.DPTF.TEVT, MethodObj)
 External (\_SB.DPTF.TCHG, DeviceObj)
+External (\_SB.DPTF.TPET, MethodObj)
 
 Device (EC0)
 {
@@ -54,6 +55,7 @@ Device (EC0)
 		PATT, 8,	// Programmable Auxiliary Trip Threshold
 		PATC, 8,	// Programmable Auxiliary Trip Commit
 		CHGL, 8,	// Charger Current Limit
+		TBMD, 1,	// Tablet mode
 	}
 
 #if CONFIG_EC_GOOGLE_CHROMEEC_ACPI_MEMMAP
@@ -287,6 +289,15 @@ Device (EC0)
 		Notify (BAT0, 0x80)
 	}
 
+	// TABLET mode switch Event
+	Method (_Q1D, 0, NotSerialized)
+	{
+		Store ("EC: TABLET mode switch Event", Debug)
+		If (CondRefOf (\_SB.DPTF.TPET)) {
+			\_SB.DPTF.TPET()
+		}
+	}
+
 	/*
 	 * Dynamic Platform Thermal Framework support
 	 */
@@ -411,6 +422,12 @@ Device (EC0)
 	Method (CHGD, 0, Serialized)
 	{
 		Store (0xFF, ^CHGL)
+	}
+
+	/* Read current Tablet mode */
+	Method (RCTM, 0, NotSerialized)
+	{
+		Return (^TBMD)
 	}
 
 	#include "ac.asl"
