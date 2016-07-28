@@ -1,1 +1,1 @@
-ramstage-$(CONFIG_PCIEXP_PLUGIN_SUPPORT) += wifi.c
+ramstage-$(CONFIG_DRIVERS_INTEL_WIFI) += wifi.c
