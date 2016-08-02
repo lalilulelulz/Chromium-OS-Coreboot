@@ -60,6 +60,10 @@ libverstage-generic-ccopts += $(armv7-a_flags)
 libverstage-S-ccopts += $(armv7_asm_flags)
 verstage-generic-ccopts += $(armv7-a_flags)
 verstage-S-ccopts += $(armv7_asm_flags)
+ifeq ($(CONFIG_ARCH_VERSTAGE_ARMV7_ENABLE_NEON),y)
+libverstage-generic-ccopts += -mfpu=neon -O2 -ftree-vectorize
+verstage-generic-ccopts += -mfpu=neon -O2 -ftree-vectorize
+endif
 
 verstage-y += cache.c
 verstage-y += cpu.S

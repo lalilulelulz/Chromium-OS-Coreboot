@@ -1209,3 +1209,8 @@ config MAX_REBOOT_CNT
 	  Internal option that sets the maximum number of bootblock executions allowed
 	  with the normal image enabled before assuming the normal image is defective
 	  and switching to the fallback image.
+
+config CFLAGS_NO_OMIT_FRAME_POINTER
+	def_bool n
+	help
+	 Do not use -fomit-frame-pointer in CFLAGS.

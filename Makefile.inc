@@ -328,7 +328,10 @@ CFLAGS_common += -pipe -g -nostdinc
 CFLAGS_common += -nostdlib -Wall -Wundef -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS_common += -Wwrite-strings -Wredundant-decls -Wno-trigraphs
 CFLAGS_common += -Wstrict-aliasing -Wshadow
-CFLAGS_common += -fno-common -ffreestanding -fno-builtin -fomit-frame-pointer
+CFLAGS_common += -fno-common -ffreestanding -fno-builtin
+ifneq ($(CONFIG_CFLAGS_NO_OMIT_FRAME_POINTER),y)
+CFLAGS_common += -fomit-frame-pointer
+endif
 CFLAGS_common += -ffunction-sections -fdata-sections
 
 LDFLAGS_common := --gc-sections -nostdlib -nostartfiles -static --emit-relocs

@@ -19,3 +19,6 @@ config ARCH_BOOTBLOCK_ARMV7_M
 config ARCH_VERSTAGE_ARMV7_M
 	def_bool n
 	select ARCH_VERSTAGE_ARM
+
+config ARCH_VERSTAGE_ARMV7_ENABLE_NEON
+	def_bool n
