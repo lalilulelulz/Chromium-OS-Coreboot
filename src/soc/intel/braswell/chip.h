@@ -160,6 +160,7 @@ struct soc_intel_braswell_config {
 	UINT8  D0Usb2Port2PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  D0Usb2Port3PerPortRXISet; /*setting for D0 stepping SOC*/
 	UINT8  D0Usb2Port4PerPortRXISet; /*setting for D0 stepping SOC*/
+	UINT8  D0VnnBump100mV;
 };
 
 extern struct chip_operations soc_intel_braswell_ops;
