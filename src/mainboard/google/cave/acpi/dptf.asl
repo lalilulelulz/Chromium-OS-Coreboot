@@ -30,21 +30,29 @@
 #define DPTF_TSR0_SENSOR_NAME	"WiFi"
 #define DPTF_TSR0_PASSIVE	50
 #define DPTF_TSR0_CRITICAL	65
+#define DPTF_TSR0_TABLET_PASSIVE	52
+#define DPTF_TSR0_TABLET_CRITICAL	65
 
 #define DPTF_TSR1_SENSOR_ID	2
 #define DPTF_TSR1_SENSOR_NAME	"PD"
 #define DPTF_TSR1_PASSIVE	50
 #define DPTF_TSR1_CRITICAL	65
+#define DPTF_TSR1_TABLET_PASSIVE	52
+#define DPTF_TSR1_TABLET_CRITICAL	65
 
 #define DPTF_TSR2_SENSOR_ID	3
 #define DPTF_TSR2_SENSOR_NAME	"DRAM"
 #define DPTF_TSR2_PASSIVE	50
 #define DPTF_TSR2_CRITICAL	65
+#define DPTF_TSR2_TABLET_PASSIVE	52
+#define DPTF_TSR2_TABLET_CRITICAL	65
 
 #define DPTF_TSR3_SENSOR_ID	4
 #define DPTF_TSR3_SENSOR_NAME	"Charger"
 #define DPTF_TSR3_PASSIVE	68
 #define DPTF_TSR3_CRITICAL	80
+#define DPTF_TSR3_TABLET_PASSIVE	68
+#define DPTF_TSR3_TABLET_CRITICAL	80
 
 /* Enable DPTF charger control */
 #define DPTF_ENABLE_CHARGER
@@ -72,7 +80,7 @@ Name (DTRT, Package () {
 	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 100, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 100, 0, 0, 0, 0 },
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 100, 50, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 2 */
 	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 100, 0, 0, 0, 0 },

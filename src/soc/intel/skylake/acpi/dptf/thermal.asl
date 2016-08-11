@@ -62,6 +62,23 @@ Method (TINI)
 #endif
 }
 
+/* Thermal Trip Points Change Event Handler */
+Method (TPET)
+{
+#ifdef DPTF_TSR0_SENSOR_ID
+	Notify (^TSR0, 0x91)
+#endif
+#ifdef DPTF_TSR1_SENSOR_ID
+	Notify (^TSR1, 0x91)
+#endif
+#ifdef DPTF_TSR2_SENSOR_ID
+	Notify (^TSR2, 0x91)
+#endif
+#ifdef DPTF_TSR3_SENSOR_ID
+	Notify (^TSR3, 0x91)
+#endif
+}
+
 #ifdef DPTF_TSR0_SENSOR_ID
 Device (TSR0)
 {
@@ -88,12 +105,28 @@ Device (TSR0)
 
 	Method (_PSV)
 	{
-		Return (CTOK (DPTF_TSR0_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR0_TABLET_PASSIVE))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR0_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Method (_CRT)
 	{
-		Return (CTOK (DPTF_TSR0_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR0_TABLET_CRITICAL))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR0_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Name (PATC, 2)
@@ -181,12 +214,28 @@ Device (TSR1)
 
 	Method (_PSV)
 	{
-		Return (CTOK (DPTF_TSR1_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR1_TABLET_PASSIVE))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR1_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Method (_CRT)
 	{
-		Return (CTOK (DPTF_TSR1_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR1_TABLET_CRITICAL))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR1_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Name (PATC, 2)
@@ -237,12 +286,28 @@ Device (TSR2)
 
 	Method (_PSV)
 	{
-		Return (CTOK (DPTF_TSR2_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR2_TABLET_PASSIVE))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR2_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Method (_CRT)
 	{
-		Return (CTOK (DPTF_TSR2_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR2_TABLET_CRITICAL))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR2_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Name (PATC, 2)
@@ -293,12 +358,28 @@ Device (TSR3)
 
 	Method (_PSV)
 	{
-		Return (CTOK (DPTF_TSR3_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR3_TABLET_PASSIVE))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR3_PASSIVE))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Method (_CRT)
 	{
-		Return (CTOK (DPTF_TSR3_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
+			Return (CTOK (DPTF_TSR3_TABLET_CRITICAL))
+		} Else {
+#endif
+			Return (CTOK (DPTF_TSR3_CRITICAL))
+#ifdef EC_ENABLE_TABLET_EVENT
+		}
+#endif
 	}
 
 	Name (PATC, 2)
