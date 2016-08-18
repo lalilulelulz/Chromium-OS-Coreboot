@@ -124,6 +124,12 @@ Scope (\_SB.PCI0.RP01)
 
 Scope (\_SB.PCI0.I2C0)
 {
+	/* Fast Mode: HCNT, LCNT, SDA Hold Register */
+        /* Set I2C clock frequency for I2C0, 1 and 4 to ~400KHz,
+	 * and SDA Hold register value to 30
+	 */
+	Name (FMCN, Package () { 152, 128, 30 })
+
 	/* Touchscreen */
 	Device (RAYD)
 	{
@@ -156,6 +162,8 @@ Scope (\_SB.PCI0.I2C0)
 
 Scope (\_SB.PCI0.I2C1)
 {
+	Name (FMCN, Package () { 152, 128, 30 })
+
 	/* Touchpad */
 	Device (ELTP)
 	{
@@ -190,6 +198,8 @@ Scope (\_SB.PCI0.I2C1)
 
 Scope (\_SB.PCI0.I2C4)
 {
+	Name (FMCN, Package () { 152, 128, 30 })
+
 	/* Headphone Codec */
 	Device (HPMC)
 	{
