@@ -55,12 +55,12 @@ void mainboard_silicon_init_params(SILICON_INIT_UPD *params)
 		params->Usb2Port4PerPortTxPeHalf = 1;
 	} else {
 		params->Usb2Port0PerPortPeTxiSet = 7;
-		params->Usb2Port0PerPortTxiSet = 5;
-		params->Usb2Port0IUsbTxEmphasisEn = 2;
+		params->Usb2Port0PerPortTxiSet = 6;
+		params->Usb2Port0IUsbTxEmphasisEn = 3;
 		params->Usb2Port0PerPortTxPeHalf = 1;
 		params->Usb2Port1PerPortPeTxiSet = 7;
-		params->Usb2Port1PerPortTxiSet = 3;
-		params->Usb2Port1IUsbTxEmphasisEn = 2;
+		params->Usb2Port1PerPortTxiSet = 6;
+		params->Usb2Port1IUsbTxEmphasisEn = 3;
 		params->Usb2Port1PerPortTxPeHalf = 1;
 		params->Usb2Port2PerPortPeTxiSet = 7;
 		params->Usb2Port2PerPortTxiSet = 3;
