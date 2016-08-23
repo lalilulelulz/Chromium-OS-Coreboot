@@ -75,6 +75,8 @@ Scope (\_SB.PCI0.RP01)
 
 Scope (\_SB.PCI0.I2C0)
 {
+	Name (FMCN, Package () { 72, 160, 30 })
+
 	/* Touchscreen */
 	Device (ELTS)
 	{
@@ -107,6 +109,8 @@ Scope (\_SB.PCI0.I2C0)
 
 Scope (\_SB.PCI0.I2C1)
 {
+	Name (FMCN, Package () { 72, 160, 30 })
+
 	/* Touchpad */
 	Device (ELTP)
 	{
@@ -140,6 +144,8 @@ Scope (\_SB.PCI0.I2C1)
 
 Scope (\_SB.PCI0.I2C4)
 {
+	Name (FMCN, Package () { 72, 160, 30 })
+
 	/* Headphone Codec */
 	Device (HPMC)
 	{
