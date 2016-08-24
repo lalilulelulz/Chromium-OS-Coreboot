@@ -25,22 +25,22 @@ Method (TEVT, 1, NotSerialized)
 
 #ifdef DPTF_TSR0_SENSOR_ID
 	If (LEqual (Local0, DPTF_TSR0_SENSOR_ID)) {
-		Notify (^TSR0, 0x90)
+		Notify (^TSR0, 0x81)
 	}
 #endif
 #ifdef DPTF_TSR1_SENSOR_ID
 	If (LEqual (Local0, DPTF_TSR1_SENSOR_ID)) {
-		Notify (^TSR1, 0x90)
+		Notify (^TSR1, 0x81)
 	}
 #endif
 #ifdef DPTF_TSR2_SENSOR_ID
 	If (LEqual (Local0, DPTF_TSR2_SENSOR_ID)) {
-		Notify (^TSR2, 0x90)
+		Notify (^TSR2, 0x81)
 	}
 #endif
 #ifdef DPTF_TSR3_SENSOR_ID
 	If (LEqual (Local0, DPTF_TSR3_SENSOR_ID)) {
-		Notify (^TSR3, 0x90)
+		Notify (^TSR3, 0x81)
 	}
 #endif
 }
