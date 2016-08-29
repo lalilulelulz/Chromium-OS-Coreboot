@@ -296,6 +296,7 @@ Device (EC0)
 		If (CondRefOf (\_SB.DPTF.TPET)) {
 			\_SB.DPTF.TPET()
 		}
+		Notify (\_SB.TBMC, 0x80)
 	}
 
 	/*
