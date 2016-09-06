@@ -28,6 +28,10 @@
 
 void mainboard_romstage_entry(struct romstage_params *params)
 {
+	/* Turn on keyboard backlight to indicate we are booting */
+	if (params->power_state->prev_sleep_state != SLEEP_STATE_S3)
+		google_chromeec_kbbacklight(25);
+
 	/* Fill out PEI DATA */
 	mainboard_fill_pei_data(params->pei_data);
 	mainboard_fill_spd_data(params->pei_data);
