@@ -47,6 +47,7 @@ Scope (\_SB)
 		Name (_HID, EisaId ("PNP0C0C"))
 	}
 
+#ifdef EC_ENABLE_TABLET_DEVICE
 	Device (TBMC)
 	{
 		Name (_HID, EisaId ("PNP0C60"))
@@ -59,6 +60,7 @@ Scope (\_SB)
 			}
 		}
 	}
+#endif
 
 	Device (MAXM)
 	{

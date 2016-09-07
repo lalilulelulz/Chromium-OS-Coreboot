@@ -296,7 +296,9 @@ Device (EC0)
 		If (CondRefOf (\_SB.DPTF.TPET)) {
 			\_SB.DPTF.TPET()
 		}
+#ifdef EC_ENABLE_TABLET_DEVICE
 		Notify (\_SB.TBMC, 0x80)
+#endif
 	}
 
 	/*

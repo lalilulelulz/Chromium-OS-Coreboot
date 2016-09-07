@@ -33,5 +33,8 @@
 /* EC ENABLE TABLET EVENT */
 #define EC_ENABLE_TABLET_EVENT
 
+/* EC ENABLE TABLET DEVICE */
+#define EC_ENABLE_TABLET_DEVICE
+
 /* ACPI code for EC functions */
 #include <ec/google/chromeec/acpi/ec.asl>
