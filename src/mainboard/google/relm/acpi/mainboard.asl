@@ -90,6 +90,43 @@ Scope (\_SB.I2C1)
 		/* Allow device to power off in S0 */
 		Name (_S0W, 4)
 	}
+
+	Device (ETSA)
+	{
+		Name (_HID, "ELAN0001")
+		Name (_DDN, "Elan Touchscreen ")
+		Name (_UID, 5)
+		Name (ISTP, 0) /* TouchScreen */
+		Method(_CRS, 0x0, NotSerialized)
+		{
+			Name (BUF0, ResourceTemplate ()
+			{
+				I2cSerialBus(
+					0x10,                     /* SlaveAddress */
+					ControllerInitiated,      /* SlaveMode */
+					400000,                   /* ConnectionSpeed */
+					AddressingMode7Bit,       /* AddressingMode */
+					"\\_SB.I2C1",             /* ResourceSource */
+				)
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_TOUCH_IRQ
+				}
+			})
+			Return (BUF0)
+		}
+		Method (_STA)
+		{
+			If (LEqual (\S1EN, 1)) {
+				Return (0xF)
+			} Else {
+				Return (0x0)
+			}
+		}
+		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE_GPIO, 0x3 })
+		/* Allow device to power off in S0 */
+		Name (_S0W, 4)
+	}
 }
 
 Scope (\_SB.I2C5)
