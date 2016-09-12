@@ -155,7 +155,7 @@ Scope (\_SB.PCI0.I2C0)
 
 Scope (\_SB.PCI0.I2C1)
 {
-	Name (FMCN, Package () { 152, 128, 30 })
+	Name (FMCN, Package () { 152, 128, 50 })
 
 	/* Touchpad */
 	Device (ELTP)
