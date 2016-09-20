@@ -79,16 +79,16 @@ static const struct pad_config gpio_table[] = {
 /* SD_1P8_SEL */	PAD_CFG_NF(GPP_A16, NONE, DEEP, NF1),
 /* SD_PWR_EN# */	PAD_CFG_NF(GPP_A17, NONE, DEEP, NF1),
 /* ISH_GP0 */		/* GPP_A18 */
-/* ISH_GP1 */		/* GPP_A19 */
+/* ISH_GP1 */		PAD_CFG_GPO(GPP_A19, 0, DEEP), /* ISH_LAR_EN1 */
 /* ISH_GP2 */		/* GPP_A20 */
 /* ISH_GP3 */		/* GPP_A21 */
 /* ISH_GP4 */		/* GPP_A22 */
-/* ISH_GP5 */		/* GPP_A23 */
+/* ISH_GP5 */		PAD_CFG_GPO(GPP_A23, 0, DEEP), /* ISH_LAR_EN2 */
 /* CORE_VID0 */		/* GPP_B0 */
 /* CORE_VID1 */		/* GPP_B1 */
 /* VRALERT# */		/* GPP_B2 */
 /* CPU_GP2 */		PAD_CFG_GPI_APIC(GPP_B3, NONE, DEEP), /* TRACKPAD */
-/* CPU_GP3 */		/* GPP_B4 */
+/* CPU_GP3 */		PAD_CFG_GPO(GPP_B4, 1, DEEP), /* TRACKPAD_I2C_RESET_L */
 /* SRCCLKREQ0# */	/* GPP_B5 */
 /* SRCCLKREQ1# */	PAD_CFG_NF(GPP_B6, NONE, DEEP, NF1), /* WLAN */
 /* SRCCLKREQ2# */	PAD_CFG_NF(GPP_B7, NONE, DEEP, NF1), /* KEPLER */
@@ -142,8 +142,8 @@ static const struct pad_config gpio_table[] = {
 /* ISH_I2C1_SDA */	/* GPP_D7 */
 /* ISH_I2C1_SCL */	/* GPP_D8 */
 			/* GPP_D9 */
-			PAD_CFG_GPO(GPP_D10, 1, DEEP), /* USBA_1_ILIM_SEL_L */
-			PAD_CFG_GPO(GPP_D11, 1, DEEP), /* USBA_2_ILIM_SEL_L */
+			PAD_CFG_NC(GPP_D10), /* GPP_D10 */
+			PAD_CFG_NC(GPP_D11), /* GPP_D11 */
 			PAD_CFG_GPO(GPP_D12, 1, DEEP), /* EN_PP3300_DX_CAM */
 /* ISH_UART0_RXD */	/* GPP_D13 */
 /* ISH_UART0_TXD */	/* GPP_D14 */
@@ -159,7 +159,7 @@ static const struct pad_config gpio_table[] = {
 /* SATAXPCI0 */		PAD_CFG_GPI_APIC(GPP_E0, NONE, DEEP), /* TPM_PIRQ_L */
 /* SATAXPCIE1 */	/* GPP_E1 */
 /* SATAXPCIE2 */	/* GPP_E2 */
-/* CPU_GP0 */		/* GPP_E3 */
+/* CPU_GP0 */		PAD_CFG_GPO(GPP_E3, 1, DEEP), /* TOUCHSCREEN_RESET_L */
 /* SATA_DEVSLP0 */	/* GPP_E4 */
 /* SATA_DEVSLP1 */	/* GPP_E5 */
 /* SATA_DEVSLP2 */	/* GPP_E6 */
@@ -189,10 +189,10 @@ static const struct pad_config gpio_table[] = {
 /* I2S2_SFRM */		PAD_CFG_GPI(GPP_F1, NONE, DEEP),
 /* I2S2_TXD */		PAD_CFG_GPI(GPP_F2, NONE, DEEP),
 /* I2S2_RXD */		PAD_CFG_GPI(GPP_F3, NONE, DEEP),
-/* I2C2_SDA */		/* GPP_F4 */
-/* I2C2_SCL */		/* GPP_F5 */
-/* I2C3_SDA */		/* GPP_F6 */
-/* I2C3_SCL */		/* GPP_F7 */
+/* I2C2_SDA */		PAD_CFG_NF(GPP_F4, NONE, DEEP, NF1), /* LRA1_I2C2_SDA */
+/* I2C2_SCL */		PAD_CFG_NF(GPP_F5, NONE, DEEP, NF1), /* LRA1_I2C2_SCL */
+/* I2C3_SDA */		PAD_CFG_NF(GPP_F6, NONE, DEEP, NF1), /* LRA2_I2C3_SDA */
+/* I2C3_SCL */		PAD_CFG_NF(GPP_F7, NONE, DEEP, NF1), /* LRA2_I2C3_SCL */
 /* I2C4_SDA */		PAD_CFG_NF(GPP_F8, NONE, DEEP, NF1), /* Amplifiers */
 /* I2C4_SCL */		PAD_CFG_NF(GPP_F9, NONE, DEEP, NF1), /* Amplifiers */
 /* I2C5_SDA */		PAD_CFG_GPI_APIC(GPP_F10, NONE, DEEP), /* MIC_INT_L */
