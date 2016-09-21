@@ -121,7 +121,7 @@ Scope (\_SB.PCI0.I2C0)
 	/* Set I2C clock frequency for I2C0, 1 and 4 to ~400KHz,
 	 * and SDA Hold register value to 30
 	 */
-	Name (FMCN, Package () { 152, 128, 30 })
+	Name (FMCN, Package () { 152, 128, 50 })
 
 	/* Touchscreen */
 	Device (ELTS)
