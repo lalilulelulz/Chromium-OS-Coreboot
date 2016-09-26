@@ -69,7 +69,7 @@
 #define AUDIO_CODEC_I2C_ADDR		0x1A
 #define BCRD2_PMIC_I2C_BUS		0x01
 
-#define DPTF_CPU_PASSIVE	85
+#define DPTF_CPU_PASSIVE	82
 #define DPTF_CPU_CRITICAL	90
 
 #endif
