@@ -46,6 +46,9 @@
 #define TOUCHSCREEN_INT_L	GPP_E7_IRQ
 #define MIC_INT_L		GPP_F10_IRQ
 
+/* GPP_E7 is TOUCHSCREEN WAKE. GPP_E group is routed to DW2 in the GPE0 block */
+#define GPE_TOUCHSCREEN_WAKE	GPE0_DW2_07
+
 /* GPP_E16 is EC_SCI_L. GPP_E group is routed to DW2 in the GPE0 block */
 #define EC_SCI_GPI		GPE0_DW2_16
 #define EC_SMI_GPI		GPP_E15

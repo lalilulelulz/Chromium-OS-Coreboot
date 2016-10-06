@@ -19,11 +19,12 @@
 
 #include "../gpio.h"
 
-#define BOARD_TOUCHPAD_I2C_ADDR			0x15
+#define BOARD_TOUCHPAD_I2C_ADDR			0x20
 #define BOARD_TOUCHPAD_IRQ			TOUCHPAD_INT_L
 
-#define BOARD_TOUCHSCREEN_I2C_ADDR		0x10
+#define BOARD_TOUCHSCREEN_I2C_ADDR		0x20
 #define BOARD_TOUCHSCREEN_IRQ			TOUCHSCREEN_INT_L
+#define BOARD_TOUCHSCREEN_WAKE			GPE_TOUCHSCREEN_WAKE
 
 #define BOARD_HP_MIC_CODEC_I2C_ADDR		0x1a
 #define BOARD_HP_MIC_CODEC_IRQ			MIC_INT_L
@@ -75,59 +76,157 @@ Scope (\_SB.PCI0.RP01)
 Scope (\_SB.PCI0.I2C0)
 {
 	/* Touchscreen */
-	Device (ELTS)
+	Device (SNTS)
 	{
-		Name (_HID, "ELAN0001")
-		Name (_DDN, "Elan Touchscreen")
+		Name (_HID, "SYNA7817")
+		Name (_CID, "PNP0C50")
 		Name (_UID, 1)
-		Name (_S0W, 4)
+		Name (_S0W, 4) /* Allow device to power off in S0 */
+		Name (ISTP, 0) /* TouchScreen */
 
-		Name (_CRS, ResourceTemplate ()
+		/* Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
 		{
-			I2cSerialBus (
-				BOARD_TOUCHSCREEN_I2C_ADDR,
-				ControllerInitiated,
-				400000,
-				AddressingMode7Bit,
-				"\\_SB.PCI0.I2C0",
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
 			{
-				BOARD_TOUCHSCREEN_IRQ
+				// DSM Revision
+				If (LEqual (Arg2, Zero))
+				{
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
+				}
+				// HID Function
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
 			}
-		})
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
+		}
+
+		Method(_CRS, 0x0, NotSerialized)
+		{
+			Name (BUF0, ResourceTemplate ()
+			{
+				I2cSerialBus(
+					BOARD_TOUCHSCREEN_I2C_ADDR, /* SlaveAddress */
+					ControllerInitiated,        /* SlaveMode */
+					400000,                     /* ConnectionSpeed */
+					AddressingMode7Bit,         /* AddressingMode */
+					"\\_SB.I2C0",               /* ResourceSource */
+				)
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_TOUCHSCREEN_IRQ
+				}
+			})
+			Return (BUF0)
+		}
 
 		Method (_STA)
 		{
 			Return (0xF)
 		}
+
+		Name (_PRW, Package() { BOARD_TOUCHSCREEN_WAKE, 0x3 })
 	}
 }
 
 Scope (\_SB.PCI0.I2C1)
 {
-	/* Touchpad */
-	Device (ELTP)
+	/* Virtual keyboard and touchpad */
+	Device (VRKB)
 	{
-		Name (_HID, "ELAN0000")
-		Name (_DDN, "Elan Touchpad")
-		Name (_UID, 1)
-		Name (_S0W, 4)
+		Name (_HID, "SYNA7817")
+		Name (_CID, "PNP0C50")
+		Name (_UID, 2)
+		Name (_S0W, 4) /* Allow device to power off in S0 */
+		Name (ISTP, 1) /* Touchpad */
 
-		Name (_CRS, ResourceTemplate ()
+		/* Fetch HidDescriptorAddress, Register offset in the
+		 * I2C device at which the HID descriptor can be read
+		 */
+		Method (_DSM, 4, NotSerialized)
 		{
-			I2cSerialBus (
-				BOARD_TOUCHPAD_I2C_ADDR,
-				ControllerInitiated,
-				400000,
-				AddressingMode7Bit,
-				"\\_SB.PCI0.I2C1",
-			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			If (LEqual (Arg0, ToUUID (
+				"3cdff6f7-4267-4555-ad05-b30a3d8938de")))
 			{
-				BOARD_TOUCHPAD_IRQ
+				// DSM Revision
+				If (LEqual (Arg2, Zero))
+				{
+					If (LEqual (Arg1, One))
+					{
+						Return (Buffer (One)
+						{
+							0x03
+						})
+					}
+					Else
+					{
+						Return (Buffer (One)
+						{
+							0x00
+						})
+					}
+				}
+				// HID Function
+				If (LEqual (Arg2, One))
+				{
+					Return (0x20)
+				}
 			}
-		})
+			Else
+			{
+				Return (Buffer (One)
+				{
+					0x00
+				})
+			}
+
+			Return (Zero)
+		}
+
+		Method(_CRS, 0x0, NotSerialized)
+		{
+			Name (BUF0, ResourceTemplate ()
+			{
+				I2cSerialBus(
+					BOARD_TOUCHPAD_I2C_ADDR,    /* SlaveAddress */
+					ControllerInitiated,        /* SlaveMode */
+					400000,                     /* ConnectionSpeed */
+					AddressingMode7Bit,         /* AddressingMode */
+					"\\_SB.I2C1",               /* ResourceSource */
+				)
+				Interrupt (ResourceConsumer, Edge, ActiveLow)
+				{
+					BOARD_TOUCHPAD_IRQ
+				}
+			})
+			Return (BUF0)
+		}
 
 		Method (_STA)
 		{
