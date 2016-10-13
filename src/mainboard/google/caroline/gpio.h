@@ -52,7 +52,7 @@
 #define TOUCHSCREEN_INT_L	GPP_E7_IRQ
 #define MIC_INT_L		GPP_F10_IRQ
 #define DIG_INT_L		GPP_C8_IRQ
-#define DIG_PDCT_L		GPP_D2_IRQ
+#define DIG_PDCT_L		GPP_C9_IRQ
 
 /* GPP_E16 is EC_SCI_L. GPP_E group is routed to DW2 in the GPE0 block */
 #define EC_SCI_GPI		GPE0_DW2_16

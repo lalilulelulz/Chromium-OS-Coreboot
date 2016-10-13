@@ -155,17 +155,7 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_CID, "PNP0C50")
 		Name (_UID, 1)
 		Name (_S0W, 4)
-
-		/*
-		 * TODO: Move this to _SB scope? Can 2 devices with wakeup
-		 * capability be parent and child?
-		 */
-		Device (EJCT)
-		{
-			Name (_HID, EisaId ("PNP0C0E")) /* Sleep Button */
-			Name (_UID, 1)
-			Name (_PRW, Package () { BOARD_DIG_EJECT, 3 })
-		}
+		Name (_PRW, Package () { BOARD_DIG_EJECT, 3 })
 
 		Name (_CRS, ResourceTemplate ()
 		{
@@ -176,7 +166,7 @@ Scope (\_SB.PCI0.I2C2)
 				AddressingMode7Bit,
 				"\\_SB.PCI0.I2C2",
 			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			Interrupt (ResourceConsumer, Level, ActiveLow)
 			{
 				BOARD_DIG_IRQ
 			}
