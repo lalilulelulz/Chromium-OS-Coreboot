@@ -274,6 +274,11 @@ uint32_t antirollback_lock_space_firmware(void)
 {
 	return tlcl_set_global_lock();
 }
+
+/* Reenable this ancient hack on Kevin since we very rarely get INVALID_POSTINIT
+   on reboots and just can't track down the cause. See crosbug.com/p/57990. */
+#define TEGRA_SOFT_REBOOT_WORKAROUND
+
 #endif
 
 uint32_t factory_initialize_tpm(struct vb2_context *ctx)
@@ -349,7 +354,7 @@ uint32_t setup_tpm(struct vb2_context *ctx)
 		 * Some prototype hardware doesn't reset the TPM on a CPU
 		 * reset.  We do a hard reset to get around this.
 		 */
-		VBDEBUG("TPM: soft reset detected\n", result);
+		VBDEBUG("TPM: soft reset detected\n");
 		ctx->flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
 		return TPM_E_MUST_REBOOT;
 	} else if (result != TPM_SUCCESS) {
