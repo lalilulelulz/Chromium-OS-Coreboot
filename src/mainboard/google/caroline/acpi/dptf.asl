@@ -23,23 +23,31 @@
 
 #define DPTF_TSR0_SENSOR_ID	1
 #define DPTF_TSR0_SENSOR_NAME	"Ambient"
-#define DPTF_TSR0_PASSIVE	55
-#define DPTF_TSR0_CRITICAL	70
+#define DPTF_TSR0_PASSIVE	51
+#define DPTF_TSR0_CRITICAL	90
+#define DPTF_TSR0_TABLET_PASSIVE	44
+#define DPTF_TSR0_TABLET_CRITICAL	90
 
 #define DPTF_TSR1_SENSOR_ID	2
 #define DPTF_TSR1_SENSOR_NAME	"Charger"
-#define DPTF_TSR1_PASSIVE	55
-#define DPTF_TSR1_CRITICAL	75
+#define DPTF_TSR1_PASSIVE	51
+#define DPTF_TSR1_CRITICAL	90
+#define DPTF_TSR1_TABLET_PASSIVE	44
+#define DPTF_TSR1_TABLET_CRITICAL	90
 
 #define DPTF_TSR2_SENSOR_ID	3
 #define DPTF_TSR2_SENSOR_NAME	"DRAM"
 #define DPTF_TSR2_PASSIVE	51
-#define DPTF_TSR2_CRITICAL	75
+#define DPTF_TSR2_CRITICAL	90
+#define DPTF_TSR2_TABLET_PASSIVE	44
+#define DPTF_TSR2_TABLET_CRITICAL	90
 
 #define DPTF_TSR3_SENSOR_ID	4
 #define DPTF_TSR3_SENSOR_NAME	"WiFi"
-#define DPTF_TSR3_PASSIVE	55
-#define DPTF_TSR3_CRITICAL	70
+#define DPTF_TSR3_PASSIVE	51
+#define DPTF_TSR3_CRITICAL	90
+#define DPTF_TSR3_TABLET_PASSIVE	44
+#define DPTF_TSR3_TABLET_CRITICAL	90
 
 /* SKL-Y is Fanless design */
 #undef DPTF_ENABLE_FAN_CONTROL
@@ -81,11 +89,11 @@ Name (MPPC, Package ()
 	0x2,		/* Revision */
 	Package () {	/* Power Limit 1 */
 		0,	/* PowerLimitIndex, 0 for Power Limit 1 */
-		2500,	/* PowerLimitMinimum */
+		3000,	/* PowerLimitMinimum */
 		7000,	/* PowerLimitMaximum */
-		1000,	/* TimeWindowMinimum */
-		1000,	/* TimeWindowMaximum */
-		250	/* StepSize */
+		5000,	/* TimeWindowMinimum */
+		5000,	/* TimeWindowMaximum */
+		200	/* StepSize */
 	},
 	Package () {	/* Power Limit 2 */
 		1,	/* PowerLimitIndex, 1 for Power Limit 2 */
