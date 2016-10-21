@@ -20,6 +20,7 @@
 #include <console/console.h>
 #include <console/vtxprintf.h>
 #include <delay.h>
+#include <ec/google/chromeec/ec.h>
 #include <string.h>
 #include <timestamp.h>
 #include <vb2_api.h>
@@ -357,7 +358,12 @@ void verstage_main(void)
 
 		printk(BIOS_INFO, "Reboot reqested (%x)\n", rv);
 		save_if_needed(&ctx);
-		vboot_reboot();
+
+		/* Forcing an EC reboot (yes, this function is the easiest way
+		   to do that right now) to try to work around weird Kevin TPM
+		   reset problem. See http://crosbug.com/p/57990. */
+		google_chromeec_check_ec_image(-1);
+		die("EC reset didn't work?!?");
 	}
 
 	/* Determine which firmware slot to boot (based on NVRAM) */
