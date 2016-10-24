@@ -88,7 +88,7 @@ chip soc/intel/skylake
 		.psi4enable = 1,
 		.imon_slope = 0x0,
 		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(7),
+		.icc_max = VR_CFG_AMP(4),
 		.voltage_limit = 1520,
 	}"
 
@@ -101,7 +101,7 @@ chip soc/intel/skylake
 		.psi4enable = 1,
 		.imon_slope = 0x0,
 		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(34),
+		.icc_max = VR_CFG_AMP(24),
 		.voltage_limit = 1520,
 	}"
 
@@ -114,7 +114,7 @@ chip soc/intel/skylake
 		.psi4enable = 1,
 		.imon_slope = 0x0,
 		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(34),
+		.icc_max = VR_CFG_AMP(24),
 		.voltage_limit = 1520,
 	}"
 
@@ -127,7 +127,7 @@ chip soc/intel/skylake
 		.psi4enable = 1,
 		.imon_slope = 0x0,
 		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(35),
+		.icc_max = VR_CFG_AMP(24),
 		.voltage_limit = 1520,
 	}"
 
@@ -140,7 +140,7 @@ chip soc/intel/skylake
 		.psi4enable = 1,
 		.imon_slope = 0x0,
 		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(35),
+		.icc_max = VR_CFG_AMP(24),
 		.voltage_limit = 1520,
 	}"
 
