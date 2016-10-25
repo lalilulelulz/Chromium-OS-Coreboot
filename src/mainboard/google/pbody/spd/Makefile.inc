@@ -28,6 +28,7 @@ SPD_SOURCES += empty                            # 0b0001
 SPD_SOURCES += empty                            # 0b0010
 SPD_SOURCES += empty                            # 0b0011
 SPD_SOURCES += samsung_dimm_K4E8E324EB-EGCF     # 0b0100
+SPD_SOURCES += micron_dimm_MT52L256M32D1PF-107  # 0b0101
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 
