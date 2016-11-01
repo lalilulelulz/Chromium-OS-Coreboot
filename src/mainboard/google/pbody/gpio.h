@@ -82,11 +82,11 @@ static const struct pad_config gpio_table[] = {
 /* SD_1P8_SEL */	PAD_CFG_NF(GPP_A16, NONE, DEEP, NF1),
 /* SD_PWR_EN# */	PAD_CFG_NF(GPP_A17, NONE, DEEP, NF1),
 /* ISH_GP0 */		/* GPP_A18 */
-/* ISH_GP1 */		PAD_CFG_GPO(GPP_A19, 0, DEEP), /* ISH_LAR_EN1 */
+/* ISH_GP1 */		PAD_CFG_GPO(GPP_A19, 1, DEEP), /* ISH_LAR_EN1 */
 /* ISH_GP2 */		/* GPP_A20 */
 /* ISH_GP3 */		/* GPP_A21 */
 /* ISH_GP4 */		/* GPP_A22 */
-/* ISH_GP5 */		PAD_CFG_GPO(GPP_A23, 0, DEEP), /* ISH_LAR_EN2 */
+/* ISH_GP5 */		PAD_CFG_GPO(GPP_A23, 1, DEEP), /* ISH_LAR_EN2 */
 /* CORE_VID0 */		/* GPP_B0 */
 /* CORE_VID1 */		/* GPP_B1 */
 /* VRALERT# */		/* GPP_B2 */
