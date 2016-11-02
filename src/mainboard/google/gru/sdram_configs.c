@@ -43,7 +43,7 @@ static enum dram_speeds get_sdram_index(void)
 	id = board_id();
 
 	if (IS_ENABLED(CONFIG_BOARD_GOOGLE_KEVIN))
-		return dram_800MHz;
+		return dram_933MHz;
 
 	if (IS_ENABLED(CONFIG_BOARD_GOOGLE_GRU))
 			return dram_800MHz;
