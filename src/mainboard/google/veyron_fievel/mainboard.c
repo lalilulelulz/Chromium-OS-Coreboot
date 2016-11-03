@@ -110,6 +110,7 @@ static void configure_hdmi(void)
 static void mainboard_init(device_t dev)
 {
 	gpio_output(GPIO_RESET, 0);
+	gpio_output(GPIO(7, A, 5), 0); /* Init buzzer gpio for depthcharge */
 
 	enable_5v_drv();
 	configure_usb();
