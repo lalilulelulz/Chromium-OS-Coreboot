@@ -20,16 +20,11 @@
 
 #define DPTF_CPU_PASSIVE	101
 #define DPTF_CPU_CRITICAL	106
-#define DPTF_CPU_ACTIVE_AC0	62
-#define DPTF_CPU_ACTIVE_AC1	60
-#define DPTF_CPU_ACTIVE_AC2	55
-#define DPTF_CPU_ACTIVE_AC3	54
-#define DPTF_CPU_ACTIVE_AC4	51
 
 #define DPTF_TSR0_SENSOR_ID	0
 #define DPTF_TSR0_SENSOR_NAME	"TMP432_Memory"
 #define DPTF_TSR0_PASSIVE	74
-#define DPTF_TSR0_CRITICAL	82
+#define DPTF_TSR0_CRITICAL	79
 #define DPTF_TSR0_ACTIVE_AC0	120
 #define DPTF_TSR0_ACTIVE_AC1	110
 #define DPTF_TSR0_ACTIVE_AC2	47
@@ -40,16 +35,22 @@
 
 #define DPTF_TSR1_SENSOR_ID	1
 #define DPTF_TSR1_SENSOR_NAME	"TMP432_PCH"
-#define DPTF_TSR1_PASSIVE	74
-#define DPTF_TSR1_CRITICAL	82
+#define DPTF_TSR1_PASSIVE	72
+#define DPTF_TSR1_CRITICAL	77
+#define DPTF_TSR1_ACTIVE_AC0	45
+#define DPTF_TSR1_ACTIVE_AC1	42
+#define DPTF_TSR1_ACTIVE_AC2	39
+#define DPTF_TSR1_ACTIVE_AC3	36
+#define DPTF_TSR1_ACTIVE_AC4	33
 
 #define DPTF_TSR2_SENSOR_ID	2
 #define DPTF_TSR2_SENSOR_NAME	"TMP432_Battery"
-#define DPTF_TSR2_PASSIVE	74
-#define DPTF_TSR2_CRITICAL	82
+#define DPTF_TSR2_PASSIVE	67
+#define DPTF_TSR2_CRITICAL	72
 
 #define DPTF_ENABLE_CHARGER
 #define DPTF_ENABLE_FAN_CONTROL
+#define DPTF_ENABLE_FAN_CONTROL_TSR1
 
 /* Charger performance states, board-specific values from charger and EC */
 Name (CHPS, Package () {
@@ -90,11 +91,15 @@ Name (DART, Package () {
 		 * Source, Target, Weight, AC0, AC1, AC2, AC3, AC4, AC5, AC6,
 		 *	AC7, AC8, AC9
 		 */
-		\_SB.DPTF.TFN1, \_SB.PCI0.B0D4, 100, 79, 66, 49, 41, 39, 0, 0,
+		\_SB.DPTF.TFN1, \_SB.PCI0.B0D4, 100, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0
 	},
 	Package () {
 		\_SB.DPTF.TFN1, \_SB.DPTF.TSR0, 100, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0
+	},
+	Package () {
+		\_SB.DPTF.TFN1, \_SB.DPTF.TSR1, 100, 79, 66, 50, 41, 39, 0,
 			0, 0, 0, 0
 	}
 })
@@ -102,21 +107,21 @@ Name (DART, Package () {
 
 Name (DTRT, Package () {
 	/* CPU Throttle Effect on CPU */
-	Package () { \_SB.PCI0.B0D4, \_SB.PCI0.B0D4, 100, 50, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.PCI0.B0D4, 100, 10, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 0 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 10, 0, 0, 0, 0 },
 
 #ifdef DPTF_ENABLE_CHARGER
 	/* Charger Effect on Temp Sensor 1 */
-	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 600, 0, 0, 0, 0 },
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 10, 0, 0, 0, 0 },
 #endif
 
 	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 10, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 2 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
+	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 10, 0, 0, 0, 0 },
 })
 
 Name (MPPC, Package ()
@@ -126,8 +131,8 @@ Name (MPPC, Package ()
 		0,	/* PowerLimitIndex, 0 for Power Limit 1 */
 		3000,	/* PowerLimitMinimum */
 		15000,	/* PowerLimitMaximum */
-		1000,	/* TimeWindowMinimum */
-		1000,	/* TimeWindowMaximum */
+		28000,	/* TimeWindowMinimum */
+		28000,	/* TimeWindowMaximum */
 		100	/* StepSize */
 	},
 	Package () {	/* Power Limit 2 */
