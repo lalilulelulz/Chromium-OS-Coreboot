@@ -31,6 +31,7 @@
 #include <string.h>
 #include <vendorcode/google/chromeos/chromeos.h>
 
+#include <delay.h>
 #define WP_GPIO	GP_E_22
 
 #if ENV_RAMSTAGE
@@ -128,6 +129,7 @@ int get_write_protect_state(void)
 	 */
 #if ENV_ROMSTAGE
 	 gpio_input_pullup(WP_GPIO);
+	 udelay(20);
 #endif
 
 	/* WP is enabled when the pin is reading high. */
