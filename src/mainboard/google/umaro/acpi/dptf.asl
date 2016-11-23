@@ -31,7 +31,7 @@
 
 #define DPTF_TSR2_SENSOR_ID	2
 #define DPTF_TSR2_SENSOR_NAME	"TMP432_CPU_bottom"
-#define DPTF_TSR2_PASSIVE	40
+#define DPTF_TSR2_PASSIVE	49
 #define DPTF_TSR2_CRITICAL	75
 
 
@@ -59,10 +59,6 @@ Name (DTRT, Package () {
 	/* Charger Effect on Temp Sensor 1 */
 	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 200, 600, 0, 0, 0, 0 },
 #endif
-
-	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
-
 	/* CPU Effect on Temp Sensor 2 */
 	Package () { \_SB.PCI0.B0DB, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
 })
