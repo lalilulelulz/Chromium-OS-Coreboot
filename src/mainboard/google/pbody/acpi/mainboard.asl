@@ -251,7 +251,7 @@ Scope (\_SB.PCI0.I2C3)
 
 Scope (\_SB.PCI0.I2C4)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	/* Headphone Codec */
 	Device (HPMC)
