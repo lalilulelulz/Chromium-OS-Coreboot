@@ -58,7 +58,7 @@ struct rk3399_sdram_params params = {
 	.ddr_freq = 933*MHz,
 	.dramtype = LPDDR3,
 	.num_channels = 2,
-	.stride = 13,
+	.stride = 9,
 	.odt = 1,
 	{
 		{
