@@ -68,6 +68,8 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	NHLA,	64,	// 0x31 - NHLT Address
 	NHLL,	32,	// 0x39 - NHLT Length
 	CID1,	16,	// 0x3d - Wifi Country Identifier
+	PL1L,	32,	// 0x3f - DPTF PL1 Minimum
+	PL1H,	32,	// 0x43 - DPTF PL1 Maximum
 
 	/* ChromeOS specific */
 	Offset (0x100),

@@ -154,6 +154,16 @@ Device (B0D4)
 	/* Return PPCC table defined by mainboard */
 	Method (PPCC)
 	{
+		/* Update PL1 Minimum if set in NVS */
+		If (LGreater (\PL1L, 0)) {
+			Store (\PL1L, Index (DeRefOf (Index (\_SB.MPPC, 1)), 1))
+		}
+
+		/* Update PL1 Maximum if set in NVS */
+		If (LGreater (\PL1H, 0)) {
+			Store (\PL1H, Index (DeRefOf (Index (\_SB.MPPC, 1)), 2))
+		}
+
 		Return (\_SB.MPPC)
 	}
 
