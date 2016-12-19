@@ -75,7 +75,7 @@ Scope (\_SB.PCI0.RP01)
 
 Scope (\_SB.PCI0.I2C0)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	/* Touchscreen */
 	Device (SNTS)
@@ -159,7 +159,7 @@ Scope (\_SB.PCI0.I2C0)
 
 Scope (\_SB.PCI0.I2C1)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	/* Virtual keyboard and touchpad */
 	Device (VRKB)
@@ -241,12 +241,12 @@ Scope (\_SB.PCI0.I2C1)
 
 Scope (\_SB.PCI0.I2C2)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 }
 
 Scope (\_SB.PCI0.I2C3)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 }
 
 Scope (\_SB.PCI0.I2C4)
