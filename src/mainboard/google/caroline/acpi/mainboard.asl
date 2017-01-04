@@ -119,7 +119,7 @@ Scope (\_SB.PCI0.RP01)
 
 Scope (\_SB.PCI0.I2C0)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	Device (ATSA)
 	{
@@ -152,7 +152,7 @@ Scope (\_SB.PCI0.I2C0)
 
 Scope (\_SB.PCI0.I2C1)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	Device (ATPA)
 	{
@@ -186,7 +186,7 @@ Scope (\_SB.PCI0.I2C1)
 
 Scope (\_SB.PCI0.I2C2)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	Device (DIGI)
 	{
@@ -249,7 +249,7 @@ Scope (\_SB.PCI0.I2C2)
 
 Scope (\_SB.PCI0.I2C4)
 {
-	Name (FMCN, Package () { 72, 160, 30 })
+	Name (FMCN, Package () { 87, 197, 26 })
 
 	/* Headphone Codec */
 	Device (HPMC)
