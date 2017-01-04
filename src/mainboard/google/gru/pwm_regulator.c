@@ -34,10 +34,17 @@
 
 /* Later boards (Kevin rev6+, Gru rev2+) use different regulator ranges. */
 int pwm_design_voltage_later[][2] = {
+#if IS_ENABLED(CONFIG_BOARD_GOOGLE_KEVIN)
 	[PWM_REGULATOR_GPU] = {7858, 12177},
 	[PWM_REGULATOR_BIG] = {7987, 13022},
 	[PWM_REGULATOR_LIT] = {7991, 13037},
 	[PWM_REGULATOR_CENTERLOG] = {8001, 10497}
+#else
+	[PWM_REGULATOR_GPU] = {7864, 12177},
+	[PWM_REGULATOR_BIG] = {8001, 13022},
+	[PWM_REGULATOR_LIT] = {7977, 13078},
+	[PWM_REGULATOR_CENTERLOG] = {7994, 10499}
+#endif
 };
 
 void pwm_regulator_configure(enum pwm_regulator pwm, int millivolt)
