@@ -55,6 +55,9 @@ chip soc/intel/skylake
 	register "PmConfigSlpAMinAssert" = "3"         # 2s
 	register "PmTimerDisabled" = "1"
 
+	# TCC offset
+	register "tcc_offset" = "10"
+
 	# VR Settings Configuration for 5 Domains
 	#+----------------+-------+-------+-------------+-------------+-------+
 	#| Domain/Setting |  SA   |  IA   | Ring Sliced | GT Unsliced |  GT   |
