@@ -100,6 +100,12 @@ void read_vbnv(uint8_t *vbnv_copy)
 		reset_vbnv(vbnv_copy);
 }
 
+/* Re-generate VBNV checksum. */
+void regen_vbnv_crc(uint8_t *vbnv_copy)
+{
+	vbnv_copy[CRC_OFFSET] = crc8_vbnv(vbnv_copy, CRC_OFFSET);
+}
+
 /*
  * Write VBNV data to configured storage backend.
  * This assumes that the caller has updated the CRC already.
