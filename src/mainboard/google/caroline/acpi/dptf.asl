@@ -61,7 +61,7 @@ Name (CHPS, Package () {
 	Package () { 0, 0, 0, 0, 24, 0x600, "mA", 0 },	/* 1500mA */
 	Package () { 0, 0, 0, 0, 16, 0x400, "mA", 0 },	/* 1000mA */
 	Package () { 0, 0, 0, 0, 8, 0x200, "mA", 0 },	/* 500mA */
-	Package () { 0, 0, 0, 0, 0, 0x000, "mA", 0 },	/* 0mA */
+	Package () { 0, 0, 0, 0, 8, 0x200, "mA", 0 },	/* 500mA */
 })
 
 Name (DTRT, Package () {
