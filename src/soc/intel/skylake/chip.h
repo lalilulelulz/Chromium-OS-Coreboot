@@ -338,10 +338,34 @@ struct soc_intel_skylake_config {
 	 * 001b - VR command specifically for the MPS IMPV8 VR will be sent
 	 * 010b - VR specific command sent for PS4 exit issue
 	 * 011b - VR specific command sent for both MPS IMPV8 & PS4 exit issue
-	*/
+	 */
 	u8 SendVrMbxCmd;
 	/* Statically clock gate 8254 PIT. */
 	u8 clock_gate_8254;
+	/*
+	 * Acoustic Noise Mitigation
+	 * 0b - disable
+	 * 1b - enable noise mitigation depend on SlowSlewRate settings.
+	 */
+	u8 AcousticNoiseMitigation;
+	/*
+	 * Set_DISABLE_FAST_PKGC_RAMP
+	 * Need to set AcousticNoiseMitigation = '1' first
+	 * 0b - Enabled
+	 * 1b - Disabled
+	 */
+	u8 FastPkgCRampDisable;
+	/*
+	 * Set_VR_SLEW_RATE
+	 * Need to set AcousticNoiseMitigation = '1' first
+	 * 000b - Fast/2
+	 * 001b - Fast/4
+	 * 010b - Fast/8
+	 * 011b - Fast/16
+	 */
+	u8 SlowSlewRateForIa;
+	u8 SlowSlewRateForGt;
+	u8 SlowSlewRateForSa;
 };
 
 typedef struct soc_intel_skylake_config config_t;
