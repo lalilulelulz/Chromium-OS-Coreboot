@@ -53,6 +53,45 @@ Scope (\_SB)
 	{
 		Name (_HID, EisaId ("PNP0C0C"))
 	}
+
+	Device (PENH)
+	{
+		Name (_HID, "PRP0001")
+
+		Name (_CRS, ResourceTemplate () {
+			GpioIo (Exclusive, PullNone, 0, 0, IoRestrictionInputOnly,
+				"\\_SB.PCI0.GPIO", 0, ResourceConsumer) { GPIO_DIG_EJECT }
+		})
+
+		Name (_DSD, Package () {
+			ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+			Package () {
+				Package () {
+					"compatible",
+					Package () { "gpio-keys"}
+				},
+			}
+		})
+
+		Device (EJCT)
+		{
+			Name (_DSD, Package () {
+				ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+				Package () {
+					/* SW_PEN_INSERTED */
+					Package () { "linux,code", 0xf },
+					/* EV_SW type */
+					Package () { "linux,input-type", 0x5 },
+					Package () { "label", "pen_eject" },
+					Package () { "gpios",
+						Package () {
+							^^PENH, 0, 0, 1 /* inserted active low */
+						}
+					},
+				}
+			})
+		}
+	}
 }
 
 /*

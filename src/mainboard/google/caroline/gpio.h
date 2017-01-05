@@ -46,6 +46,8 @@
 
 /* GPP_B15 is DIG_EJECT. GPP_B group is routed to DW0 in the GPE0 block */
 #define GPE_DIG_EJECT		GPE0_DW0_15
+/* Notification DIG_EJECT */
+#define GPIO_DIG_EJECT		GPP_B19
 
 /* Input device interrupt configuration */
 #define TOUCHPAD_INT_L		GPP_B3_IRQ
