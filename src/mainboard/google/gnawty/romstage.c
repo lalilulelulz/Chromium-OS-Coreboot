@@ -36,9 +36,10 @@
  * 0b0110 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63CFR-PBA 1600MHz
  * 0b0111 - 4GiB total - 2 x 2GiB Hynix  H5TC4G63MFR-PBA 1600MHz
  * 0b1000 - 2GiB total - 1 x 2Gib Micro  MT41K256M16TW-107
+ * 0b1001 - 4GiB total - 2 x 2Gib Micro  MT41K256M16TW-107
 */
 static const uint32_t dual_channel_config =
-	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 6) | (1 << 7) ;
+	(1 << 0) | (1 << 1) | (1 << 2) | (1 << 6) | (1 << 7) | (1 << 9) ;
 
 #define SPD_SIZE 256
 #define GPIO_SSUS_37_PAD 57
