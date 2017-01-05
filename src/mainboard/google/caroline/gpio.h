@@ -114,7 +114,7 @@ static const struct pad_config gpio_table[] = {
 /* GSPI0_CLK */		PAD_CFG_GPI_ACPI_SCI(GPP_B16, NONE, DEEP, YES), /* WLAN WAKE */
 /* GSPI0_MISO */	PAD_CFG_NC(GPP_B17),
 /* GSPI0_MOSI */	PAD_CFG_NC(GPP_B18),
-/* GSPI1_CS# */		PAD_CFG_NC(GPP_B19),
+/* GSPI1_CS# */		PAD_CFG_GPI(GPP_B19, NONE, DEEP), /* non-wake DIG EJECT */
 /* GSPI1_CLK */		PAD_CFG_NC(GPP_B20),
 /* GSPI1_MISO */	PAD_CFG_NC(GPP_B21),
 /* GSPI1_MOSI */	PAD_CFG_NC(GPP_B22),
