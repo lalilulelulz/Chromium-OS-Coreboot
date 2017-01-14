@@ -24,6 +24,8 @@
 #include <soc/gpio.h>
 #include "ec.h"
 
+#include <soc/ramstage.h>
+
 static void mainboard_init(device_t dev)
 {
 	mainboard_ec_init();
@@ -42,3 +44,34 @@ static void mainboard_enable(device_t dev)
 struct chip_operations mainboard_ops = {
 	.enable_dev = mainboard_enable,
 };
+
+void board_silicon_USB2_override(SILICON_INIT_UPD *params)
+{
+	if (SocStepping() >= SocD0) {
+
+		params->Usb2Port0PerPortPeTxiSet = 7;
+		params->Usb2Port0PerPortTxiSet = 0;
+		params->Usb2Port0IUsbTxEmphasisEn = 3;
+		params->Usb2Port0PerPortTxPeHalf = 1;
+
+		params->Usb2Port1PerPortPeTxiSet = 7;
+		params->Usb2Port1PerPortTxiSet = 0;
+		params->Usb2Port1IUsbTxEmphasisEn = 3;
+		params->Usb2Port1PerPortTxPeHalf = 1;
+
+		params->Usb2Port2PerPortPeTxiSet = 7;
+		params->Usb2Port2PerPortTxiSet = 6;
+		params->Usb2Port2IUsbTxEmphasisEn = 3;
+		params->Usb2Port2PerPortTxPeHalf = 1;
+
+		params->Usb2Port3PerPortPeTxiSet = 7;
+		params->Usb2Port3PerPortTxiSet = 6;
+		params->Usb2Port3IUsbTxEmphasisEn = 3;
+		params->Usb2Port3PerPortTxPeHalf = 1;
+
+		params->Usb2Port4PerPortPeTxiSet = 7;
+		params->Usb2Port4PerPortTxiSet = 6;
+		params->Usb2Port4IUsbTxEmphasisEn = 3;
+		params->Usb2Port4PerPortTxPeHalf = 1;
+	}
+}
