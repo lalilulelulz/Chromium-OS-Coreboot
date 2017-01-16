@@ -46,6 +46,7 @@
 #define TOUCHSCREEN_INT_L	GPP_E7_IRQ
 #define MIC_INT_L		GPP_F10_IRQ
 
+#define EMR_INT_L       GPP_A12_IRQ
 /* GPP_E7 is TOUCHSCREEN WAKE. GPP_E group is routed to DW2 in the GPE0 block */
 #define GPE_TOUCHSCREEN_WAKE	GPE0_DW2_07
 
@@ -75,7 +76,7 @@ static const struct pad_config gpio_table[] = {
 /* CLKOUT_LPC0 */	PAD_CFG_NF(GPP_A9, NONE, DEEP, NF1),
 /* CLKOUT_LPC1 */	/* GPP_A10 */
 /* PME# */		/* GPP_A11 */
-/* BM_BUSY# */		/* GPP_A12 */
+/* BM_BUSY# */		PAD_CFG_GPI_APIC(GPP_A12, NONE, DEEP), /* EMR IRQ */
 /* SUSWARN# */		PAD_CFG_NF(GPP_A13, NONE, DEEP, NF1),
 /* SUS_STAT# */		PAD_CFG_NF(GPP_A14, NONE, DEEP, NF1),
 /* SUSACK# */		PAD_CFG_NF(GPP_A15, NONE, DEEP, NF1),
@@ -122,7 +123,7 @@ static const struct pad_config gpio_table[] = {
 /* UART0_RXD */		/* GPP_C8 */
 /* UART0_TXD */		/* GPP_C9 */
 /* UART0_RTS# */	/* GPP_C10 */
-/* UART0_CTS# */	PAD_CFG_GPO(GPP_C11, 0, DEEP), /* EN_PP3300_KEPLER */
+/* UART0_CTS# */	PAD_CFG_GPO(GPP_C11, 1, DEEP), /* EMR_RST# */
 /* UART1_RXD */		PAD_CFG_GPI(GPP_C12, NONE, DEEP), /* MEM_CONFIG[0] */
 /* UART1_TXD */		PAD_CFG_GPI(GPP_C13, NONE, DEEP), /* MEM_CONFIG[1] */
 /* UART1_RTS# */	PAD_CFG_GPI(GPP_C14, NONE, DEEP), /* MEM_CONFIG[2] */
@@ -135,8 +136,8 @@ static const struct pad_config gpio_table[] = {
 /* UART2_TXD */		PAD_CFG_NF(GPP_C21, NONE, DEEP, NF1), /* SERVO */
 /* UART2_RTS# */	PAD_CFG_GPO(GPP_C22, 1, DEEP), /* EN_PP3300_DX_TOUCH */
 /* UART2_CTS# */	PAD_CFG_GPI(GPP_C23, 20K_PU, DEEP), /* PCH_WP */
-			/* GPP_D0 */
-			/* GPP_D1 */
+/* KB_BL_PWM */		/* GPP_D0 */
+/* KB_BL_EN */		PAD_CFG_GPO(GPP_D1, 1, DEEP),
 			/* GPP_D2 */
 			/* GPP_D3 */
 /* FASHTRIG */		/* GPP_D4 */

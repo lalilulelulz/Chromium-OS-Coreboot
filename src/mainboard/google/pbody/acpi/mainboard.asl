@@ -31,6 +31,10 @@
 #define BOARD_LEFT_SPEAKER_AMP_I2C_ADDR		0x34
 #define BOARD_RIGHT_SPEAKER_AMP_I2C_ADDR	0x35
 
+#define BOARD_EMR_I2C_ADDR	0x09
+#define BOARD_EMR_IRQ		EMR_INT_L
+
+#define BOARD_VIBRATOR_I2C_ADDR     0x5a
 Scope (\_SB)
 {
 	Device (LID0)
@@ -237,16 +241,162 @@ Scope (\_SB.PCI0.I2C1)
 			Return (0xF)
 		}
 	}
+	Device (DIGI)
+	{
+		Name (_HID, "ACPI0C50")
+		Name (_CID, "PNP0C50")
+		Name (_UID, 3)
+		Name (_S0W, 4)
+
+		Name (_CRS, ResourceTemplate ()
+		{
+			I2cSerialBus (
+				BOARD_EMR_I2C_ADDR,
+				ControllerInitiated,
+				400000,
+				AddressingMode7Bit,
+				"\\_SB.PCI0.I2C1",
+			)
+			Interrupt (ResourceConsumer, Level, ActiveLow)
+			{
+				BOARD_EMR_IRQ
+			}
+		})
+
+		/*
+		 * Function 1 returns the offset in the I2C device register
+		 * address space at which the HID descriptor can be read.
+		 *
+		 * Arg0 = UUID
+		 * Arg1 = revision number of requested function
+		 * Arg2 = requested function number
+		 * Arg3 = function specific parameter
+		 */
+		Method (_DSM, 4, NotSerialized)
+		{
+			If (LEqual (Arg0, ToUUID
+				("3cdff6f7-4267-4555-ad05-b30a3d8938de"))) {
+				If (LEqual (Arg2, Zero)) {
+					/* Function 0 - Query */
+					If (LEqual (Arg1, One)) {
+						/* Revision 1 Function 1 */
+						Return (Buffer (One) { 0x03 })
+					} Else {
+						/* Revision 2+ not supported */
+						Return (Buffer (One) { 0x00 })
+					}
+				} ElseIf (LEqual (Arg2, One)) {
+					/* Function 1 - HID Descriptor Addr */
+					Return (0x0001)
+				} Else {
+					/* Function 2+ not supported */
+					Return (Buffer (One) { 0x00 })
+				}
+			} Else {
+				Return (Buffer (One) { 0x00 })
+			}
+		}
+
+		Method (_STA)
+		{
+			Return (0xF)
+		}
+	}
 }
 
 Scope (\_SB.PCI0.I2C2)
 {
 	Name (FMCN, Package () { 87, 197, 26 })
+	Device (VBRL)
+	{
+		Name (_HID, "PRP0001")
+		Name (_CID, "DRV2604L")
+		Name (_DDN, "TI Vibrator")
+		Name (_UID, 0)
+		/*
+		 * Add properties with _DSD
+		 * Device property values are documented in kernel doc
+		 * Documentation/devicetree/bindings/input/ti,drv260x.txt
+		 */
+                Name (_DSD, Package () {
+			ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+			Package () {
+				Package () {"compatible", Package () {"ti,drv2604l"}},
+				/* Power up mode of the chip */
+				Package () {"mode", 0x0},
+				/* The library to use at power up */
+				Package () {"library-sel", 0x0},
+				/* The rated voltage of the actuator in millivolts */
+				Package () {"vib-rated-mv", 2000},
+				/* The overdrive voltage of the actuator in millivolts */
+				Package () {"vib-overdrive-mv", 2000},
+			}
+		})
+		Name (_CRS, ResourceTemplate ()
+		{
+			I2cSerialBus (
+				BOARD_VIBRATOR_I2C_ADDR,
+				ControllerInitiated,
+				400000,
+				AddressingMode7Bit,
+				"\\_SB.PCI0.I2C2",
+			)
+		})
+
+		Method (_STA)
+		{
+			Return (0xF)
+		}
+	}
 }
 
 Scope (\_SB.PCI0.I2C3)
 {
 	Name (FMCN, Package () { 87, 197, 26 })
+	/* DRV2604L right */
+	Device (VBRR)
+	{
+		Name (_HID, "PRP0001")
+		Name (_CID, "DRV2604L")
+		Name (_DDN, "TI Vibrator")
+		Name (_UID, 1)
+
+		/*
+		 * Add properties with _DSD
+		 * Device property values are documented in kernel doc
+		 * Documentation/devicetree/bindings/input/ti,drv260x.txt
+		 */
+		Name (_DSD, Package () {
+			ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+			Package () {
+				Package () {"compatible", Package () {"ti,drv2604l"}},
+				/* Power up mode of the chip */
+				Package () {"mode", 0x0},
+				/* The library to use at power up */
+				Package () {"library-sel", 0x0},
+				/* The rated voltage of the actuator in millivolts */
+				Package () {"vib-rated-mv", 2000},
+				/* The overdrive voltage of the actuator in millivolts */
+				Package () {"vib-overdrive-mv", 2000},
+			}
+		})
+
+		Name (_CRS, ResourceTemplate ()
+		{
+			I2cSerialBus (
+				BOARD_VIBRATOR_I2C_ADDR,
+				ControllerInitiated,
+				400000,
+				AddressingMode7Bit,
+				"\\_SB.PCI0.I2C3",
+			)
+		})
+
+		Method (_STA)
+		{
+			Return (0xF)
+		}
+	}
 }
 
 Scope (\_SB.PCI0.I2C4)
