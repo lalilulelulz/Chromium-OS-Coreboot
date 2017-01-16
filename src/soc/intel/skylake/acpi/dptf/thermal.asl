@@ -219,7 +219,12 @@ Device (TSR1)
 			Return (CTOK (DPTF_TSR1_TABLET_PASSIVE))
 		} Else {
 #endif
-			Return (CTOK (DPTF_TSR1_PASSIVE))
+			/* Update TSR1 Passive if set in NVS */
+			If (LGreater (\TR1P, 0)) {
+				Return (CTOK (TR1P))
+			} Else {
+				Return (CTOK (DPTF_TSR1_PASSIVE))
+			}
 #ifdef EC_ENABLE_TABLET_EVENT
 		}
 #endif
@@ -318,7 +323,12 @@ Device (TSR2)
 			Return (CTOK (DPTF_TSR2_TABLET_PASSIVE))
 		} Else {
 #endif
-			Return (CTOK (DPTF_TSR2_PASSIVE))
+			/* Update TSR2 Passive if set in NVS */
+			If (LGreater (\TR2P, 0)) {
+				Return (CTOK (TR2P))
+			} Else {
+				Return (CTOK (DPTF_TSR2_PASSIVE))
+			}
 #ifdef EC_ENABLE_TABLET_EVENT
 		}
 #endif

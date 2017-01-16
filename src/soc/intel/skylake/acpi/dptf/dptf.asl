@@ -77,6 +77,26 @@ Device (DPTF)
 
 	Method (_TRT)
 	{
+		/* Update TCPU influence if set in NVS */
+		If (LGreater (\CUIF, 0)) {
+			Store (\CUIF, Index (DeRefOf (Index (\_SB.DTRT, 0)), 2))
+		}
+
+		/* Update TCPU sample period if set in NVS */
+		If (LGreater (\CUSP, 0)) {
+			Store (\CUSP, Index (DeRefOf (Index (\_SB.DTRT, 0)), 3))
+		}
+
+		/* Update TSR2 influence if set in NVS */
+		If (LGreater (\T2IF, 0)) {
+			Store (\T2IF, Index (DeRefOf (Index (\_SB.DTRT, 3)), 2))
+		}
+
+		/* Update TSR2 sample period if set in NVS */
+		If (LGreater (\T2SP, 0)) {
+			Store (\T2SP, Index (DeRefOf (Index (\_SB.DTRT, 3)), 3))
+		}
+
 		Return (\_SB.DTRT)
 	}
 

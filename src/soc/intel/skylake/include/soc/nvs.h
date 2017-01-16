@@ -60,7 +60,13 @@ typedef struct {
 	u16	cid1; /* 0x3d - Wifi Country Identifier */
 	u32	pl1l; /* 0x3f - DPTF PL1 Minimum */
 	u32	pl1h; /* 0x43 - DPTF PL1 Maximum */
-	u8	unused[185];
+	u8	tr1p; /* 0x47 - DPTF TSR1 Passive */
+	u8	tr2p; /* 0x48 - DPTF TSR2 Passive */
+	u32	cuif; /* 0x49 - DPTF TCPU influence */
+	u32	cusp; /* 0x4D - DPTF TCPU sample period */
+	u32	t2if; /* 0x51 - DPTF TSR2 influence */
+	u32	t2sp; /* 0x55 - DPTF TSR2 sample period */
+	u8	unused[167];
 
 	/* ChromeOS specific (0x100 - 0xfff) */
 	chromeos_acpi_t chromeos;

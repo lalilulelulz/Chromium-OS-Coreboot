@@ -70,6 +70,12 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	CID1,	16,	// 0x3d - Wifi Country Identifier
 	PL1L,	32,	// 0x3f - DPTF PL1 Minimum
 	PL1H,	32,	// 0x43 - DPTF PL1 Maximum
+	TR1P,	8,	// 0x47 - DPTF TSR1 PASSIVE
+	TR2P,	8,	// 0x48 - DPTF TSR2 PASSIVE
+	CUIF,	32,	// 0x49 - DPTF TCPU influence
+	CUSP,	32,	// 0x4D - DPTF TCPU sample period
+	T2IF,	32,	// 0x51 - DPTF TSR2 influence
+	T2SP,	32,	// 0x55 - DPTF TSR2 sample period
 
 	/* ChromeOS specific */
 	Offset (0x100),

@@ -33,7 +33,12 @@ void acpi_mainboard_gnvs(global_nvs_t *gnvs)
 	/* If VPD indicates new D-panel set appropriate PL1 minimum */
 	if (cros_vpd_gets(vpd_key, vpd_val, ARRAY_SIZE(vpd_val)) &&
 	    !strncmp(vpd_val, "true", 4)) {
-		printk(BIOS_INFO, "New D-Cover found, set PL1 min to 3.6W\n");
+		printk(BIOS_INFO, "New D-Cover found, set new thermal parameters\n");
 		gnvs->pl1l = 3600;
+		gnvs->tr1p = 57;
+		gnvs->tr2p = 58;
+		gnvs->cuif = 300;
+		gnvs->t2if = 200;
+		gnvs->t2sp = 900;
 	}
 }
