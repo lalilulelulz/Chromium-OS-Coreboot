@@ -45,6 +45,7 @@
 #include <stage_cache.h>
 #include <timestamp.h>
 #include <vendorcode/google/chromeos/chromeos.h>
+#include <delay.h>
 
 /* SOC initialization before RAM is enabled */
 void soc_pre_ram_init(struct romstage_params *params)
@@ -68,6 +69,10 @@ void car_soc_post_console_init(void)
 	report_platform_info();
 	set_max_freq();
 	pch_early_init();
+
+	/* Adding 10ms delay since infineon TPM will be ready 30ms after reset,
+	 * but sometimes coreboot tries access to TPM about 29ms after reset */
+	mdelay(10);
 }
 
 int get_sw_write_protect_state(void)
