@@ -47,21 +47,6 @@ Scope (\_SB)
 		Name (_HID, EisaId ("PNP0C0C"))
 	}
 
-#ifdef EC_ENABLE_TABLET_DEVICE
-	Device (TBMC)
-	{
-		Name (_HID, EisaId ("PNP0C60"))
-		Method (_TBL)
-		{
-			If (LEqual (\_SB.PCI0.LPCB.EC0.RCTM, One)) {
-				Return (0xF)
-			} Else {
-				Return (0x0)
-			}
-		}
-	}
-#endif
-
 	Device (MAXM)
 	{
 		Name (_HID, "MX98357A")

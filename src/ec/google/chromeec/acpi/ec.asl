@@ -296,6 +296,7 @@ Device (EC0)
 		Notify (CREC, 0x80)
 	}
 
+#ifdef EC_ENABLE_TABLET_EVENT
 	// TABLET mode switch Event
 	Method (_Q1D, 0, NotSerialized)
 	{
@@ -303,10 +304,9 @@ Device (EC0)
 		If (CondRefOf (\_SB.DPTF.TPET)) {
 			\_SB.DPTF.TPET()
 		}
-#ifdef EC_ENABLE_TABLET_DEVICE
-		Notify (\_SB.TBMC, 0x80)
-#endif
+		Notify (TBMC, 0x80)
 	}
+#endif
 
 	/*
 	 * Dynamic Platform Thermal Framework support
@@ -454,5 +454,9 @@ Device (EC0)
 
 #ifdef EC_ENABLE_PD_MCU_DEVICE
 	#include "pd.asl"
+#endif
+
+#ifdef EC_ENABLE_TABLET_EVENT
+	#include "tbmc.asl"
 #endif
 }
