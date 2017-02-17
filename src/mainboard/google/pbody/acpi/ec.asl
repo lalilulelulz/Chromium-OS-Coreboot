@@ -30,5 +30,8 @@
 /* Enable EC backed PD MCU device in ACPI */
 #define EC_ENABLE_PD_MCU_DEVICE
 
+/* EC ENABLE TABLET EVENT */
+#define EC_ENABLE_TABLET_EVENT
+
 /* ACPI code for EC functions */
 #include <ec/google/chromeec/acpi/ec.asl>

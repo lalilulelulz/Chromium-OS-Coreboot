@@ -30,24 +30,40 @@
 #define DPTF_TSR0_SENSOR_NAME	"Ambient"
 #define DPTF_TSR0_PASSIVE	55
 #define DPTF_TSR0_CRITICAL	70
+#define DPTF_TSR0_TABLET_PASSIVE	55
+#define DPTF_TSR0_TABLET_CRITICAL	70
 
 #define DPTF_TSR1_SENSOR_ID	2
 #define DPTF_TSR1_SENSOR_NAME	"Charger"
-#define DPTF_TSR1_PASSIVE	55
+#define DPTF_TSR1_PASSIVE	51
 #define DPTF_TSR1_CRITICAL	70
+#define DPTF_TSR1_TABLET_PASSIVE	52
+#define DPTF_TSR1_TABLET_CRITICAL	70
 
 #define DPTF_TSR2_SENSOR_ID	3
 #define DPTF_TSR2_SENSOR_NAME	"DRAM"
-#define DPTF_TSR2_PASSIVE	55
+#define DPTF_TSR2_PASSIVE	52
 #define DPTF_TSR2_CRITICAL	70
+#define DPTF_TSR2_TABLET_PASSIVE	54
+#define DPTF_TSR2_TABLET_CRITICAL	70
 
 #define DPTF_TSR3_SENSOR_ID	4
 #define DPTF_TSR3_SENSOR_NAME	"WiFi"
 #define DPTF_TSR3_PASSIVE	55
 #define DPTF_TSR3_CRITICAL	70
+#define DPTF_TSR3_TABLET_PASSIVE	55
+#define DPTF_TSR3_TABLET_CRITICAL	70
 
-/* SKL-Y EC already has a custom charge profile based on temperature. */
-#undef DPTF_ENABLE_CHARGER
+#define DPTF_ENABLE_CHARGER
+
+/* Charger performance states, board-specific values from charger and EC */
+Name (CHPS, Package () {
+	Package () { 0, 0, 0, 0, 255, 0x7b7, "mA", 0 }, /* 1975mA (MAX) */
+	Package () { 0, 0, 0, 0, 24, 0x600, "mA", 0 },  /* 1.5A */
+	Package () { 0, 0, 0, 0, 16, 0x400, "mA", 0 },  /* 1.0A */
+	Package () { 0, 0, 0, 0, 8, 0x200, "mA", 0 },   /* 0.5A */
+	Package () { 0, 0, 0, 0, 0, 0x000, "mA", 0 },   /* 0.0A */
+})
 
 /* SKL-Y is Fanless design. */
 #undef DPTF_ENABLE_FAN_CONTROL
@@ -59,8 +75,8 @@ Name (DTRT, Package () {
 	/* CPU Effect on Temp Sensor 0 */
 	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR0, 100, 600, 0, 0, 0, 0 },
 
-	/* CPU Effect on Temp Sensor 1 */
-	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
+        /* Charger Effect on Temp Sensor 1 */
+	Package () { \_SB.DPTF.TCHG, \_SB.DPTF.TSR1, 100, 600, 0, 0, 0, 0 },
 
 	/* CPU Effect on Temp Sensor 2 */
 	Package () { \_SB.PCI0.B0D4, \_SB.DPTF.TSR2, 100, 600, 0, 0, 0, 0 },
