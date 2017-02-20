@@ -146,6 +146,35 @@ Scope (\_SB.PCI0.I2C0)
 			Return (0xF)
 		}
 	}
+
+	/* Touchscreen */
+	Device (MFTS)
+	{
+		Name (_HID, "MLFS0000")
+		Name (_DDN, "Melfas Touchscreen")
+		Name (_UID, 1)
+		Name (_S0W, 4)
+
+		Name (_CRS, ResourceTemplate ()
+		{
+			I2cSerialBus (
+				0x34,
+				ControllerInitiated,
+				400000,
+				AddressingMode7Bit,
+				"\\_SB.PCI0.I2C0",
+			)
+			Interrupt (ResourceConsumer, Edge, ActiveLow)
+			{
+				BOARD_TOUCHSCREEN_IRQ
+			}
+		})
+
+		Method (_STA)
+		{
+			Return (0xF)
+		}
+	}
 }
 
 Scope (\_SB.PCI0.I2C1)
