@@ -113,7 +113,6 @@ static void mainboard_gpio_smi_sleep(u8 slp_typ)
 
 	/* Power down the rails on any sleep type. */
 	gpio_t active_high_signals[] = {
-		EN_PP3300_KEPLER,
 		EN_PP3300_DX_TOUCH,
 		EN_PP3300_DX_EMMC,
 		EN_PP1800_DX_EMMC,
