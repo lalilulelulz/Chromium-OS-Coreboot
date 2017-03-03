@@ -19,6 +19,7 @@
 #include <ec/google/chromeec/ec_commands.h>
 #include <gpio.h>
 #include <vendorcode/google/chromeos/chromeos.h>
+#include <tpm.h>
 
 #include "board.h"
 
@@ -37,6 +38,9 @@ void fill_lb_gpios(struct lb_gpios *gpios)
 		{GPIO_EC_IN_RW.raw, ACTIVE_HIGH, -1, "EC in RW"},
 		{GPIO_EC_IRQ.raw, ACTIVE_LOW, -1, "EC interrupt"},
 		{GPIO_RESET.raw, ACTIVE_HIGH, -1, "reset"},
+#if IS_ENABLED(CONFIG_GRU_HAS_TPM2)
+		{GPIO_TPM_IRQ.raw, ACTIVE_HIGH, -1, "TPM interrupt"},
+#endif
 	};
 
 	lb_add_gpios(gpios, chromeos_gpios, ARRAY_SIZE(chromeos_gpios));
@@ -62,3 +66,10 @@ void setup_chromeos_gpios(void)
 	gpio_input_pullup(GPIO_EC_IN_RW);
 	gpio_input_pullup(GPIO_EC_IRQ);
 }
+
+#if IS_ENABLED(CONFIG_GRU_HAS_TPM2)
+int tis_plat_irq_status(void)
+{
+	return gpio_irq_status(GPIO_TPM_IRQ);
+}
+#endif
