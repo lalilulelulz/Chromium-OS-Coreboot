@@ -26,6 +26,7 @@
 #include <soc/romstage.h>
 #include <string.h>
 #include <chip.h>
+#include <gpio.h>
 #include "onboard.h"
 #include <boardid.h>
 
@@ -43,6 +44,39 @@ void mainboard_romstage_entry(struct romstage_params *rp)
 void mainboard_memory_init_params(struct romstage_params *params,
 	MEMORY_INIT_UPD *memory_params)
 {
+
+	int ram_id = 0;
+
+	gpio_t spd_gpios[] = {
+		GP_SW_80,	/* SATA_GP3,RAMID0 */
+		GP_SW_67,	/* I2C3_SCL,RAMID1 */
+		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
+		GP_SW_64,	/* I2C3_SDA RAMID3 */
+	};
+
+	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
+
+	/*
+	 *  RAMID = A - 4GiB Micron MT52L256M32D1PF-107
+	 *  RAMID = 2 - 2GiB Micron MT52L256M32D1PF-107
+	 */
+	if (ram_id == 2 || ram_id == 0xA) {
+		/*
+		 * For new micron part, it requires read/receive
+		 * enable training before sending cmds to get MR8.
+		 * To override dram geometry settings as below:
+		 *
+		 * PcdDramWidth = x32
+		 * PcdDramDensity = 8Gb
+		 * PcdDualRankDram = disable
+		 */
+		memory_params->PcdRxOdtLimitChannel0 = 1;
+		memory_params->PcdRxOdtLimitChannel1 = 1;
+		memory_params->PcdDisableAutoDetectDram = 1;
+		memory_params->PcdDramWidth = 2;
+		memory_params->PcdDramDensity = 3;
+		memory_params->PcdDualRankDram = 0;
+	}
 	memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
 
 	memory_params->PcdDvfsEnable = 1;
