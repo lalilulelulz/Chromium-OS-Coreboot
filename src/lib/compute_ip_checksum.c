@@ -33,7 +33,8 @@ unsigned long compute_ip_checksum(void *addr, unsigned long length)
 	return (~value.word) & 0xFFFF;
 }
 
-unsigned long add_ip_checksums(unsigned long offset, unsigned long sum, unsigned long new)
+unsigned long add_ip_checksums(unsigned long offset, unsigned long sum,
+	unsigned long new)
 {
 	unsigned long checksum;
 	sum = ~sum & 0xFFFF;
