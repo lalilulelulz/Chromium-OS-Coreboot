@@ -176,3 +176,5 @@ config VIRTUAL_DEV_SWITCH
 	  Whether this platform has a virtual developer switch.
 endif
 endmenu
+
+source src/drivers/intel/wifi/Kconfig

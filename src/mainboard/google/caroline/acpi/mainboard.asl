@@ -102,21 +102,6 @@ Scope (\_SB.PCI0.LPCB)
 	#include <drivers/pc80/tpm/acpi/tpm.asl>
 }
 
-/*
- * WLAN connected to Root Port 1
- */
-Scope (\_SB.PCI0.RP01)
-{
-	Device (WLAN)
-	{
-		Name (_ADR, 0x00000000)
-		Name (_DDN, "Wireless LAN")
-		Name (_PRW, Package () { GPE_WLAN_WAKE, 3 })
-
-		#include <drivers/intel/wifi/acpi/wrdd.asl>
-	}
-}
-
 Scope (\_SB.PCI0.I2C0)
 {
 	Name (FMCN, Package () { 87, 197, 26 })
