@@ -6,6 +6,14 @@ config DRIVERS_INTEL_WIFI
 	   When enabled, add identifiers in ACPI and SMBIOS tables to
 	   make OS drivers work with certain Intel PCI-e WiFi chipsets.
 
+config ENABLE_WIFI_SSDT
+  bool "Support for generating SSDT table"
+  depends on DRIVERS_INTEL_WIFI
+  default n
+  help
+     When enabled, populate Intel WiFi device info into SSDT instead of
+     declaring in the DSDT of each main board.
+
 config USE_SAR
 	bool
 	default n

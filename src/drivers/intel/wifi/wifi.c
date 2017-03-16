@@ -63,7 +63,7 @@ static int smbios_write_wifi(struct device *dev, int *handle,
 }
 #endif
 
-#if IS_ENABLED(CONFIG_HAVE_ACPI_TABLES)
+#if IS_ENABLED(CONFIG_HAVE_ACPI_TABLES) && IS_ENABLED(CONFIG_ENABLE_WIFI_SSDT)
 static void emit_sar_acpi_structures(void)
 {
 	int i, j, package_size;
@@ -206,7 +206,7 @@ struct device_operations device_ops = {
 	.get_smbios_data          = smbios_write_wifi,
 #endif
 	.ops_pci                  = &pci_ops,
-#if IS_ENABLED(CONFIG_HAVE_ACPI_TABLES)
+#if IS_ENABLED(CONFIG_HAVE_ACPI_TABLES) && IS_ENABLED(CONFIG_ENABLE_WIFI_SSDT)
 	.acpi_name                = &intel_wifi_acpi_name,
 	.acpi_fill_ssdt_generator = &intel_wifi_fill_ssdt,
 #endif
