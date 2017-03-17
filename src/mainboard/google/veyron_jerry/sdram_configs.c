@@ -25,7 +25,7 @@
 #include <types.h>
 
 static struct rk3288_sdram_params sdram_configs[] = {
-#include "sdram_inf/sdram-lpddr3-samsung-2GB.inc"	/* ram_code = 0000 */
+#include "sdram_inf/sdram-ddr3-samsung-2GB.inc"		/* ram_code = 0000 */
 #include "sdram_inf/sdram-lpddr3-hynix-2GB.inc"		/* ram_code = 0001 */
 #include "sdram_inf/sdram-lpddr3-samsung-4GB-04EB.inc"	/* ram_code = 0010 */
 #include "sdram_inf/sdram-lpddr3-hynix-2GB-2ranks.inc"	/* ram_code = 0011 */
