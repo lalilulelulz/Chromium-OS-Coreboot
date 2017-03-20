@@ -51,6 +51,12 @@ void write_tables(void)
 	low_table_start = 0;
 	low_table_end = 0x500;
 
+	/* Add coreboot table first so that any other tables can reference
+	 * its address. */
+#define MAX_COREBOOT_TABLE_SIZE (32 * 1024)
+	high_table_pointer = (unsigned long)cbmem_add(CBMEM_ID_CBTABLE,
+						      MAX_COREBOOT_TABLE_SIZE);
+
 #if CONFIG_GENERATE_PIRQ_TABLE
 #define MAX_PIRQ_TABLE_SIZE (4 * 1024)
 	post_code(0x9a);
@@ -185,7 +191,6 @@ void write_tables(void)
 
 	post_code(0x9e);
 
-#define MAX_COREBOOT_TABLE_SIZE (32 * 1024)
 	post_code(0x9d);
 
 	high_table_pointer = (unsigned long)cbmem_add(CBMEM_ID_CBTABLE, MAX_COREBOOT_TABLE_SIZE);
