@@ -79,7 +79,6 @@ ramstage-y += smi.c
 ramstage-y += sram.c
 ramstage-y += spi.c
 ramstage-y += xhci.c
-ramstage-y += sd.c
 
 postcar-y += exit_car.S
 postcar-y += flash_ctrlr.c
