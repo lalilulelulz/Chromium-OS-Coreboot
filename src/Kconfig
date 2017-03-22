@@ -512,6 +512,11 @@ config TPM2
 
 	  If unsure, say N.
 
+config POWER_OFF_ON_CR50_UPDATE
+       bool
+       help
+         Power off machine while waiting for CR50 update to take effect.
+
 config HEAP_SIZE
 	hex
 	default 0x4000

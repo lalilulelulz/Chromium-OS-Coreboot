@@ -26,6 +26,7 @@ romstage-y += vpd_decode.c
 ramstage-y += vpd_decode.c cros_vpd.c vpd_mac.c vpd_serialno.c vpd_calibration.c
 ramstage-$(CONFIG_CHROMEOS_DISABLE_PLATFORM_HIERARCHY_ON_RESUME) += tpm2.c
 ramstage-$(CONFIG_HAVE_REGULATORY_DOMAIN) += wrdd.c
+ramstage-$(CONFIG_GRU_HAS_TPM2) += cr50_enable_update.c
 ifeq ($(CONFIG_ARCH_MIPS),)
 bootblock-y += watchdog.c
 ramstage-y += watchdog.c
