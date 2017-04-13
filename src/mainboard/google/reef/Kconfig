@@ -60,6 +60,7 @@ config DEVICETREE
 	default "variants/pyro/devicetree.cb" if BOARD_GOOGLE_PYRO
 	default "variants/sand/devicetree.cb" if BOARD_GOOGLE_SAND
 	default "variants/snappy/devicetree.cb" if BOARD_GOOGLE_SNAPPY
+	default "variants/nasher/devicetree.cb" if BOARD_GOOGLE_NASHER
 	default "variants/baseboard/devicetree.cb"
 
 config MAINBOARD_PART_NUMBER
