@@ -227,4 +227,7 @@ void baytrail_init_pre_device(struct soc_intel_baytrail_config *config)
 	setup_soc_gpios(gpio_config, config->enable_xdp_tap);
 
 	baytrail_init_scc();
+
+	/* Execute Tech Advisory 556192 */
+	byt_usb_wa();
 }
