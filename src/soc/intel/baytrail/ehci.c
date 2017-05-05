@@ -31,6 +31,8 @@
 #include <baytrail/pmc.h>
 #include <baytrail/ramstage.h>
 #include <baytrail/ehci.h>
+#include <baytrail/xhci.h>
+#include <baytrail/iosf.h>
 
 #include "chip.h"
 
@@ -121,6 +123,83 @@ static void usb2_phy_init(device_t dev)
 		REG_SCRIPT_END
 	};
 	reg_script_run(usb2_phy_script);
+}
+
+void byt_usb_wa(void)
+{
+	u8 i;
+	u32 orig, per_port;
+
+	static const struct reg_script \
+		usb_workaround_script[BYTM_USB2_PORT_COUNT][8] = {
+		{
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4113, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4123, 0x7f13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4123, 0x13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4123, 0x4011),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4113, 0x108),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4113, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4113, 0x0),
+			REG_SCRIPT_END
+		},
+		{
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4213, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4223, 0x7f13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4223, 0x13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4223, 0x4011),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4213, 0x108),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4213, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4213, 0x0),
+			REG_SCRIPT_END
+		},
+		{
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4313, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4323, 0x7f13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4323, 0x13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4323, 0x4011),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4313, 0x108),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4313, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4313, 0x0),
+			REG_SCRIPT_END
+		},
+		{
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4413, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4423, 0x7f13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4423, 0x13),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4423, 0x4011),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4413, 0x108),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4413, 0x8),
+			REG_IOSF_WRITE(IOSF_PORT_USBPHY, 0x4413, 0x0),
+			REG_SCRIPT_END
+		}
+	};
+
+	if (acpi_slp_type == 3 || \
+		(iosf_dunit_read(PMSTS) & PMSTS_WRO_MASK) > 0) {
+		printk(BIOS_DEBUG, "warm reset/S3 resume detected \
+				  , skip USB WA \n");
+		return;
+	}
+
+	printk(BIOS_DEBUG, "Start USB WA for BYT\n");
+	for (i = 0; i < BYTM_USB2_PORT_COUNT; i++) {
+		/*
+		 * The below reg_script_run is for steps 1 ~ 7 in the Tech Advisory
+		 * for each port
+		 */
+		reg_script_run(usb_workaround_script[i]);
+
+		/*
+		 * The below programing is for steps 8 ~ 12 in the Tech Advisory
+		 * for each port
+		 */
+		per_port = 0x4126 + i * 0x100;
+		orig = iosf_usbphy_read(per_port);
+		iosf_usbphy_write(per_port, 0x1c);
+		iosf_usbphy_write(per_port, 0x0);
+		iosf_usbphy_write(per_port, 0x11c);
+		iosf_usbphy_write(per_port, orig);
+	}
 }
 
 static void ehci_init(device_t dev)
