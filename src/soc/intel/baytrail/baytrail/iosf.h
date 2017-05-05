@@ -227,6 +227,9 @@ void iosf_ssus_write(int reg, uint32_t val);
 # define DTR0_SPEED_1333	0x02
 # define DTR0_SPEED_1600	0x03
 
+#define PMSTS			0xc
+# define PMSTS_WRO_MASK		0x100
+# define PMSTS_DISR_MASK	0x0
 /*
  * PUNIT Registers
  */
