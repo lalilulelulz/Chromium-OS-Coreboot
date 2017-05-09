@@ -28,6 +28,7 @@ SPD_SOURCES += micron_2GiB_dimm_MT52L256M32D1PF
 SPD_SOURCES += samsung_2GiB_dimm_K4E8E324EB-EGCF
 SPD_SOURCES += micron_2GiB_dimm_EDF8132A3MA-JD-F
 SPD_SOURCES += hynix_dimm_H9CCNNN8JTBLAR-NUD-1G-1866
+SPD_SOURCES += hynix_dimm_H9CCNNN8GTALAR-NUD
 
 SPD_DEPS := $(foreach f, $(SPD_SOURCES), src/mainboard/$(MAINBOARDDIR)/spd/$(f).spd.hex)
 
