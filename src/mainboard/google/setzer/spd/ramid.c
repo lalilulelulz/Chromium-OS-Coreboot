@@ -1,8 +1,8 @@
 /*
  * This file is part of the coreboot project.
  *
- * Copyright (C) 2014 Google Inc.
- * Copyright (C) 2015 Intel Corporation.
+ * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Intel Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.
  */
+#include <stdlib.h>
+#include <gpio.h>
+#include <mainboard/google/setzer/spd/spd.h>
 
-#ifndef _MAINBOARD_SPD_H_
-#define _MAINBOARD_SPD_H_
+uint8_t get_ramid(void)
+{
+	gpio_t spd_gpios[] = {
+		GP_SW_64,	/* I2C3_SDA, RAMID0 */
+		GP_SE_02,   /* MF_PLT_CLK1, RAMID1 */
+		GP_SW_67,	/* I2C3_SCL, RAMID2 */
+		GP_SW_80,	/* SATA_GP3, RAMID3 */
+	};
 
-#define SPD_LEN			256
-
-#define SPD_DRAM_TYPE		2
-#define  SPD_DRAM_DDR3		0x0b
-#define  SPD_DRAM_LPDDR3	0xf1
-#define SPD_DENSITY_BANKS	4
-#define SPD_ADDRESSING		5
-#define SPD_ORGANIZATION	7
-#define SPD_BUS_DEV_WIDTH	8
-#define SPD_PART_OFF		128
-#define  SPD_PART_LEN		18
-
-
-extern uint8_t get_ramid(void);
-#endif /* _MAINBOARD_SPD_H_ */
+	return gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
+}

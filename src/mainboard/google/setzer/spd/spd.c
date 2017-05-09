@@ -48,17 +48,11 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
 	int ram_id = 0;
 
-	gpio_t spd_gpios[] = {
-		GP_SW_64,	/* I2C3_SDA, RAMID0 */
-		GP_SE_02,   /* MF_PLT_CLK1, RAMID1 */
-		GP_SW_67,	/* I2C3_SCL, RAMID2 */
-		GP_SW_80,	/* SATA_GP3, RAMID3 */
-	};
-
-	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
+	ram_id = get_ramid();
 	printk(BIOS_DEBUG, "ram_id=%d, total_spds: %d\n", ram_id, total_spds);
 	if (ram_id >= total_spds)
 		return NULL;
+
 
 	/* Determine if this is a single or dual channel memory system */
 	if (dual_channel_config & (1 << ram_id))

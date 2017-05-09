@@ -19,6 +19,7 @@
 ##
 
 romstage-y += spd.c
+romstage-y += ramid.c
 
 SPD_BIN = $(obj)/spd.bin
 

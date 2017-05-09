@@ -27,6 +27,7 @@
 #include <string.h>
 #include <chip.h>
 #include <gpio.h>
+#include <mainboard/google/setzer/spd/spd.h>
 
 /* All FSP specific code goes in this block */
 void mainboard_romstage_entry(struct romstage_params *rp)
@@ -45,15 +46,7 @@ void mainboard_memory_init_params(struct romstage_params *params,
 
 	int ram_id = 0;
 
-	gpio_t spd_gpios[] = {
-		GP_SW_80,	/* SATA_GP3,RAMID0 */
-		GP_SW_67,	/* I2C3_SCL,RAMID1 */
-		GP_SE_02,	/* MF_PLT_CLK1, RAMID2 */
-		GP_SW_64,	/* I2C3_SDA RAMID3 */
-	};
-
-	ram_id = gpio_base2_value(spd_gpios, ARRAY_SIZE(spd_gpios));
-
+	ram_id = get_ramid();
 	/*
 	 *  RAMID = 4 - 4GiB Micron MT52L256M32D1PF-107
 	 *  RAMID = 5 - 2GiB Micron MT52L256M32D1PF-107
