@@ -44,18 +44,6 @@
 #if IS_ENABLED(CONFIG_CHROMEOS)
 #include <vendorcode/google/chromeos/chromeos.h>
 #endif
-#include <reg_script.h>
-
-static const struct reg_script ops[] = {
-	REG_MMIO_RMW32(ILB_BASE_ADDRESS + SCNT,
-		~SCNT_MODE, 0),	/* put LPC SERIRQ in Quiet Mode */
-	REG_SCRIPT_END
-};
-
-static void enable_serirq_quiet_mode(void)
-{
-	reg_script_run(ops);
-}
 
 static inline void
 add_mmio_resource(device_t dev, int i, unsigned long addr, unsigned long size)
@@ -543,7 +531,6 @@ static void finalize_chipset(void *unused)
 		write32(spi + LVSCC, cfg.lvscc | VCL);
 	}
 	spi_init();
-	enable_serirq_quiet_mode();
 
 	printk(BIOS_DEBUG, "Finalizing SMM.\n");
 	outb(APM_CNT_FINALIZE, APM_CNT);
