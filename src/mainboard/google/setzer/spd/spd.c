@@ -40,9 +40,11 @@
  *   0b0101 - 2GiB total - 1 x 2GiB Micron MT52L256M32D1PF-107
  *   0b0110 - 2GiB total - 1 x 2GiB Samsung K4E8E324EB-EGCF
  *   0b0111 - 4GiB total - 2 x 2GiB Samsung K4E8E324EB-EGCF
+ *   0b1000 - 2GiB total - 1 x 2GiB Hynix H9CCNNN8GTALAR-NUD
+ *   0b1001 - 4GiB total - 2 x 4GiB Hynix H9CCNNN8GTALAR-NUD
  */
 static const uint32_t dual_channel_config =
-	(1 << 0) | (1 << 2) | (1 << 4) | (1 << 7);
+	(1 << 0) | (1 << 2) | (1 << 4) | (1 << 7) | (1 << 9);
 
 static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 {
@@ -83,6 +85,12 @@ static void *get_spd_pointer(char *spd_file_content, int total_spds, int *dual)
 		break;
 	case 7:
 		printk(BIOS_DEBUG, "4GiB Samsung K4E8E324EB-EGCF\n");
+		break;
+	case 8:
+		printk(BIOS_DEBUG, "2GiB Hynix H9CCNNN8GTALAR-NUD\n");
+		break;
+	case 9:
+		printk(BIOS_DEBUG, "4GiB Hynix H9CCNNN8GTALAR-NUD\n");
 		break;
 	}
 
