@@ -34,14 +34,8 @@
  * GPSE_SIZE = 86
  */
 
-/*
- * gpio based irq for kbd, 17th index in North Bank
- * MAX_DIRECT_IRQ + GPSW_SIZE + 18
- */
-/* ToDO: change kbd irq to gpio bank index */
-#define BOARD_I8042_IRQ			182
-
-
+/* KBD: Gpio index in N bank */
+#define BOARD_I8042_GPIO_INDEX		17
 /* SCI: Gpio index in N bank */
 #define BOARD_SCI_GPIO_INDEX		15
 /* Trackpad: Gpio index in N bank */
