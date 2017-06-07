@@ -39,4 +39,5 @@
 #define MEM_SINGLE_CHAN4	0x4
 #define MEM_SINGLE_CHAN7	0x7
 #define MEM_SINGLE_CHANB	0xb
+#define MEM_SINGLE_CHANC	0xc
 #endif
