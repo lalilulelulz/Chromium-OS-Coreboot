@@ -178,6 +178,13 @@ load_msr:
 	and	$0x9fffffff, %eax /* CD, NW = 0 */
 	mov	%eax, %cr0
 
+#if IS_ENABLED(CONFIG_SSE)
+	/* Enable sse instructions. */
+	mov	%cr4, %eax
+	orl	$(CR4_OSFXSR | CR4_OSXMMEXCPT), %eax
+	mov	%eax, %cr4
+#endif
+
 	/* c_handler(cpu_num) */
 	push	%esi	/* cpu_num */
 	mov	c_handler, %eax
