@@ -29,6 +29,7 @@
 
 #if IS_ENABLED(CONFIG_GENERATE_PIRQ_TABLE)
 #include <stdint.h>
+#include <compiler.h>
 
 #define PIRQ_SIGNATURE	(('$' << 0) + ('P' << 8) + ('I' << 16) + ('R' << 24))
 #define PIRQ_VERSION 0x0100
@@ -38,10 +39,10 @@ struct irq_info {
 	struct {
 		u8 link;    /* IRQ line ID, chipset dependent, 0=not routed */
 		u16 bitmap; /* Available IRQs */
-	} __attribute__((packed)) irq[4];
+	} __packed irq[4];
 	u8 slot;	    /* Slot number, 0=onboard */
 	u8 rfu;
-} __attribute__((packed));
+} __packed;
 
 struct irq_routing_table {
 	u32 signature;		/* PIRQ_SIGNATURE should be here */
@@ -54,7 +55,7 @@ struct irq_routing_table {
 	u8  rfu[11];
 	u8  checksum;		/* Modulo 256 checksum must give zero */
 	struct irq_info slots[CONFIG_IRQ_SLOT_COUNT];
-} __attribute__((packed));
+} __packed;
 
 unsigned long copy_pirq_routing_table(unsigned long addr,
 	const struct irq_routing_table *routing_table);

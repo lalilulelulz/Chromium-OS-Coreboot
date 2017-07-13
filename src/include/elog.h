@@ -16,6 +16,8 @@
 #ifndef ELOG_H_
 #define ELOG_H_
 
+#include <compiler.h>
+
 /* SMI command code for GSMI event logging */
 #define ELOG_GSMI_APM_CNT                 0xEF
 
@@ -152,7 +154,7 @@
 struct elog_event_data_wake {
 	u8 source;
 	u32 instance;
-} __attribute__ ((packed));
+} __packed;
 
 /* Chrome OS related events */
 #define ELOG_TYPE_CROS_DEVELOPER_MODE     0xa0
@@ -170,7 +172,7 @@ struct elog_event_data_me_extended {
 	u8 progress_code;
 	u8 current_pmevent;
 	u8 current_state;
-} __attribute__ ((packed));
+} __packed;
 
 /* Last post code from previous boot */
 #define ELOG_TYPE_LAST_POST_CODE          0xa3
@@ -196,7 +198,7 @@ struct elog_event_data_me_extended {
 struct elog_event_mem_cache_update {
 	u8 slot;
 	u8 status;
-} __attribute__ ((packed));
+} __packed;
 
 /* CPU Thermal Trip */
 #define ELOG_TYPE_THERM_TRIP              0xab
