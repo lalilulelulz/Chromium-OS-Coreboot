@@ -33,5 +33,4 @@
 #define SPD_PART_OFF		128
 #define  SPD_PART_LEN		18
 
-
 #endif /* _MAINBOARD_SPD_H_ */

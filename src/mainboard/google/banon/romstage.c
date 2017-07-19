@@ -28,6 +28,7 @@
 #include <soc/gpio.h>
 #include <soc/pci_devs.h>
 #include <soc/romstage.h>
+#include "spd/spd.h"
 #include <string.h>
 
 
@@ -48,7 +49,29 @@ void mainboard_memory_init_params(struct romstage_params *params,
 {
 	memory_params->PcdMemoryTypeEnable = MEM_LPDDR3;
 
+	char *spd_ddl;
+	spd_ddl = (char *)(params->pei_data->spd_data_ch0);
+
+	if (strncmp(spd_ddl + SPD_PART_OFF, "MT52L256M32D1PF107", 18) == 0)
+	{
+		/*
+		 * For new micron part, it requires read/receive
+		 * enable training before sending cmds to get MR8.
+		 * To override dram geometry settings as below:
+		 *
+		 * PcdDramWidth = x32
+		 * PcdDramDensity = 8Gb
+		 * PcdDualRankDram = disable
+		 */
+		memory_params->PcdRxOdtLimitChannel0 = 1;
+		memory_params->PcdRxOdtLimitChannel1 = 1;
+		memory_params->PcdDisableAutoDetectDram = 1;
+		memory_params->PcdDramWidth = 2;
+		memory_params->PcdDramDensity = 3;
+		memory_params->PcdDualRankDram = 0;
+		printk(BIOS_DEBUG, "Micron MT52L256M32D1PF107 setting\n");
+	}
+
 	memory_params->PcdMemChannel0Config = params->pei_data->spd_ch0_config;
 	memory_params->PcdMemChannel1Config = params->pei_data->spd_ch1_config;
-
 }
