@@ -193,6 +193,7 @@ Scope (\_SB.PCI0.I2C4)
 				/* 2^(7+2) = 512 ms insert/eject debounce */
 				Package () {"nuvoton,jack-insert-debounce", 7},
 				Package () {"nuvoton,jack-eject-debounce", 7},
+				Package () {"nuvoton,crosstalk-bypass", 1},
 			}
 		})
 
