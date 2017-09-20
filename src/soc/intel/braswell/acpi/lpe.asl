@@ -24,7 +24,6 @@ Device (LPEA)
 	Name (_CID, "808622A8")
 	Name (_UID, 1)
 	Name (_DDN, "Intel(R) Low Power Audio Controller - 808622A8")
-	Name (_PR0, Package () { PLPE })
 
 	Name (RBUF, ResourceTemplate()
 	{
