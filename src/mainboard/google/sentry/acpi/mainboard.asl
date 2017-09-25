@@ -245,6 +245,7 @@ Scope (\_SB.PCI0.I2C4)
 			Package () { "nuvoton,jack-insert-debounce", 7 },
 			/* debounce not needed for eject normally */
 			Package () { "nuvoton,jack-eject-debounce", 0 },
+			Package () {"nuvoton,crosstalk-bypass", 1},
 			}
 		})
 
