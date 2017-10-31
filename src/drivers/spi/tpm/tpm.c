@@ -149,18 +149,43 @@ static int start_transaction(int read_write, size_t bytes, unsigned addr)
 	int i;
 	struct stopwatch sw;
 	static int tpm_sync_needed;
+	static struct stopwatch wake_up_sw;
+
+	/*
+	 * First Cr50 access in each coreboot stage where TPM is used will be
+	 * prepended by a wake up pulse on the CS line.
+	 */
+	int wakeup_needed = 1;
 
 	/* Wait for tpm to finish previous transaction if needed */
-	if (tpm_sync_needed)
+	if (tpm_sync_needed) {
 		tpm_sync();
-	else
+		/*
+		 * During the first invocation of this function on each stage
+		 * this if () clause code does not run (as tpm_sync_needed
+		 * value is zero), during all following invocations the
+		 * stopwatch below is guaranteed to be started.
+		 */
+		if (!stopwatch_expired(&wake_up_sw))
+			wakeup_needed = 0;
+	} else {
 		tpm_sync_needed = 1;
+	}
 
-	/* Try to wake cr50 if it is asleep. */
-	tpm_if.cs_assert(tpm_if.slave);
-	udelay(1);
-	tpm_if.cs_deassert(tpm_if.slave);
-	udelay(100);
+	if (wakeup_needed) {
+		/* Try to wake cr50 if it is asleep. */
+		tpm_if.cs_assert(tpm_if.slave);
+		udelay(1);
+		tpm_if.cs_deassert(tpm_if.slave);
+		udelay(100);
+	}
+
+	/*
+	 * The Cr50 on H1 does not go to sleep for 1 second after any
+	 * SPI slave activity, let's be conservative and limit the
+	 * window to 900 ms.
+	 */
+	stopwatch_init_msecs_expire(&wake_up_sw, 900);
 
 	/*
 	 * The first byte of the frame header encodes the transaction type
