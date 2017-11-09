@@ -19,7 +19,7 @@
  */
 
 #define DPTF_CPU_PASSIVE        80
-#define DPTF_CPU_CRITICAL	100
+#define DPTF_CPU_CRITICAL	105
 
 #define DPTF_TSR0_SENSOR_ID	1
 #define DPTF_TSR0_SENSOR_NAME	"Ambient"
