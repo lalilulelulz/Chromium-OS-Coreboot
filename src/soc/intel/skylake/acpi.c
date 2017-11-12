@@ -560,6 +560,9 @@ unsigned long southcluster_write_acpi_tables(device_t device,
 					     unsigned long current,
 					     struct acpi_rsdp *rsdp)
 {
+	current = acpi_write_dbg2_pci_uart(rsdp, current,
+					   pch_uart_get_debug_controller(),
+					   ACPI_ACCESS_SIZE_DWORD_ACCESS);
 	current = acpi_write_hpet(device, current, rsdp);
 	return acpi_align_current(current);
 }
