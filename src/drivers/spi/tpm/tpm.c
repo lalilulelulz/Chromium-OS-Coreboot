@@ -355,6 +355,68 @@ static uint32_t get_burst_count(void)
 	return (status >> burst_count_shift) & burst_count_mask;
 }
 
+static uint8_t tpm2_read_access_reg(void)
+{
+	uint8_t access;
+	tpm2_read_reg(TPM_ACCESS_REG, &access, sizeof(access));
+	/* We do not care about access establishment bit state. Ignore it. */
+	return access & ~tpm_establishment;
+}
+
+static void tpm2_write_access_reg(uint8_t cmd)
+{
+	tpm2_write_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
+}
+
+static int tpm2_claim_locality(void)
+{
+	uint8_t access;
+	struct stopwatch sw;
+
+	/*
+	 * Locality is released by TPM reset.
+	 *
+	 * If locality is taken at this point, this could be due to the fact
+	 * that the TPM is performing a long operation and has not processed
+	 * reset request yet. We'll wait up to CR50_TIMEOUT_INIT_MS and see if
+	 * it releases locality when reset is processed.
+	 */
+	stopwatch_init_msecs_expire(&sw, 30000);
+	do {
+		access = tpm2_read_access_reg();
+		if (access & active_locality) {
+			/*
+			 * Don't bombard the chip with traffic, let it keep
+			 * processing the command.
+			 */
+			mdelay(2);
+			continue;
+		}
+
+		/*
+		 * Ok, the locality is free, TPM must be reset, let's claim
+		 * it.
+		 */
+
+		tpm2_write_access_reg(request_use);
+		access = tpm2_read_access_reg();
+		if (access != (tpm_reg_valid_sts | active_locality)) {
+			break;
+		}
+
+		printk(BIOS_INFO, "TPM ready after %ld ms\n",
+		       stopwatch_duration_msecs(&sw));
+
+		return 1;
+	} while (!stopwatch_expired(&sw));
+
+	printk(BIOS_ERR,
+	       "Failed to claim locality 0 after %ld ms, status: %#x\n",
+	       stopwatch_duration_msecs(&sw), access);
+
+	return 0;
+}
+
 /* Device/vendor ID values of the TPM devices this driver supports. */
 static const uint32_t supported_did_vids[] = {
 	0x00281ae0  /* H1 based Cr50 security chip. */
@@ -400,34 +462,13 @@ int tpm2_init(struct spi_slave *spi_if)
 
 	printk(BIOS_INFO, " done!\n");
 
-	/* Try claiming locality zero. */
-	tpm2_read_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
-	if ((cmd & (active_locality & tpm_reg_valid_sts)) ==
-	    (active_locality & tpm_reg_valid_sts)) {
+	if (ENV_VERSTAGE || ENV_BOOTBLOCK)
 		/*
-		 * Locality active - maybe reset line is not connected?
-		 * Release the locality and try again
+		 * Claim locality 0, do it only during the first
+		 * initialization after reset.
 		 */
-		cmd = active_locality;
-		tpm2_write_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
-		tpm2_read_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
-	}
-
-	/* The tpm_establishment bit can be either set or not, ignore it. */
-	if ((cmd & ~tpm_establishment) != tpm_reg_valid_sts) {
-		printk(BIOS_ERR, "invalid reset status: %#x\n", cmd);
-		return -1;
-	}
-
-	cmd = request_use;
-	tpm2_write_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
-	tpm2_read_reg(TPM_ACCESS_REG, &cmd, sizeof(cmd));
-	if ((cmd &  ~tpm_establishment) !=
-	    (tpm_reg_valid_sts | active_locality)) {
-		printk(BIOS_ERR, "failed to claim locality 0, status: %#x\n",
-		       cmd);
-		return -1;
-	}
+		if (!tpm2_claim_locality())
+			return -1;
 
 	read_tpm_sts(&status);
 	if (((status >> tpm_family_shift) & tpm_family_mask) !=
