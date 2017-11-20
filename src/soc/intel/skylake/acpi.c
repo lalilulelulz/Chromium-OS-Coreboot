@@ -31,6 +31,7 @@
 #include <cpu/intel/turbo.h>
 #include <ec/google/chromeec/ec.h>
 #include <intelblocks/cpulib.h>
+#include <intelblocks/uart.h>
 #include <soc/intel/common/acpi.h>
 #include <soc/acpi.h>
 #include <soc/cpu.h>
