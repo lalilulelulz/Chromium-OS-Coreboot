@@ -132,7 +132,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	NATIVE_PU1K_CSEN_INVTX(1), /* 66  I2C2_SCL */
 	GPIO_INPUT_NO_PULL,/* 67  I2C3_SCL,RAMID1 */
 	GPIO_OUT_HIGH, /* 75 SATA_GP0 */
-	GPI(trig_edge_low, L0, P_1K_H, non_maskable, NA, NA, NA),
+	GPI(trig_level_low, L0, P_1K_H, 0, NA, NA, NA),
 	/* 76 GPI SATA_GP1 */
 	Native_M1, /* 77 SATA_LEDN */
 	GPIO_NC, /* 78 HSIC AUX1 / SV Mode/ SATA_GP2 */

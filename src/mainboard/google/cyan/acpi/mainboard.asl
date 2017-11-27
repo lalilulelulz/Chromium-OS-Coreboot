@@ -69,7 +69,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
 					 "\\_SB.GPSW") { BOARD_TOUCH_GPIO_INDEX }
 
 			} )
@@ -82,7 +82,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
 					 "\\_SB.GPNC") { BOARD_EVT_TOUCH_GPIO_INDEX }
 
 			} )
@@ -217,7 +217,7 @@ Scope (\_SB.I2C6)
 				AddressingMode7Bit,       /* AddressingMode */
 				"\\_SB.I2C6",             /* ResourceSource */
 			)
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
 				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
