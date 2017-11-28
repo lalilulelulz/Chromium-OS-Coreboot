@@ -108,10 +108,8 @@ Scope (\_SB.I2C6)
 				AddressingMode7Bit,		// AddressingMode
 				"\\_SB.I2C6",			// ResourceSource
 			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				183
-			}
+			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
 		Method (_STA)
@@ -144,10 +142,8 @@ Scope (\_SB.I2C6)
 				AddressingMode7Bit,		// AddressingMode
 				"\\_SB.I2C6",			// ResourceSource
 			)
-			Interrupt (ResourceConsumer, Edge, ActiveLow)
-			{
-				183
-			}
+			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
 		Method (_STA)
