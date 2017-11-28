@@ -66,7 +66,9 @@ typedef struct {
 	u32	cusp; /* 0x4D - DPTF TCPU sample period */
 	u32	t2if; /* 0x51 - DPTF TSR2 influence */
 	u32	t2sp; /* 0x55 - DPTF TSR2 sample period */
-	u8	unused[167];
+	u8	alse; /* 0x59 - ALS device present */
+	u8	kble; /* 0x5a - Keyboard backlight present */
+	u8	unused[165];
 
 	/* ChromeOS specific (0x100 - 0xfff) */
 	chromeos_acpi_t chromeos;

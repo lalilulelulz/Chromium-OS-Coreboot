@@ -24,6 +24,14 @@ Device (ALS)
 
 	Method (_STA, 0, NotSerialized)
 	{
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC_DETECT_PERIPHERAL_DEVICES_BY_NVS_FLAG)
+		/* Disable ALS device if the NVS flag indicates that the
+		 * system doesn't have device.
+		 */
+		If (LEqual (\ALSE, 0)) {
+			Return (0)
+		}
+#endif
 		Return (0xF)
 	}
 

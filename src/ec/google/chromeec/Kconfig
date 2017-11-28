@@ -73,3 +73,9 @@ config EC_GOOGLE_CHROMEEC_SPI_CHIP
 	depends on EC_GOOGLE_CHROMEEC_SPI
 	hex
 	default 0
+
+config EC_GOOGLE_CHROMEEC_DETECT_PERIPHERAL_DEVICES_BY_NVS_FLAG
+	bool
+	default n
+	help
+	  Use NVS variable to detect peripheral devices

@@ -49,7 +49,7 @@ Device (EC0)
 		RAMV, 8,	// EC RAM Version
 		TSTB, 8,	// Test Byte
 		TSTC, 8,	// Complement of Test Byte
-		KBLV, 8,	// Keyboard Backlight
+		KBLV, 8,	// Keyboard Backlight Value
 		FAND, 8,	// Set Fan Duty Cycle
 		PATI, 8,	// Programmable Auxiliary Trip Sensor ID
 		PATT, 8,	// Programmable Auxiliary Trip Threshold

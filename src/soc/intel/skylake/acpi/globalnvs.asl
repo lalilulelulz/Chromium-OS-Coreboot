@@ -76,6 +76,8 @@ Field (GNVS, ByteAcc, NoLock, Preserve)
 	CUSP,	32,	// 0x4D - DPTF TCPU sample period
 	T2IF,	32,	// 0x51 - DPTF TSR2 influence
 	T2SP,	32,	// 0x55 - DPTF TSR2 sample period
+	ALSE,	8,	// 0x59 - ALS device present
+	KBLE,	8,	// 0x5a - Keyboard backlight present
 
 	/* ChromeOS specific */
 	Offset (0x100),

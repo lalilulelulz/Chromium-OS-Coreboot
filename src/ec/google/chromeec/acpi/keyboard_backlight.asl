@@ -27,6 +27,20 @@ Scope (\_SB)
 		Name (_HID, "GOOG0002")
 		Name (_UID, 1)
 
+		Method (_STA, 0, NotSerialized)
+		{
+#if IS_ENABLED(CONFIG_EC_GOOGLE_CHROMEEC_DETECT_PERIPHERAL_DEVICES_BY_NVS_FLAG)
+			/* Disable keyboard backlight device if the NVS
+			 * flag indicates that the system doesn't have
+			 * device.
+			 */
+			If (LEqual (\KBLE, 0)) {
+				Return (0)
+			}
+#endif
+			Return (0xF)
+		}
+
 		/* Read current backlight value */
 		Method (KBQC, 0, NotSerialized)
 		{
