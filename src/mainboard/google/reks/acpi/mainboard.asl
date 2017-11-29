@@ -68,10 +68,8 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_TOUCH_IRQ
-				}
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+					 "\\_SB.GPNC") { BOARD_TOUCH_GPIO_INDEX }
 			})
 			Return (BUF0)
 		}
@@ -109,10 +107,8 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				Interrupt (ResourceConsumer, Edge, ActiveLow)
-				{
-					BOARD_TOUCH_IRQ
-				}
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+					 "\\_SB.GPNC") { BOARD_TOUCH_GPIO_INDEX }
 			})
 			Return (BUF0)
 		}
