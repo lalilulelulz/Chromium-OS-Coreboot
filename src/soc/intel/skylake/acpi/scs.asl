@@ -102,6 +102,16 @@ Device (EMMC)
 		Or (PMCR, 0x0003, PMCR)
 		Store (PMCR, ^TEMP)
 	}
+
+	/* eMMC is non-removable device */
+	Device (CARD)
+	{
+		Name (_ADR, 0x00000008)
+		Method(_RMV, 0x0, NotSerialized)
+		{
+			Return (0)
+		}
+	}
 }
 
 #if !IS_ENABLED(CONFIG_EXCLUDE_NATIVE_SD_INTERFACE)
