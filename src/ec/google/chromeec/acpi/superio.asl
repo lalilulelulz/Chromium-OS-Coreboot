@@ -152,7 +152,7 @@ Device (PS2K)		// Keyboard
 #ifdef SIO_EC_PS2K_IRQ
 		SIO_EC_PS2K_IRQ
 #else
-		IRQ (Edge, ActiveHigh, ExclusiveAndWake) {1}
+		IRQ (Edge, ActiveHigh, Exclusive) {1}
 #endif
 	})
 
@@ -164,7 +164,7 @@ Device (PS2K)		// Keyboard
 #ifdef SIO_EC_PS2K_IRQ
 			SIO_EC_PS2K_IRQ
 #else
-			IRQ (Edge, ActiveHigh, ExclusiveAndWake) {1}
+			IRQ (Edge, ActiveHigh, Exclusive) {1}
 #endif
 		}
 		EndDependentFn ()
