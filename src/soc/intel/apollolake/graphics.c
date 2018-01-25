@@ -55,6 +55,8 @@ static unsigned long igd_write_opregion(device_t dev, unsigned long current,
 
 	current += sizeof(igd_opregion_t);
 
+	opregion->mailbox1.clid = 1;
+
 	/* TODO Initialize Mailbox 3 */
 	opregion->mailbox3.bclp = IGD_BACKLIGHT_BRIGHTNESS;
 	opregion->mailbox3.pfit = IGD_FIELD_VALID | IGD_PFIT_STRETCH;
