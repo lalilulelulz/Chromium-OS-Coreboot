@@ -67,7 +67,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 					 "\\_SB.GPNC") { BOARD_TOUCH_GPIO_INDEX }
 			})
 			Return (BUF0)
@@ -104,7 +104,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 					 "\\_SB.GPNC") { BOARD_TOUCH_GPIO_INDEX }
 			})
 			Return (BUF0)
@@ -150,7 +150,7 @@ Scope (\_SB.I2C5)
 				)
 
 			 /* Jack Detect (index 0) */
-			 GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			 GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 				  "\\_SB.GPSW") { JACK_DETECT_GPIO_INDEX }
 			} )
 			Return (SBUF)
@@ -181,7 +181,7 @@ Scope (\_SB.I2C6)
 				AddressingMode7Bit,       /* AddressingMode */
 				"\\_SB.I2C6",             /* ResourceSource */
 			)
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
@@ -205,7 +205,7 @@ Scope (\_SB.LPEA)
 	Name (GBUF, ResourceTemplate ()
 	{
 		/* Jack Detect (index 0) */
-		GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+		GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 			 "\\_SB.GPSW") { JACK_DETECT_GPIO_INDEX }
 	})
 }
@@ -216,7 +216,7 @@ Scope (\_SB.GPNC)
 	{
 		Name (RBUF, ResourceTemplate ()
 		{
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 				"\\_SB.GPNC") { BOARD_SCI_GPIO_INDEX }
 		})
 		Return (RBUF)
