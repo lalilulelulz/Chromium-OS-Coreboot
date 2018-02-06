@@ -69,7 +69,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullDefault,,
 					 "\\_SB.GPSW") { BOARD_TOUCH_GPIO_INDEX }
 
 			} )
@@ -82,7 +82,7 @@ Scope (\_SB.I2C1)
 					AddressingMode7Bit,       /* AddressingMode */
 					"\\_SB.I2C1",             /* ResourceSource */
 				)
-				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Level, ActiveLow, ExclusiveAndWake, PullDefault,,
 					 "\\_SB.GPNC") { BOARD_EVT_TOUCH_GPIO_INDEX }
 
 			} )
@@ -141,7 +141,7 @@ Scope (\_SB.I2C2)
 					"\\_SB.I2C2",		/* ResourceSource: I2C bus controller name */
 				)
 
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 					"\\_SB.GPSE") { BOARD_JACK_MAXIM_GPIO_INDEX }
 			} )
 			Return (SBUF)
@@ -185,7 +185,7 @@ Scope (\_SB.I2C2)
 					"\\_SB.I2C2",	/* ResourceSource: I2C bus controller name */
 				)
 
-				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+				GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 					"\\_SB.GPSW") { BOARD_JACK_TI_GPIO_INDEX }
 
 			} )
@@ -217,7 +217,7 @@ Scope (\_SB.I2C6)
 				AddressingMode7Bit,       /* AddressingMode */
 				"\\_SB.I2C6",             /* ResourceSource */
 			)
-			GpioInt (Level, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Level, ActiveLow, ExclusiveAndWake, PullDefault,,
 				 "\\_SB.GPNC") { BOARD_TRACKPAD_GPIO_INDEX }
 		})
 
@@ -242,7 +242,7 @@ Scope (\_SB.LPEA)
 	Name (GBUF, ResourceTemplate ()
 	{
 		/* Jack Detect (index 0) */
-		GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+		GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 			"\\_SB.GPSE") { BOARD_JACK_MAXIM_GPIO_INDEX }
 	})
 }
@@ -253,7 +253,7 @@ Scope (\_SB.GPNC)
 	{
 		Name (RBUF, ResourceTemplate ()
 		{
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullDefault,,
 				"\\_SB.GPNC") { BOARD_SCI_GPIO_INDEX }
 		})
 		Return (RBUF)
